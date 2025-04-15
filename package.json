@@ -1,0 +1,28 @@
+{
+  "name": "discord-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean": "del /s /q build",
+    "build": "tsc --build",
+    "start:clean": "npm run clean && npm run build && node build/index.js",
+    "start": "npm run build && node build/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Deepwerks/discord-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Deepwerks/discord-bot/issues"
+  },
+  "homepage": "https://github.com/Deepwerks/discord-bot#readme",
+  "dependencies": {
+    "discord.js": "^14.18.0",
+    "glob": "^11.0.1"
+  }
+}

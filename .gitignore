@@ -1,0 +1,9 @@
+build
+
+node_modules
+
+*.env
+
+*.tsbuildinfo
+
+data
