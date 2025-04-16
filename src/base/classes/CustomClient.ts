@@ -33,17 +33,11 @@ export default class CustomClient extends Client implements ICustomClient {
     );
     this.LoadHandlers();
 
-    this.login(
-      this.developmentMode
-        ? this.config.discord_bot_token_dev
-        : this.config.discord_bot_token_prod
-    ).catch((err) => console.error(err));
+    this.login(this.config.discord_bot_token).catch((err) =>
+      console.error(err)
+    );
 
-    connect(
-      this.developmentMode
-        ? this.config.mongodb_url_dev
-        : this.config.mongodb_url_prod
-    )
+    connect(this.config.mongodb_url)
       .then(() => console.log("Connected to MongoDB!"))
       .catch((err) => console.error(err));
   }

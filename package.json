@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "clean": "del /s /q build",
+    "clean": "rimraf build",
     "build": "tsc --build",
     "start": "node build/index.js",
     "start:prod": "npm run clean && npm run build && cross-env NODE_ENV=production npm run start",
@@ -33,6 +33,7 @@
     "@types/jest": "^29.5.14",
     "cross-env": "^7.0.3",
     "jest": "^29.7.0",
+    "rimraf": "^6.0.1",
     "ts-jest": "^29.3.2"
   }
 }
