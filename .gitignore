@@ -6,4 +6,4 @@ node_modules
 
 *.tsbuildinfo
 
-data
+data/config.json

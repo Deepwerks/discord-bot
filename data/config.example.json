@@ -1,0 +1,10 @@
+{
+  "discord_bot_token_prod": "",
+  "discord_client_id_prod": "",
+  "discord_bot_token_dev": "",
+  "discord_client_id_dev": "",
+  "dev_guild_id": "",
+  "developer_user_ids": [],
+  "mongodb_url_prod": "",
+  "mongodb_url_dev": ""
+}

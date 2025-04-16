@@ -7,7 +7,9 @@
     "clean": "del /s /q build",
     "build": "tsc --build",
     "start:clean": "npm run clean && npm run build && node build/index.js",
-    "start": "npm run build && node build/index.js"
+    "start": "npm run build && node build/index.js",
+    "dev:clean": "npm run clean && npm run build && node build/index.js --development",
+    "dev": "npm run build && node build/index.js  --development"
   },
   "repository": {
     "type": "git",
@@ -23,6 +25,7 @@
   "homepage": "https://github.com/Deepwerks/discord-bot#readme",
   "dependencies": {
     "discord.js": "^14.18.0",
-    "glob": "^11.0.1"
+    "glob": "^11.0.1",
+    "mongoose": "^8.13.2"
   }
 }

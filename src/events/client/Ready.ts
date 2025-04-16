@@ -15,21 +15,41 @@ export default class Ready extends Event {
   async Execute() {
     console.log(`${this.client.user?.tag} is now ready!`);
 
-    const commands: object[] = this.GetJson(this.client.commands);
+    const cliendId = this.client.developmentMode
+      ? this.client.config.discord_client_id_dev
+      : this.client.config.discord_client_id_prod;
+    const rest = new REST().setToken(
+      this.client.developmentMode
+        ? this.client.config.discord_bot_token_dev
+        : this.client.config.discord_bot_token_prod
+    );
 
-    const rest = new REST().setToken(this.client.config.discord_bot_token);
+    if (!this.client.developmentMode) {
+      const globalCommands: any = await rest.put(
+        Routes.applicationCommands(cliendId),
+        {
+          body: this.GetJson(this.client.commands.filter((cmd) => !cmd.dev)),
+        }
+      );
 
-    const setCommands: any = await rest.put(
+      console.log(
+        `Successfully loaded ${globalCommands.length} global application (/) commands.`
+      );
+    }
+
+    const devCommands: any = await rest.put(
       Routes.applicationGuildCommands(
-        this.client.config.discord_client_id,
-        this.client.config.guild_id
+        cliendId,
+        this.client.config.dev_guild_id
       ),
       {
-        body: commands,
+        body: this.GetJson(this.client.commands.filter((cmd) => cmd.dev)),
       }
     );
 
-    console.log(`Successfully set ${setCommands.length} commands!`);
+    console.log(
+      `Successfully loaded ${devCommands.length} developer application (/) commands.`
+    );
   }
 
   private GetJson(commands: Collection<string, Command>): object[] {
