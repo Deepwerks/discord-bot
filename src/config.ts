@@ -12,32 +12,25 @@ if (running_env === undefined) {
   process.exit(1);
 }
 
-running_env = running_env.trim();
-dotenv.config({ path: "dev.env" });
-
 switch (running_env) {
   case "production":
     config = {
       running_env,
-      discord_bot_token_prod: process.env.DISCORD_BOT_TOKEN_PROD!,
-      discord_client_id_prod: process.env.DISCORD_CLIENT_ID_PROD!,
-      mongodb_url_prod: process.env.MONGODB_URL_PROD!,
-      discord_bot_token_dev: process.env.DISCORD_BOT_TOKEN_DEV!,
-      discord_client_id_dev: process.env.DISCORD_CLIENT_ID_DEV!,
-      mongodb_url_dev: process.env.MONGODB_URL_DEV!,
+      discord_bot_token: process.env.DISCORD_BOT_TOKEN!,
+      discord_client_id: process.env.DISCORD_CLIENT_ID!,
+      mongodb_url: process.env.MONGODB_URL!,
       dev_guild_id: process.env.DEV_GUILD_ID!,
       developer_user_ids: ["282548643142172672"],
     };
     break;
   case "development":
+    dotenv.config({ path: "dev.env" });
+
     config = {
       running_env,
-      discord_bot_token_prod: process.env.DISCORD_BOT_TOKEN_PROD!,
-      discord_client_id_prod: process.env.DISCORD_CLIENT_ID_PROD!,
-      mongodb_url_prod: process.env.MONGODB_URL_PROD!,
-      discord_bot_token_dev: process.env.DISCORD_BOT_TOKEN_DEV!,
-      discord_client_id_dev: process.env.DISCORD_CLIENT_ID_DEV!,
-      mongodb_url_dev: process.env.MONGODB_URL_DEV!,
+      discord_bot_token: process.env.DISCORD_BOT_TOKEN!,
+      discord_client_id: process.env.DISCORD_CLIENT_ID!,
+      mongodb_url: process.env.MONGODB_URL!,
       dev_guild_id: process.env.DEV_GUILD_ID!,
       developer_user_ids: ["282548643142172672"],
     };
@@ -45,14 +38,11 @@ switch (running_env) {
   case "test":
     config = {
       running_env,
-      discord_bot_token_prod: process.env.DISCORD_BOT_TOKEN_PROD!,
-      discord_client_id_prod: process.env.DISCORD_CLIENT_ID_PROD!,
-      mongodb_url_prod: process.env.MONGODB_URL_PROD!,
-      discord_bot_token_dev: process.env.DISCORD_BOT_TOKEN_DEV!,
-      discord_client_id_dev: process.env.DISCORD_CLIENT_ID_DEV!,
-      mongodb_url_dev: process.env.MONGODB_URL_DEV!,
-      dev_guild_id: process.env.DEV_GUILD_ID!,
-      developer_user_ids: ["282548643142172672"],
+      discord_bot_token: "nokedli",
+      discord_client_id: "123",
+      mongodb_url: "mongodb:aaa",
+      dev_guild_id: "12345",
+      developer_user_ids: ["23423"],
     };
     break;
 
