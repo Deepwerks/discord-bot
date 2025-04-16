@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test": "jest",
     "clean": "del /s /q build",
     "build": "tsc --build",
     "start": "node build/index.js",
@@ -29,6 +30,9 @@
     "mongoose": "^8.13.2"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3"
+    "@types/jest": "^29.5.14",
+    "cross-env": "^7.0.3",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.2"
   }
 }
