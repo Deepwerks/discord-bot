@@ -2,7 +2,8 @@ build
 
 node_modules
 
-*.env
+.env
+dev.env
 
 *.tsbuildinfo
 

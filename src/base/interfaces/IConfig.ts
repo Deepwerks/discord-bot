@@ -1,4 +1,5 @@
 export default interface IConfig {
+  running_env: string;
   discord_bot_token_prod: string;
   discord_client_id_prod: string;
 
