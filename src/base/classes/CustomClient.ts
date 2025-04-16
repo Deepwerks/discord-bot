@@ -5,6 +5,7 @@ import Handler from "./Handler";
 import Command from "./Command.";
 import SubCommand from "./SubCommand";
 import { connect } from "mongoose";
+import config from "../../config";
 
 export default class CustomClient extends Client implements ICustomClient {
   config: IConfig;
@@ -16,12 +17,12 @@ export default class CustomClient extends Client implements ICustomClient {
 
   constructor() {
     super({ intents: [GatewayIntentBits.Guilds] });
-    this.config = require(`${process.cwd()}/data/config.json`);
+    this.config = config;
     this.handler = new Handler(this);
     this.commands = new Collection();
     this.subCommands = new Collection();
     this.cooldowns = new Collection();
-    this.developmentMode = process.argv.slice(2).includes("--development");
+    this.developmentMode = this.config.running_env === "development";
   }
 
   Init(): void {
