@@ -28,7 +28,7 @@ export default class Language extends Command {
       default_member_permissions: PermissionsBitField.Flags.Administrator,
       dm_permission: false,
       cooldown: 60,
-      dev: true,
+      dev: false,
       options: [
         {
           name: "select",
