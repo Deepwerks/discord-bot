@@ -32,7 +32,7 @@ export default class CommandHandler extends Event {
       return (
         //@ts-ignore
         interaction.reply({
-          content: t("command_not_exist"),
+          content: t("warnings.no_command"),
           flags: ["Ephemeral"],
         }) && this.client.commands.delete(interaction.commandName)
       );
@@ -45,7 +45,7 @@ export default class CommandHandler extends Event {
         embeds: [
           new EmbedBuilder()
             .setColor("Red")
-            .setDescription(t("command_only_for_developers")),
+            .setDescription(t("warnings.no_permission")),
         ],
         flags: ["Ephemeral"],
       });
@@ -66,7 +66,7 @@ export default class CommandHandler extends Event {
       return interaction.reply({
         embeds: [
           new EmbedBuilder().setColor("Red").setDescription(
-            t("wait_for_cooldown", {
+            t("warnings.cooldown", {
               time: (
                 ((timestamps.get(interaction.user.id) || 0) +
                   cooldownAmount -
@@ -92,8 +92,8 @@ export default class CommandHandler extends Event {
         `[COMMAND] ${interaction.user.tag} used /${interaction.commandName}`
       );
       return (
-        this.client.subCommands.get(subCommand)?.Execute(interaction) ||
-        command.Execute(interaction)
+        this.client.subCommands.get(subCommand)?.Execute(interaction, t) ||
+        command.Execute(interaction, t)
       );
     } catch (error) {
       logger.error(error);

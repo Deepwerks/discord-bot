@@ -16,6 +16,8 @@ import CommandError from "../../base/errors/CommandError";
 import GuildConfig from "../../base/schemas/GuildConfig";
 import logger from "../../services/logger";
 import { setCachedLang } from "../../services/cache/langCache";
+import { TFunction } from "i18next";
+import i18next from "../../services/i18n";
 
 export default class Language extends Command {
   constructor(client: CustomClient) {
@@ -42,7 +44,10 @@ export default class Language extends Command {
     });
   }
 
-  async Execute(interaction: ChatInputCommandInteraction) {
+  async Execute(
+    interaction: ChatInputCommandInteraction,
+    t: TFunction<"translation", undefined>
+  ) {
     const selectedLanguage = interaction.options.getString("select");
 
     if (
@@ -53,8 +58,12 @@ export default class Language extends Command {
       );
     }
 
+    const newT = i18next.getFixedT(selectedLanguage!);
+
     let statusColor: ColorResolvable = Colors.Green;
-    let statusMessage = `✅ You have successfully set this server's language to ${selectedLanguage}`;
+    let statusMessage = newT("commands.language.set_success", {
+      selectedLanguage,
+    });
 
     await GuildConfig.findOneAndUpdate(
       { guildId: interaction.guildId },
@@ -68,7 +77,7 @@ export default class Language extends Command {
         logger.error(err);
 
         statusColor = Colors.Red;
-        statusMessage = `❌ Failed to set this server's supported language.`;
+        statusMessage = t("commands.language.set_fail");
       });
 
     interaction.reply({

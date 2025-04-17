@@ -27,7 +27,7 @@ export default class GuildCreate extends Event {
         embeds: [
           new EmbedBuilder()
             .setColor("Green")
-            .setDescription("Hey! Thanks for adding to your server! 😁"),
+            .setDescription("Hey! Thanks for adding me to your server! 😁"),
         ],
       })
       .catch((err) => console.warn(err));

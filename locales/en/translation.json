@@ -1,6 +1,20 @@
 {
-  "test_command_ran": "Test command has been ran!",
-  "command_not_exist": "This command does not exist!",
-  "command_only_for_developers": "❌ This command is only available to developers.",
-  "wait_for_cooldown": "❌ Please wait another `{{time}}` seconds to run this command!"
+  "commands": {
+    "test": {
+      "ran": "Test command has been ran!"
+    },
+    "language": {
+      "set_success": "✅ You have successfully set this server's language to '{{selectedLanguage}}'",
+      "set_fail": "❌ Failed to change this server's language."
+    },
+    "emit": {
+      "success": "Event emitted: '{{event}}'",
+      "fail": "Failed to emit event"
+    }
+  },
+  "warnings": {
+    "cooldown": "❌ Please wait another `{{time}}` seconds to run this command!",
+    "no_permission": "❌ You don't have permission to use this command!",
+    "no_command": "❌ This command does not exist!"
+  }
 }

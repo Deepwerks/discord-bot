@@ -6,6 +6,7 @@ import Category from "../enums/Category";
 import ICommand from "../interfaces/ICommand";
 import CustomClient from "./CustomClient";
 import ICommandOptions from "../interfaces/ICommandOptions";
+import { TFunction } from "i18next";
 
 export default class Command implements ICommand {
   client: CustomClient;
@@ -30,6 +31,9 @@ export default class Command implements ICommand {
     this.dev = options.dev;
   }
 
-  Execute(interaction: ChatInputCommandInteraction): void {}
+  Execute(
+    interaction: ChatInputCommandInteraction,
+    t: TFunction<"translation", undefined>
+  ): void {}
   AutoComplete(interaction: AutocompleteInteraction): void {}
 }
