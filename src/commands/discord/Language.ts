@@ -4,8 +4,6 @@ import {
   ColorResolvable,
   Colors,
   EmbedBuilder,
-  Events,
-  Guild,
   PermissionsBitField,
 } from "discord.js";
 import Command from "../../base/classes/Command.";
