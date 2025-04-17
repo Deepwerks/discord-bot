@@ -8,6 +8,8 @@ import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
 import Command from "../../base/classes/Command.";
 import logger from "../../services/logger";
+import { getGuildLang } from "../../services/utils/getGuildLang";
+import i18next from "../../services/i18n";
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -18,8 +20,11 @@ export default class CommandHandler extends Event {
     });
   }
 
-  Execute(interaction: ChatInputCommandInteraction) {
+  async Execute(interaction: ChatInputCommandInteraction) {
     if (!interaction.isChatInputCommand()) return;
+
+    const guildLang = await getGuildLang(interaction.guildId!);
+    const t = i18next.getFixedT(guildLang);
 
     const command: Command = this.client.commands.get(interaction.commandName)!;
 
@@ -27,7 +32,7 @@ export default class CommandHandler extends Event {
       return (
         //@ts-ignore
         interaction.reply({
-          content: "This command does not exist!",
+          content: t("command_not_exist"),
           flags: ["Ephemeral"],
         }) && this.client.commands.delete(interaction.commandName)
       );
@@ -40,7 +45,7 @@ export default class CommandHandler extends Event {
         embeds: [
           new EmbedBuilder()
             .setColor("Red")
-            .setDescription(`❌ This command is only available to developers.`),
+            .setDescription(t("command_only_for_developers")),
         ],
         flags: ["Ephemeral"],
       });
@@ -60,16 +65,16 @@ export default class CommandHandler extends Event {
     )
       return interaction.reply({
         embeds: [
-          new EmbedBuilder()
-            .setColor("Red")
-            .setDescription(
-              `❌ Please wait another \`${(
+          new EmbedBuilder().setColor("Red").setDescription(
+            t("wait_for_cooldown", {
+              time: (
                 ((timestamps.get(interaction.user.id) || 0) +
                   cooldownAmount -
                   now) /
                 1000
-              ).toFixed(1)}\` seconds to run this command!`
-            ),
+              ).toFixed(1),
+            })
+          ),
         ],
         flags: ["Ephemeral"],
       });

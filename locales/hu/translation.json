@@ -1,0 +1,6 @@
+{
+  "test_command_ran": "Teszt parancs lefuttatva!",
+  "command_not_exist": "Ez a parancs nem létezik!",
+  "command_only_for_developers": "❌ Ezt a parancsot csak a Bot fejlesztői használhatják'",
+  "wait_for_cooldown": "❌ Kérlek várj még `{{time}}` másodpercet a parancs használatához!"
+}

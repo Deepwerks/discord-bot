@@ -30,6 +30,7 @@
     "i18next": "^25.0.0",
     "i18next-fs-backend": "^2.6.0",
     "mongoose": "^8.13.2",
+    "node-cache": "^5.1.2",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
   },

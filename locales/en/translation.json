@@ -1,7 +1,6 @@
 {
-  "error": {
-    "command_not_exist": "This command does not exist!"
-  },
-  "farewell": "Goodbye!",
-  "help_command": "This is the help command."
+  "test_command_ran": "Test command has been ran!",
+  "command_not_exist": "This command does not exist!",
+  "command_only_for_developers": "❌ This command is only available to developers.",
+  "wait_for_cooldown": "❌ Please wait another `{{time}}` seconds to run this command!"
 }
