@@ -6,6 +6,8 @@ import {
 import Command from "../../base/classes/Command.";
 import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
+import { getGuildLang } from "../../services/utils/getGuildLang";
+import i18next, { TFunction } from "i18next";
 
 export default class Test extends Command {
   constructor(client: CustomClient) {
@@ -22,9 +24,12 @@ export default class Test extends Command {
     });
   }
 
-  Execute(interaction: ChatInputCommandInteraction): void {
+  async Execute(
+    interaction: ChatInputCommandInteraction,
+    t: TFunction<"translation", undefined>
+  ) {
     interaction.reply({
-      content: "Test command has been ran!",
+      content: t("commands.test.ran"),
       flags: ["Ephemeral"],
     });
   }
