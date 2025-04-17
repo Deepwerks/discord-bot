@@ -9,6 +9,7 @@ import {
 import Command from "../../base/classes/Command.";
 import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
+import { TFunction } from "i18next";
 
 export default class Emit extends Command {
   constructor(client: CustomClient) {
@@ -41,7 +42,10 @@ export default class Emit extends Command {
     });
   }
 
-  Execute(interaction: ChatInputCommandInteraction): void {
+  Execute(
+    interaction: ChatInputCommandInteraction,
+    t: TFunction<"translation", undefined>
+  ): void {
     const event = interaction.options.getString("event");
 
     if (event == Events.GuildCreate || event == Events.GuildDelete) {
@@ -52,7 +56,7 @@ export default class Emit extends Command {
       embeds: [
         new EmbedBuilder()
           .setColor("Green")
-          .setDescription(`Emitted event: \`${event}\``),
+          .setDescription(t("commands.emit.success", { event })),
       ],
       flags: ["Ephemeral"],
     });

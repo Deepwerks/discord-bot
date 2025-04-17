@@ -2,6 +2,7 @@ import { EmbedBuilder, Events, Guild } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
 import GuildConfig from "../../base/schemas/GuildConfig";
+import logger from "../../services/logger";
 
 export default class GuildCreate extends Event {
   constructor(client: CustomClient) {
@@ -18,7 +19,7 @@ export default class GuildCreate extends Event {
         await GuildConfig.create({ guildId: guild.id });
       }
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
 
     const owner = await guild.fetchOwner();
@@ -27,9 +28,9 @@ export default class GuildCreate extends Event {
         embeds: [
           new EmbedBuilder()
             .setColor("Green")
-            .setDescription("Hey! Thanks for adding to your server! 😁"),
+            .setDescription("Hey! Thanks for adding me to your server! 😁"),
         ],
       })
-      .catch((err) => console.warn(err));
+      .catch((err) => logger.warn(err));
   }
 }

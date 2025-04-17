@@ -2,6 +2,7 @@ import { Events, Guild } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
 import GuildConfig from "../../base/schemas/GuildConfig";
+import logger from "../../services/logger";
 
 export default class GuildDelete extends Event {
   constructor(client: CustomClient) {
@@ -16,7 +17,7 @@ export default class GuildDelete extends Event {
     try {
       await GuildConfig.deleteOne({ guildId: guild.id });
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   }
 }
