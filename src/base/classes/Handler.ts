@@ -5,6 +5,7 @@ import CustomClient from "./CustomClient";
 import Event from "./Event";
 import Command from "./Command.";
 import SubCommand from "./SubCommand";
+import logger from "../../services/logger";
 
 export default class Handler implements IHandler {
   client: CustomClient;
@@ -24,7 +25,7 @@ export default class Handler implements IHandler {
       if (!event.name)
         return (
           delete require.cache[require.resolve(file)] &&
-          console.log(`${file.split("/").pop()} does not have a name.`)
+          logger.info(`${file.split("/").pop()} does not have a name.`)
         );
 
       const execute = (...args: any) => event.Execute(...args);
@@ -51,7 +52,7 @@ export default class Handler implements IHandler {
       if (!command.name)
         return (
           delete require.cache[require.resolve(file)] &&
-          console.log(`${file.split("/").pop()} does not have a name.`)
+          logger.info(`${file.split("/").pop()} does not have a name.`)
         );
 
       if (file.split("/").pop()?.split(".")[2]) {

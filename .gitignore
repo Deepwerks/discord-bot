@@ -8,3 +8,5 @@ dev.env
 *.tsbuildinfo
 
 data/config.json
+
+logs/

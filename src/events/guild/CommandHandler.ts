@@ -7,6 +7,7 @@ import {
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
 import Command from "../../base/classes/Command.";
+import logger from "../../services/logger";
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -82,12 +83,15 @@ export default class CommandHandler extends Event {
         subCommandGroup ? `${subCommandGroup}` : ""
       }.${interaction.options.getSubcommand(false) || ""}`;
 
+      logger.info(
+        `[COMMAND] ${interaction.user.tag} used /${interaction.commandName}`
+      );
       return (
         this.client.subCommands.get(subCommand)?.Execute(interaction) ||
         command.Execute(interaction)
       );
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   }
 }

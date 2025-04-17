@@ -2,6 +2,7 @@ import { Collection, Events, REST, Routes } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
 import Command from "../../base/classes/Command.";
+import logger from "../../services/logger";
 
 export default class Ready extends Event {
   constructor(client: CustomClient) {
@@ -13,7 +14,7 @@ export default class Ready extends Event {
   }
 
   async Execute() {
-    console.log(`${this.client.user?.tag} is now ready!`);
+    logger.info(`${this.client.user?.tag} is now ready!`);
 
     const cliendId = this.client.config.discord_client_id;
     const rest = new REST().setToken(this.client.config.discord_bot_token);
@@ -26,8 +27,8 @@ export default class Ready extends Event {
         }
       );
 
-      console.log(
-        `Successfully loaded ${globalCommands.length} global application (/) commands.`
+      logger.info(
+        `Successfully loaded ${globalCommands.length} global application commands!`
       );
     }
 
@@ -41,8 +42,8 @@ export default class Ready extends Event {
       }
     );
 
-    console.log(
-      `Successfully loaded ${devCommands.length} developer application (/) commands.`
+    logger.info(
+      `Successfully loaded ${devCommands.length} developer application commands!`
     );
   }
 

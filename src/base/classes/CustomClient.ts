@@ -6,6 +6,7 @@ import Command from "./Command.";
 import SubCommand from "./SubCommand";
 import { connect } from "mongoose";
 import config from "../../config";
+import logger from "../../services/logger";
 
 export default class CustomClient extends Client implements ICustomClient {
   config: IConfig;
@@ -26,20 +27,18 @@ export default class CustomClient extends Client implements ICustomClient {
   }
 
   Init(): void {
-    console.log(
+    logger.info(
       `Starting the bot in ${
         this.developmentMode ? "development" : "production"
       } mode...`
     );
     this.LoadHandlers();
 
-    this.login(this.config.discord_bot_token).catch((err) =>
-      console.error(err)
-    );
+    this.login(this.config.discord_bot_token).catch((err) => logger.error(err));
 
     connect(this.config.mongodb_url)
-      .then(() => console.log("Connected to MongoDB!"))
-      .catch((err) => console.error(err));
+      .then(() => logger.info(`Connected to MongoDB!`))
+      .catch((err) => logger.error(err));
   }
 
   LoadHandlers(): void {

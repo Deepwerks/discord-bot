@@ -2,13 +2,14 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import IConfig from "./base/interfaces/IConfig";
+import logger from "./services/logger";
 
 let config: IConfig | null = null;
 
 let running_env = process.env.NODE_ENV;
 
 if (running_env === undefined) {
-  console.error("NODE_ENV is undefined. Shutting down...");
+  logger.error("NODE_ENV is undefined. Shutting down...");
   process.exit(1);
 }
 
@@ -47,16 +48,14 @@ switch (running_env) {
     break;
 
   default:
-    console.error(
+    logger.error(
       "Failed to initialize config: no valid environment found. Shutting down..."
     );
     process.exit(1);
 }
 
 if (config === null) {
-  console.error(
-    "Failed to initialize config: config is null. Shutting down..."
-  );
+  logger.error("Failed to initialize config: config is null. Shutting down...");
   process.exit(1);
 }
 
