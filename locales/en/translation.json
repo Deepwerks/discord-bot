@@ -1,0 +1,7 @@
+{
+  "error": {
+    "command_not_exist": "This command does not exist!"
+  },
+  "farewell": "Goodbye!",
+  "help_command": "This is the help command."
+}
