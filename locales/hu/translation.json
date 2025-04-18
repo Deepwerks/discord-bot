@@ -10,6 +10,9 @@
     "emit": {
       "success": "Esemény kiküldve: '{{event}}'",
       "fail": "Nem sikerült kiküldeni az eseményt."
+    },
+    "history": {
+      "not_valid_steamid": "❌ Helytelen steamID lett megadva. Csak ezeket fogadhatom el: steamID, steamID3 or steamID64"
     }
   },
   "warnings": {

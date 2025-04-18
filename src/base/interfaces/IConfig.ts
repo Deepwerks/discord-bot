@@ -8,4 +8,7 @@ export default interface IConfig {
   port: number;
   steam_api_key: string;
   steam_api_url: string;
+  deadlock_api_key: string;
+  deadlock_api_url: string;
+  deadlock_assets_api_url: string;
 }

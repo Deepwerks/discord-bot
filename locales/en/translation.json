@@ -10,6 +10,12 @@
     "emit": {
       "success": "Event emitted: '{{event}}'",
       "fail": "Failed to emit event"
+    },
+    "history": {
+      "not_valid_steamid": "❌ Invalid steamID was given. I can only accept steamID, steamID3 or steamID64"
+    },
+    "match": {
+      "fail": "❌ Failed to get match data. Are you sure there is a match with the given id?"
     }
   },
   "warnings": {
