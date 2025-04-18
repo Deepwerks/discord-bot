@@ -54,7 +54,7 @@ export default class SteamProfileService implements ISteamProfileService {
     return players;
   }
 
-  private convertToSteamId64(steamID: ISteamID): string | null {
+  convertToSteamId64(steamID: ISteamID): string | null {
     try {
       switch (steamID.type) {
         case "steamID":

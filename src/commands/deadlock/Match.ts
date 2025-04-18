@@ -1,5 +1,6 @@
 import {
   ApplicationCommandOptionType,
+  AttachmentBuilder,
   ChatInputCommandInteraction,
   EmbedBuilder,
   PermissionsBitField,
@@ -9,6 +10,11 @@ import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
 import logger from "../../services/logger";
+import {
+  generateMatchImage,
+  IGenerateMatchImageOptions,
+} from "../../services/utils/generateMatchImage";
+import ISteamPlayer from "../../services/clients/SteamClient/SteamProfileService/interfaces/ISteamPlayer";
 
 export default class Match extends Command {
   constructor(client: CustomClient) {
@@ -38,30 +44,82 @@ export default class Match extends Command {
   ) {
     const matchid = interaction.options.getString("matchid");
 
+    const sent = await interaction.deferReply();
     try {
       const match = await this.client.DeadlockClient.MatchService.GetMatch(
         matchid!
       );
 
-      let matchResponse: string = `MatchID: ${match.match_id}\n Duration: ${match.duration_s}\n Team A: `;
-      matchResponse += match.team_0_players.map((p) => p.account_id).join(", ");
+      const allPlayers = [...match.team_0_players, ...match.team_1_players];
+      const steamIDInputs = allPlayers.map((player) => ({
+        type: "steamID3" as const,
+        value: String(player.account_id),
+      }));
 
-      matchResponse += "\n Team B: ";
-      matchResponse += match.team_1_players.map((p) => p.account_id).join(", ");
+      const steamPlayers =
+        await this.client.SteamClient.ProfileService.GetPlayers(steamIDInputs);
 
-      return interaction.reply({
-        content: matchResponse,
+      const steamPlayerMap = new Map<string, ISteamPlayer>();
+      for (const steamPlayer of steamPlayers) {
+        steamPlayerMap.set(steamPlayer.steamid, steamPlayer);
+      }
+
+      const team0WithSteamData = match.team_0_players.map((player) => ({
+        deadlock_player: player,
+        steam_player: steamPlayerMap.get(
+          this.client.SteamClient.ProfileService.convertToSteamId64({
+            type: "steamID3",
+            value: String(player.account_id),
+          })!
+        )!,
+      }));
+
+      const team1WithSteamData = match.team_1_players.map((player) => ({
+        deadlock_player: player,
+        steam_player: steamPlayerMap.get(
+          this.client.SteamClient.ProfileService.convertToSteamId64({
+            type: "steamID3",
+            value: String(player.account_id),
+          })!
+        )!,
+      }));
+
+      const data: IGenerateMatchImageOptions = {
+        match: {
+          id: match.match_id,
+          duration: match.duration_s,
+          team0WithSteamData,
+          team1WithSteamData,
+        },
+      };
+
+      const imageBuffer = await generateMatchImage(data);
+      const attachment = new AttachmentBuilder(imageBuffer, {
+        name: "match.png",
+      });
+
+      interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Blue")
+            .setTimestamp()
+            .setFooter({
+              text: `Generated in ${
+                Date.now() - sent.interaction.createdTimestamp
+              }ms`,
+            }),
+        ],
+        files: [attachment],
       });
     } catch (error) {
       logger.error(error);
 
-      return interaction.reply({
+      interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setColor("Red")
             .setDescription(t("commands.match.fail")),
         ],
-        flags: ["Ephemeral"],
       });
     }
   }
