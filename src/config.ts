@@ -27,6 +27,7 @@ switch (running_env) {
       steam_api_url: process.env.STEAM_API_URL!,
       deadlock_api_key: process.env.DEADLOCK_API_KEY!,
       deadlock_api_url: process.env.DEADLOCK_API_URL!,
+      deadlock_assets_api_url: process.env.DEADLOCK_ASSETS_API_URL!,
     };
     break;
   case "development":
@@ -44,6 +45,7 @@ switch (running_env) {
       steam_api_url: process.env.STEAM_API_URL!,
       deadlock_api_key: process.env.DEADLOCK_API_KEY!,
       deadlock_api_url: process.env.DEADLOCK_API_URL!,
+      deadlock_assets_api_url: process.env.DEADLOCK_ASSETS_API_URL!,
     };
     break;
   case "test":
@@ -59,6 +61,7 @@ switch (running_env) {
       steam_api_url: "steam",
       deadlock_api_key: "wasd",
       deadlock_api_url: "deadlock",
+      deadlock_assets_api_url: "assets",
     };
     break;
 
