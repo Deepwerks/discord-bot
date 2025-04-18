@@ -8,6 +8,7 @@ import { connect } from "mongoose";
 import config from "../../config";
 import logger from "../../services/logger";
 import { initI18n } from "../../services/i18n";
+import WebService from "../../services/web";
 
 export default class CustomClient extends Client implements ICustomClient {
   config: IConfig;
@@ -42,6 +43,8 @@ export default class CustomClient extends Client implements ICustomClient {
     connect(this.config.mongodb_url)
       .then(() => logger.info(`Connected to MongoDB!`))
       .catch((err) => logger.error(err));
+
+    new WebService(this.config).Init();
   }
 
   LoadHandlers(): void {

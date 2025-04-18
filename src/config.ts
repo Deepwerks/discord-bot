@@ -22,6 +22,7 @@ switch (running_env) {
       mongodb_url: process.env.MONGODB_URL!,
       dev_guild_id: process.env.DEV_GUILD_ID!,
       developer_user_ids: ["282548643142172672"],
+      port: Number(process.env.PORT!),
     };
     break;
   case "development":
@@ -34,6 +35,7 @@ switch (running_env) {
       mongodb_url: process.env.MONGODB_URL!,
       dev_guild_id: process.env.DEV_GUILD_ID!,
       developer_user_ids: ["282548643142172672"],
+      port: Number(process.env.PORT!),
     };
     break;
   case "test":
@@ -44,6 +46,7 @@ switch (running_env) {
       mongodb_url: "mongodb:aaa",
       dev_guild_id: "12345",
       developer_user_ids: ["23423"],
+      port: 9000,
     };
     break;
 
