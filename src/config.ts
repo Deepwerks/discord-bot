@@ -25,6 +25,8 @@ switch (running_env) {
       port: Number(process.env.PORT!),
       steam_api_key: process.env.STEAM_API_KEY!,
       steam_api_url: process.env.STEAM_API_URL!,
+      deadlock_api_key: process.env.DEADLOCK_API_KEY!,
+      deadlock_api_url: process.env.DEADLOCK_API_URL!,
     };
     break;
   case "development":
@@ -40,6 +42,8 @@ switch (running_env) {
       port: Number(process.env.PORT!),
       steam_api_key: process.env.STEAM_API_KEY!,
       steam_api_url: process.env.STEAM_API_URL!,
+      deadlock_api_key: process.env.DEADLOCK_API_KEY!,
+      deadlock_api_url: process.env.DEADLOCK_API_URL!,
     };
     break;
   case "test":
@@ -53,6 +57,8 @@ switch (running_env) {
       port: 9000,
       steam_api_key: "awd",
       steam_api_url: "steam",
+      deadlock_api_key: "wasd",
+      deadlock_api_url: "deadlock",
     };
     break;
 
