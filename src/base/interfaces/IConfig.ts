@@ -5,4 +5,5 @@ export default interface IConfig {
   mongodb_url: string;
   dev_guild_id: string;
   developer_user_ids: string[];
+  port: number;
 }
