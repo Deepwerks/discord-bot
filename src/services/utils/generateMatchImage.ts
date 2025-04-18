@@ -28,6 +28,11 @@ export async function generateMatchImage(
 ): Promise<Buffer> {
   const { match } = options;
 
+  const sapphireTeam = match.team0WithSteamData;
+  const amberTeam = match.team1WithSteamData;
+
+  const nameStatGap = 20;
+
   const canvasWidth = 1800;
   const canvasHeight = 800;
   const canvas = createCanvas(canvasWidth, canvasHeight);
@@ -35,130 +40,155 @@ export async function generateMatchImage(
 
   ctx.fillStyle = "#1e1e2f";
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+  ctx.textBaseline = "middle";
 
-  const statLabels = ["Souls", "Kills", "Deaths", "Assists"];
+  const originalWidth = 280;
+  const originalHeight = 380;
 
-  const sapphirePlayers = match.team0WithSteamData;
-  const amberPlayers = match.team1WithSteamData;
-
-  const colWidth = 100;
-  const statLabelWidth = 100;
-  const rowHeight = 80;
-  const avatarHeight = 120;
+  const playerSpacing = 120;
+  const avatarWidth = 80;
+  const avatarHeight = avatarWidth * (originalHeight / originalWidth);
   const avatarNameGap = 10;
+  const labelGap = 60;
+  const startY = 250;
+  const teamLabelYOffset = 160;
+  const topY = startY - teamLabelYOffset - avatarHeight - 20;
+  const rowLabels = ["Souls", "Kills", "Deaths", "Assists"];
 
-  const totalCols = sapphirePlayers.length + amberPlayers.length;
-  const tableWidth = totalCols * colWidth + statLabelWidth + 40;
+  const maxPlayers = Math.max(sapphireTeam.length, amberTeam.length);
+  const totalTeamWidth = (maxPlayers - 1) * playerSpacing;
   const centerX = canvasWidth / 2;
-  const sapphireStartX = centerX - tableWidth / 2;
-  const statLabelX = sapphireStartX + sapphirePlayers.length * colWidth + 20;
-  const amberStartX = statLabelX + statLabelWidth + 20;
+  const rowLabelX = centerX;
 
-  const startY = 300;
+  const spacingBetweenTeams = playerSpacing * 1.5;
+  const sapphireStartX =
+    centerX - playerSpacing * (sapphireTeam.length - 1) - spacingBetweenTeams;
+  const amberStartX = centerX + spacingBetweenTeams;
 
   // Title
-  ctx.font = "bold 28px Arial";
   ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 28px Arial";
   ctx.textAlign = "center";
-  ctx.fillText("Match Summary", canvasWidth / 2, 50);
+  ctx.fillText("Match Summary", canvasWidth / 2, 60);
 
   // Team names
   ctx.font = "bold 22px Arial";
-  ctx.fillStyle = "#3cb6ff";
   ctx.textAlign = "left";
-  ctx.fillText("The Sapphire Flame", sapphireStartX, startY - 200);
-  ctx.fillStyle = "#f5a623";
-  ctx.fillText("The Amber Hand", amberStartX + 50, startY - 200);
+  ctx.fillStyle = "#4fc3f7";
+  ctx.fillText("The Sapphire Flame", 50, startY - teamLabelYOffset);
+
+  ctx.textAlign = "right";
+  ctx.fillStyle = "#ffb74d";
+  const amberTeamLabelX = amberStartX + playerSpacing * (amberTeam.length - 1);
+  ctx.fillText(
+    "The Amber Hand",
+    amberTeamLabelX + 50,
+    startY - teamLabelYOffset
+  );
 
   ctx.textAlign = "center";
+  ctx.font = "16px Arial";
 
-  // Játékosnevek
-  for (const [teamPlayers, teamStartX] of [
-    [sapphirePlayers, sapphireStartX],
-    [amberPlayers, amberStartX],
-  ] as const) {
-    for (let i = 0; i < teamPlayers.length; i++) {
-      const player = teamPlayers[i];
-      try {
-        const img = await loadImage(
-          (
-            await getDeadlockHero(player.deadlock_player.hero_id)
-          ).imageUrl
-        );
-        const aspectRatio = img.width / img.height;
-        const avatarWidth = avatarHeight * aspectRatio;
+  const columnTopY = startY - avatarHeight; // az avatar teteje
+  const columnBottomY = startY + labelGap * rowLabels.length; // az utolsó stat alj
 
-        const x = teamStartX + i * colWidth + (colWidth - avatarWidth) / 2;
-        const y = startY - avatarHeight - avatarNameGap - 10;
+  async function renderPlayerData(
+    team: {
+      deadlock_player: DeadlockMatchPlayer;
+      steam_player: ISteamPlayer;
+    }[],
+    startX: number
+  ) {
+    for (let i = 0; i < team.length; i++) {
+      const player = team[i];
 
-        ctx.drawImage(img, x, y, avatarWidth, avatarHeight);
-      } catch (err) {
-        console.warn(
-          `Failed to load avatar for ${player.steam_player.personaname}`,
-          err
+      const x = startX + i * playerSpacing;
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
+      ctx.fillRect(
+        x - playerSpacing / 2 + 10,
+        columnTopY + avatarNameGap, // hogy az avatar aljától induljon
+        playerSpacing - 20,
+        columnBottomY - columnTopY + 20 + nameStatGap
+      );
+
+      // --- Avatar ---
+      const heroAvatar = (await getDeadlockHero(player.deadlock_player.hero_id))
+        .imageUrl;
+      if (heroAvatar) {
+        const img = await loadImage(heroAvatar);
+        ctx.drawImage(
+          img,
+          x - avatarWidth / 2,
+          startY - avatarHeight - avatarNameGap,
+          avatarWidth,
+          avatarHeight
         );
       }
 
-      // Név kirajzolása
+      // --- Player name ---
+      ctx.fillStyle = "#fff";
       ctx.font = "bold 16px Arial";
-      ctx.fillStyle = "#ffffff";
       ctx.fillText(
-        player.steam_player.personaname,
-        teamStartX + i * colWidth + colWidth / 2,
-        startY
+        shortenPlayerName(player.steam_player.personaname),
+        x,
+        startY + 10
+      );
+
+      // --- Stats ---
+      ctx.fillStyle = "#fff";
+      ctx.font = "16px Arial";
+      ctx.fillText(
+        player.deadlock_player.net_worth.toLocaleString(),
+        x,
+        startY + labelGap * 1 + nameStatGap
+      );
+      ctx.fillText(
+        player.deadlock_player.kills.toString(),
+        x,
+        startY + labelGap * 2 + nameStatGap
+      );
+      ctx.fillText(
+        player.deadlock_player.deaths.toString(),
+        x,
+        startY + labelGap * 3 + nameStatGap
+      );
+      ctx.fillText(
+        player.deadlock_player.assists.toString(),
+        x,
+        startY + labelGap * 4 + nameStatGap
       );
     }
   }
 
-  // Statisztikák
-  statLabels.forEach((label, rowIdx) => {
-    const y = startY + (rowIdx + 1) * rowHeight;
+  await renderPlayerData(sapphireTeam, sapphireStartX);
+  await renderPlayerData(amberTeam, amberStartX);
 
-    // Stat név középen
-    ctx.fillStyle = "#aaaaaa";
+  // Stat labels (center column)
+  ctx.fillStyle = "#999";
+  ctx.textAlign = "center";
+  ctx.font = "bold 16px Arial";
+  rowLabels.forEach((label, i) => {
+    const rowY = startY + labelGap * (i + 1) + nameStatGap;
+
+    // Háttér szín váltogatás
+    if (i % 2 === 0) {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
+      ctx.fillRect(50, rowY - labelGap / 2, canvasWidth - 100, labelGap);
+    }
+
+    // Label szöveg
+    ctx.fillStyle = "#999";
     ctx.font = "bold 16px Arial";
     ctx.textAlign = "center";
-    ctx.fillText(label, statLabelX + statLabelWidth / 2, y);
-
-    // Sapphire stat értékek
-    sapphirePlayers.forEach((p, i) => {
-      const val = getStatValue(p, label);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillText(
-        String(val),
-        sapphireStartX + i * colWidth + colWidth / 2,
-        y
-      );
-    });
-
-    // Amber stat értékek
-    amberPlayers.forEach((p, i) => {
-      const val = getStatValue(p, label);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillText(String(val), amberStartX + i * colWidth + colWidth / 2, y);
-    });
+    ctx.fillText(label, rowLabelX, rowY);
   });
 
   return canvas.toBuffer();
 }
 
-function getStatValue(
-  player: {
-    deadlock_player: DeadlockMatchPlayer;
-    steam_player: ISteamPlayer;
-  },
-  label: string
-): number {
-  switch (label) {
-    case "Souls":
-      return player.deadlock_player.net_worth;
-    case "Kills":
-      return player.deadlock_player.kills;
-    case "Deaths":
-      return player.deadlock_player.deaths;
-    case "Assists":
-      return player.deadlock_player.assists;
-    default:
-      return 0;
-  }
-}
+const shortenPlayerName = (playername: string) => {
+  if (playername.length < 12) return playername;
+
+  return playername.slice(0, 9) + "...";
+};
