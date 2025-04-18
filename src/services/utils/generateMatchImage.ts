@@ -3,6 +3,7 @@ import DeadlockMatchPlayer from "../clients/DeadlockClient/DeadlockMatchService/
 import ISteamPlayer from "../clients/SteamClient/SteamProfileService/interfaces/ISteamPlayer";
 import { getDeadlockHero } from "./getDeadlockHero";
 import { useAssetsClient } from "../..";
+import { getCachedHero } from "../cache/heroCache";
 
 export interface IGenerateMatchImageOptions {
   match: {
@@ -27,182 +28,137 @@ export async function generateMatchImage(
 ): Promise<Buffer> {
   const { match } = options;
 
-  const rowHeight = 108;
-  const avatarHeight = rowHeight;
-  const avatarWidth = avatarHeight * 1.222;
-  const teamGap = 216;
-  const headerHeight = 75;
-
-  const startY = rowHeight;
-  const baseX = 50;
-
-  const totalRows =
-    match.team0WithSteamData.length + match.team1WithSteamData.length;
-  const maxHeight = totalRows * rowHeight + teamGap + headerHeight + 15;
-  const height = 1524 > maxHeight ? 1524 : maxHeight;
-  const width = 2304;
-
-  const winColors = ["#e9f7ef", "#d4efdf"];
-  const loseColors = ["#fdecea", "#fadbd8"];
-
-  const canvas = createCanvas(width, height);
+  const canvasWidth = 1800;
+  const canvasHeight = 800;
+  const canvas = createCanvas(canvasWidth, canvasHeight);
   const ctx = canvas.getContext("2d");
 
-  // Háttérszín
-  ctx.fillStyle = "#e8f8f5";
-  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = "#1e1e2f";
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-  const drawWinnersRow = async (
-    player: {
-      deadlock_player: DeadlockMatchPlayer;
-      steam_player: ISteamPlayer;
-    },
-    y: number,
-    index: number
-  ) => {
-    // Zebra háttér
-    ctx.fillStyle = index % 2 === 0 ? winColors[0] : winColors[1];
-    ctx.fillRect(0, y - rowHeight + 10, width - 500, rowHeight);
+  const statLabels = ["Souls", "Kills", "Deaths", "Assists"];
 
-    // Avatar
-    try {
-      const avatar = await loadImage(
-        (
-          await getDeadlockHero(player.deadlock_player.hero_id)
-        ).imageUrl
-      );
-      ctx.drawImage(
-        avatar,
-        baseX,
-        y - avatarHeight + 10,
-        avatarWidth,
-        avatarHeight
-      );
-    } catch {
-      ctx.fillStyle = "#ccc";
-      ctx.fillRect(baseX, y - avatarHeight + 10, avatarWidth, avatarHeight);
-      ctx.fillStyle = "#555";
-      ctx.font = "bold 36px Arial";
-      ctx.fillText("?", baseX + avatarWidth / 2 - 10, y - 20);
-    }
+  const sapphirePlayers = match.team0WithSteamData;
+  const amberPlayers = match.team1WithSteamData;
 
-    // Szöveg
-    ctx.fillStyle = "#0C3D0C";
-    ctx.font = "36px Arial";
-    ctx.fillText(
-      player.steam_player.personaname,
-      baseX + avatarWidth + 25,
-      y - 10
-    );
-    ctx.font = "36px Arial";
-    ctx.fillText(`${player.deadlock_player.net_worth}`, baseX + 500, y - 10);
-    ctx.fillText(
-      `${player.deadlock_player.kills}/${player.deadlock_player.deaths}/${player.deadlock_player.assists}`,
-      baseX + 750,
-      y - 10
-    );
-  };
+  const colWidth = 100;
+  const statLabelWidth = 100;
+  const rowHeight = 80;
+  const avatarHeight = 120;
+  const avatarNameGap = 10;
 
-  const drawLosersRow = async (
-    player: {
-      deadlock_player: DeadlockMatchPlayer;
-      steam_player: ISteamPlayer;
-    },
-    y: number,
-    index: number
-  ) => {
-    // Zebra háttér
-    ctx.fillStyle = index % 2 === 0 ? loseColors[0] : loseColors[1];
-    ctx.fillRect(0, y - rowHeight + 10, width - 500, rowHeight);
+  const totalCols = sapphirePlayers.length + amberPlayers.length;
+  const tableWidth = totalCols * colWidth + statLabelWidth + 40;
+  const centerX = canvasWidth / 2;
+  const sapphireStartX = centerX - tableWidth / 2;
+  const statLabelX = sapphireStartX + sapphirePlayers.length * colWidth + 20;
+  const amberStartX = statLabelX + statLabelWidth + 20;
 
-    // Avatar
-    try {
-      const avatar = await loadImage(
-        (
-          await getDeadlockHero(player.deadlock_player.hero_id)
-        ).imageUrl
-      );
-      ctx.drawImage(
-        avatar,
-        baseX,
-        y - avatarHeight + 10,
-        avatarWidth,
-        avatarHeight
-      );
-    } catch {
-      ctx.fillStyle = "#ccc";
-      ctx.fillRect(baseX, y - avatarHeight + 10, avatarWidth, avatarHeight);
-      ctx.fillStyle = "#555";
-      ctx.font = "bold 36px Arial";
-      ctx.fillText("?", baseX + avatarWidth / 2 - 10, y - 20);
-    }
+  const startY = 300;
 
-    // Szöveg
-    ctx.fillStyle = "#7F1D1D";
-    ctx.font = "36px Arial";
-    ctx.fillText(
-      player.steam_player.personaname,
-      baseX + avatarWidth + 25,
-      y - 10
-    );
-    ctx.font = "36px Arial";
-    ctx.fillText(`${player.deadlock_player.net_worth}`, baseX + 500, y - 10);
-    ctx.fillText(
-      `${player.deadlock_player.kills}/${player.deadlock_player.deaths}/${player.deadlock_player.assists}`,
-      baseX + 750,
-      y - 10
-    );
-  };
+  // Title
+  ctx.font = "bold 28px Arial";
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "center";
+  ctx.fillText("Match Summary", canvasWidth / 2, 50);
 
-  //   Oszlopfejlécek
-  ctx.fillStyle = "#1a1a1a";
-  ctx.font = "bold 36px Arial";
-  ctx.fillText("Hero", baseX, 50);
-  ctx.fillText("Player", baseX + avatarWidth + 25, 50);
-  ctx.fillText("Net Worth", baseX + 500, 50);
-  ctx.fillText("K/ D / A", baseX + 750, 50);
-
-  // Team 1
+  // Team names
   ctx.font = "bold 22px Arial";
-  for (let i = 0; i < match.team0WithSteamData.length; i++) {
-    if (match.winning_team === 0) {
-      await drawWinnersRow(
-        match.team0WithSteamData[i],
-        headerHeight + (startY + i * rowHeight),
-        i
-      );
-    } else {
-      await drawLosersRow(
-        match.team0WithSteamData[i],
-        headerHeight + (startY + i * rowHeight),
-        i
+  ctx.fillStyle = "#3cb6ff";
+  ctx.textAlign = "left";
+  ctx.fillText("The Sapphire Flame", sapphireStartX, startY - 200);
+  ctx.fillStyle = "#f5a623";
+  ctx.fillText("The Amber Hand", amberStartX + 50, startY - 200);
+
+  ctx.textAlign = "center";
+
+  // Játékosnevek
+  for (const [teamPlayers, teamStartX] of [
+    [sapphirePlayers, sapphireStartX],
+    [amberPlayers, amberStartX],
+  ] as const) {
+    for (let i = 0; i < teamPlayers.length; i++) {
+      const player = teamPlayers[i];
+      try {
+        const img = await loadImage(
+          (
+            await getDeadlockHero(player.deadlock_player.hero_id)
+          ).imageUrl
+        );
+        const aspectRatio = img.width / img.height;
+        const avatarWidth = avatarHeight * aspectRatio;
+
+        const x = teamStartX + i * colWidth + (colWidth - avatarWidth) / 2;
+        const y = startY - avatarHeight - avatarNameGap - 10;
+
+        ctx.drawImage(img, x, y, avatarWidth, avatarHeight);
+      } catch (err) {
+        console.warn(
+          `Failed to load avatar for ${player.steam_player.personaname}`,
+          err
+        );
+      }
+
+      // Név kirajzolása
+      ctx.font = "bold 16px Arial";
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(
+        player.steam_player.personaname,
+        teamStartX + i * colWidth + colWidth / 2,
+        startY
       );
     }
   }
 
-  const offsetY =
-    startY +
-    match.team0WithSteamData.length * rowHeight +
-    teamGap +
-    headerHeight;
+  // Statisztikák
+  statLabels.forEach((label, rowIdx) => {
+    const y = startY + (rowIdx + 1) * rowHeight;
 
-  // Team 2
-  ctx.font = "bold 22px Arial";
-  for (let i = 0; i < match.team1WithSteamData.length; i++) {
-    if (match.winning_team === 1) {
-      await drawWinnersRow(
-        match.team1WithSteamData[i],
-        offsetY + i * rowHeight,
-        i
+    // Stat név középen
+    ctx.fillStyle = "#aaaaaa";
+    ctx.font = "bold 16px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(label, statLabelX + statLabelWidth / 2, y);
+
+    // Sapphire stat értékek
+    sapphirePlayers.forEach((p, i) => {
+      const val = getStatValue(p, label);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(
+        String(val),
+        sapphireStartX + i * colWidth + colWidth / 2,
+        y
       );
-    } else {
-      await drawLosersRow(
-        match.team1WithSteamData[i],
-        offsetY + i * rowHeight,
-        i
-      );
-    }
-  }
+    });
+
+    // Amber stat értékek
+    amberPlayers.forEach((p, i) => {
+      const val = getStatValue(p, label);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(String(val), amberStartX + i * colWidth + colWidth / 2, y);
+    });
+  });
 
   return canvas.toBuffer();
+}
+
+function getStatValue(
+  player: {
+    deadlock_player: DeadlockMatchPlayer;
+    steam_player: ISteamPlayer;
+  },
+  label: string
+): number {
+  switch (label) {
+    case "Souls":
+      return player.deadlock_player.net_worth;
+    case "Kills":
+      return player.deadlock_player.kills;
+    case "Deaths":
+      return player.deadlock_player.deaths;
+    case "Assists":
+      return player.deadlock_player.assists;
+    default:
+      return 0;
+  }
 }

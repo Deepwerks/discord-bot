@@ -8,7 +8,7 @@ export async function getDeadlockHero(heroId: number): Promise<ICachedHero> {
   const deadlockHero = await useAssetsClient.HeroService.GetHero(heroId);
   const cachedHero: ICachedHero = {
     name: deadlockHero.name,
-    imageUrl: deadlockHero.images.top_bar_image,
+    imageUrl: deadlockHero.images.icon_hero_card,
   };
 
   setCachedHero(heroId, cachedHero);
