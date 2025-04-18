@@ -15,6 +15,7 @@ import {
   IGenerateMatchImageOptions,
 } from "../../services/utils/generateMatchImage";
 import ISteamPlayer from "../../services/clients/SteamClient/SteamProfileService/interfaces/ISteamPlayer";
+import { useDeadlockClient, useSteamClient } from "../..";
 
 export default class Match extends Command {
   constructor(client: CustomClient) {
@@ -46,9 +47,7 @@ export default class Match extends Command {
 
     const sent = await interaction.deferReply();
     try {
-      const match = await this.client.DeadlockClient.MatchService.GetMatch(
-        matchid!
-      );
+      const match = await useDeadlockClient.MatchService.GetMatch(matchid!);
 
       const allPlayers = [...match.team_0_players, ...match.team_1_players];
       const steamIDInputs = allPlayers.map((player) => ({
@@ -56,8 +55,9 @@ export default class Match extends Command {
         value: String(player.account_id),
       }));
 
-      const steamPlayers =
-        await this.client.SteamClient.ProfileService.GetPlayers(steamIDInputs);
+      const steamPlayers = await useSteamClient.ProfileService.GetPlayers(
+        steamIDInputs
+      );
 
       const steamPlayerMap = new Map<string, ISteamPlayer>();
       for (const steamPlayer of steamPlayers) {
@@ -67,7 +67,7 @@ export default class Match extends Command {
       const team0WithSteamData = match.team_0_players.map((player) => ({
         deadlock_player: player,
         steam_player: steamPlayerMap.get(
-          this.client.SteamClient.ProfileService.convertToSteamId64({
+          useSteamClient.ProfileService.convertToSteamId64({
             type: "steamID3",
             value: String(player.account_id),
           })!
@@ -77,7 +77,7 @@ export default class Match extends Command {
       const team1WithSteamData = match.team_1_players.map((player) => ({
         deadlock_player: player,
         steam_player: steamPlayerMap.get(
-          this.client.SteamClient.ProfileService.convertToSteamId64({
+          useSteamClient.ProfileService.convertToSteamId64({
             type: "steamID3",
             value: String(player.account_id),
           })!
@@ -88,6 +88,9 @@ export default class Match extends Command {
         match: {
           id: match.match_id,
           duration: match.duration_s,
+          average_badge_team0: match.average_badge_team0,
+          average_badge_team1: match.average_badge_team1,
+          winning_team: match.winning_team,
           team0WithSteamData,
           team1WithSteamData,
         },
