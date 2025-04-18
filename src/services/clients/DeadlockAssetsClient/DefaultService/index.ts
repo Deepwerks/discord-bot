@@ -19,6 +19,23 @@ export default class DefaultAssetsService implements IDefaultAssetsService {
     this.ranks = await this.GetRanks();
   }
 
+  GetRankImage(number: number) {
+    const rank = Math.floor(number / 10);
+    const subrank = number % 10;
+
+    const tierData = this.ranks.find((item) => item.tier === rank);
+    if (!tierData) return null;
+
+    const images = tierData.images;
+
+    if (subrank === 0) {
+      return images.large;
+    }
+
+    const key = `large_subrank${subrank}`;
+    return (images as Record<string, string>)[key] || null;
+  }
+
   async GetRanks() {
     const response = await this.client.request<DeadlockRank[]>(
       "GET",

@@ -3,7 +3,7 @@ import DeadlockMatchPlayer from "../clients/DeadlockClient/DeadlockMatchService/
 import ISteamPlayer from "../clients/SteamClient/SteamProfileService/interfaces/ISteamPlayer";
 import { getDeadlockHero } from "./getDeadlockHero";
 import { useAssetsClient } from "../..";
-import { getCachedHero } from "../cache/heroCache";
+import { Collection } from "discord.js";
 
 export interface IGenerateMatchImageOptions {
   match: {
@@ -31,6 +31,16 @@ export async function generateMatchImage(
   const sapphireTeam = match.team0WithSteamData;
   const amberTeam = match.team1WithSteamData;
 
+  const party_colors = new Collection<number, string>([
+    [0, "#FF6B6B"],
+    [1, "#FF6B6B"],
+    [2, "#6BCB77"],
+    [3, "#4D96FF"],
+    [4, "#FFD93D"],
+    [5, "#9D4EDD"],
+    [6, "#FF922B"],
+  ]);
+
   const nameStatGap = 20;
 
   const canvasWidth = 1800;
@@ -50,10 +60,19 @@ export async function generateMatchImage(
   const avatarHeight = avatarWidth * (originalHeight / originalWidth);
   const avatarNameGap = 10;
   const labelGap = 60;
-  const startY = 250;
+  const startY = 300;
+  const startTeamLabelY = 250;
   const teamLabelYOffset = 160;
   const topY = startY - teamLabelYOffset - avatarHeight - 20;
-  const rowLabels = ["Souls", "Kills", "Deaths", "Assists"];
+  const rowLabels = [
+    "Souls",
+    "Kills",
+    "Deaths",
+    "Assists",
+    "Player Damage",
+    "Obj Damage",
+    "Healing",
+  ];
 
   const maxPlayers = Math.max(sapphireTeam.length, amberTeam.length);
   const totalTeamWidth = (maxPlayers - 1) * playerSpacing;
@@ -65,25 +84,97 @@ export async function generateMatchImage(
     centerX - playerSpacing * (sapphireTeam.length - 1) - spacingBetweenTeams;
   const amberStartX = centerX + spacingBetweenTeams;
 
+  const team0RankBadge = await loadImage(
+    useAssetsClient.DefaultService.GetRankImage(match.average_badge_team0)!
+  );
+  const team1RankBadge = await loadImage(
+    useAssetsClient.DefaultService.GetRankImage(match.average_badge_team1)!
+  );
+
+  const fixedWidth = 120;
+  const aspectRatio = team0RankBadge.height / team0RankBadge.width;
+  const scaledHeight = fixedWidth * aspectRatio;
+
   // Title
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 28px Arial";
   ctx.textAlign = "center";
-  ctx.fillText("Match Summary", canvasWidth / 2, 60);
+  ctx.fillText(msToHHMM(match.duration), canvasWidth / 2, 60);
 
   // Team names
-  ctx.font = "bold 22px Arial";
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#4fc3f7";
-  ctx.fillText("The Sapphire Flame", 50, startY - teamLabelYOffset);
+  if (match.winning_team === 0) {
+    ctx.font = "bold 22px Arial";
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#4fc3f7";
+    ctx.fillText(
+      "The Sapphire Flame",
+      sapphireStartX + fixedWidth / 2,
+      startTeamLabelY - teamLabelYOffset - 48
+    );
 
-  ctx.textAlign = "right";
-  ctx.fillStyle = "#ffb74d";
+    ctx.font = "italic bold 48px 'Georgia', 'Times New Roman', serif";
+    ctx.fillStyle = "#fff";
+    ctx.fillText(
+      "Victory",
+      sapphireStartX + fixedWidth / 2,
+      startTeamLabelY - teamLabelYOffset
+    );
+  } else {
+    ctx.font = "bold 22px Arial";
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#4fc3f7";
+    ctx.fillText(
+      "The Sapphire Flame",
+      sapphireStartX + fixedWidth / 2,
+      startTeamLabelY - teamLabelYOffset
+    );
+  }
+
+  ctx.drawImage(
+    team0RankBadge,
+    sapphireStartX - fixedWidth * 0.5,
+    0,
+    fixedWidth,
+    scaledHeight
+  );
+
   const amberTeamLabelX = amberStartX + playerSpacing * (amberTeam.length - 1);
-  ctx.fillText(
-    "The Amber Hand",
-    amberTeamLabelX + 50,
-    startY - teamLabelYOffset
+
+  if (match.winning_team === 1) {
+    ctx.font = "bold 22px Arial";
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#ffb74d";
+
+    ctx.fillText(
+      "The Amber Hand",
+      amberTeamLabelX - fixedWidth / 2,
+      startTeamLabelY - teamLabelYOffset - 48
+    );
+
+    ctx.font = "italic bold 48px 'Georgia', 'Times New Roman', serif";
+    ctx.fillStyle = "#fff";
+    ctx.fillText(
+      "Victory",
+      amberTeamLabelX - fixedWidth / 2,
+      startTeamLabelY - teamLabelYOffset
+    );
+  } else {
+    ctx.font = "bold 22px Arial";
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#ffb74d";
+    ctx.fillText(
+      "The Amber Hand",
+      amberTeamLabelX - fixedWidth / 2,
+      startTeamLabelY - teamLabelYOffset
+    );
+  }
+
+  ctx.drawImage(
+    team1RankBadge,
+    amberTeamLabelX - fixedWidth * 0.5,
+    0,
+    fixedWidth,
+    scaledHeight
   );
 
   ctx.textAlign = "center";
@@ -135,6 +226,12 @@ export async function generateMatchImage(
         startY + 10
       );
 
+      if (player.deadlock_player.party !== 0) {
+        ctx.fillStyle = party_colors.get(player.deadlock_player.party)!;
+        ctx.font = "16px Arial";
+        ctx.fillText("👤", x, startY + 30);
+      }
+
       // --- Stats ---
       ctx.fillStyle = "#fff";
       ctx.font = "16px Arial";
@@ -157,6 +254,21 @@ export async function generateMatchImage(
         player.deadlock_player.assists.toString(),
         x,
         startY + labelGap * 4 + nameStatGap
+      );
+      ctx.fillText(
+        player.deadlock_player.damage_dealt.toLocaleString(),
+        x,
+        startY + labelGap * 5 + nameStatGap
+      );
+      ctx.fillText(
+        player.deadlock_player.obj_damage.toLocaleString(),
+        x,
+        startY + labelGap * 6 + nameStatGap
+      );
+      ctx.fillText(
+        player.deadlock_player.healing.toLocaleString(),
+        x,
+        startY + labelGap * 7 + nameStatGap
       );
     }
   }
@@ -191,4 +303,14 @@ const shortenPlayerName = (playername: string) => {
   if (playername.length < 12) return playername;
 
   return playername.slice(0, 9) + "...";
+};
+
+const msToHHMM = (s: number) => {
+  const hours = Math.floor(s / 60);
+  const minutes = s % 60;
+
+  const paddedHours = hours.toString().padStart(2, "0");
+  const paddedMinutes = minutes.toString().padStart(2, "0");
+
+  return `${paddedHours}:${paddedMinutes}`;
 };
