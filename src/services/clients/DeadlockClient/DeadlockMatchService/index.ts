@@ -5,7 +5,7 @@ export interface IDeadlockMatchService {
   GetMatch(matchId: string): Promise<DeadlockMatch>;
 }
 
-export default class DeadlockMatchService implements IDeadlockMatchService {
+export default class DeadlockClient implements IDeadlockMatchService {
   private client: BaseClient;
 
   constructor(client: BaseClient) {
