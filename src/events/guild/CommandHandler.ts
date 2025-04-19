@@ -102,8 +102,6 @@ export default class CommandHandler extends Event {
       }
     } catch (err) {
       logger.error("Command execution error", err);
-
-      // Check if response was deferred to avoid double replies
       if (interaction.deferred || interaction.replied) {
         return interaction.editReply({
           embeds: [

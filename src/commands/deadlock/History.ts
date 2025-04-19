@@ -154,18 +154,16 @@ ${matchesString.join("\n")}
           ],
           flags: ["Ephemeral"],
         });
-
-        return;
+      } else {
+        await interaction.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor("Red")
+              .setDescription(t("commands.match.fetch_failed")),
+          ],
+          flags: ["Ephemeral"],
+        });
       }
-
-      await interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor("Red")
-            .setDescription(t("commands.match.fetch_failed")),
-        ],
-        flags: ["Ephemeral"],
-      });
     }
   }
 }

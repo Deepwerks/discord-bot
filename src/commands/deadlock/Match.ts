@@ -173,16 +173,15 @@ export default class Match extends Command {
             new EmbedBuilder().setColor("Red").setDescription(err.message),
           ],
         });
-        return;
+      } else {
+        await interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor("Red")
+              .setDescription(t("commands.match.fetch_failed")),
+          ],
+        });
       }
-
-      await interaction.editReply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor("Red")
-            .setDescription(t("commands.match.fetch_failed")),
-        ],
-      });
     }
   }
 }
