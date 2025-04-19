@@ -17,6 +17,9 @@
     "match": {
       "fail": "❌ Something went wrong...",
       "fetch_failed": "Failed to fetch match details. The match ID might be invalid or the server is down."
+    },
+    "store": {
+      "success": "You have successfuly set your steam accout to: {{name}} ({{id}})"
     }
   },
   "warnings": {
@@ -25,6 +28,11 @@
     "no_command": "❌ This command does not exist!"
   },
   "errors": {
-    "generic_error": "Something went wrong. Please try again later."
+    "generic_error": "❌ Something went wrong. Please try again later...",
+    "steam_not_yet_stored": "❌ You have not yet connected your Steam account. Please use: '/store' first!",
+    "steam_player_not_found": "❌ Player not found. Try using SteamID instead!",
+    "get_steam_id_type_failed": "❌ Could not detemine steam id type",
+    "field_empty": "❌ '{{field}}' must not be empty!",
+    "steam_profile_not_found": "❌ Steam profile not found!"
   }
 }

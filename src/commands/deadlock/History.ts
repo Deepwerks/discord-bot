@@ -17,6 +17,7 @@ import { getSteamIdType } from "../../services/utils/getSteamIdType";
 import { getFormattedMatchTime } from "../../services/utils/getFormattedMatchTime";
 import pLimit from "p-limit";
 import logger from "../../services/logger";
+import StoredPlayer from "../../base/schemas/StoredPlayer";
 
 export default class History extends Command {
   constructor(client: CustomClient) {
@@ -27,7 +28,7 @@ export default class History extends Command {
       default_member_permissions:
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: false,
-      cooldown: 1,
+      cooldown: 6,
       dev: true,
       options: [
         {
@@ -48,38 +49,52 @@ export default class History extends Command {
 
     try {
       if (!player || player.length === 0) {
-        throw new CommandError("Player must not be empty");
+        throw new CommandError(t("errors.field_empty", { field: "Player" }));
       }
 
       let steamId: string | undefined;
       let steamIdType: "steamID3" | "steamID" | "steamID64" | null;
 
-      if (isValidSteamId(player)) steamId = player;
-      else {
-        let _steamId = await useSteamClient.ProfileService.GetIdFromUsername(
-          player
-        );
+      let _steamId: string | null;
+      if (player === "me") {
+        const storedPlayer = await StoredPlayer.findOne({
+          discordId: interaction.user.id,
+        });
 
-        if (!_steamId || !isValidSteamId(_steamId))
-          throw new CommandError(
-            "Player not found. Try using SteamID instead!"
-          );
+        if (!storedPlayer) {
+          throw new CommandError(t("errors.steam_not_yet_stored"));
+        }
+
+        _steamId = storedPlayer.steamId;
+        steamIdType = storedPlayer.steamIdType;
 
         steamId = _steamId;
-      }
+      } else {
+        if (isValidSteamId(player)) steamId = player;
+        else {
+          _steamId = await useSteamClient.ProfileService.GetIdFromUsername(
+            player
+          );
 
-      steamIdType = getSteamIdType(steamId);
-      if (!steamIdType) {
-        throw new CommandError("Could not detemine steam id type");
+          if (!_steamId || !isValidSteamId(_steamId))
+            throw new CommandError(t("errors.steam_player_not_found"));
+
+          steamId = _steamId;
+        }
+
+        steamIdType = getSteamIdType(steamId);
+        if (!steamIdType) {
+          throw new CommandError(t("errors.get_steam_id_type_failed"));
+        }
       }
 
       const steamProfile = await useSteamClient.ProfileService.GetPlayer({
-        value: steamId,
+        value: steamId!,
         type: steamIdType,
       });
 
       const matches = await useDeadlockClient.PlayerService.GetMatchHistory(
-        steamId,
+        steamId!,
         15
       );
 
@@ -133,8 +148,25 @@ ${matchesString.join("\n")}
       await interaction.reply({ content: response });
     } catch (error) {
       logger.error(error);
+
+      if (error instanceof CommandError) {
+        await interaction.reply({
+          embeds: [
+            new EmbedBuilder().setColor("Red").setDescription(error.message),
+          ],
+          flags: ["Ephemeral"],
+        });
+
+        return;
+      }
+
       await interaction.reply({
-        content: "Something went wrong",
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Red")
+            .setDescription(t("commands.match.fetch_failed")),
+        ],
+        flags: ["Ephemeral"],
       });
     }
   }
