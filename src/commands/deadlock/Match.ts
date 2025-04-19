@@ -20,6 +20,7 @@ import { isMatchId } from "../../services/utils/isMatchId";
 import StoredPlayer from "../../base/schemas/StoredPlayer";
 import CommandError from "../../base/errors/CommandError";
 import { resolveToSteamID64 } from "../../services/utils/resolveToSteamID64";
+import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
 
 export default class Match extends Command {
   constructor(client: CustomClient) {
@@ -104,18 +105,14 @@ export default class Match extends Command {
       const match = await useDeadlockClient.MatchService.GetMatch(_matchId!);
 
       const allPlayers = [...match.team_0_players, ...match.team_1_players];
-      const steamIDInputs = allPlayers.map((player) => ({
-        type: "steamID3" as const,
-        value: String(player.account_id),
-      }));
 
-      const steamPlayers = await useSteamClient.ProfileService.GetPlayers(
-        steamIDInputs
+      const steamPlayers = await useSteamClient.ProfileService.GetProfiles(
+        allPlayers.map((p) => String(p.account_id))
       );
 
-      const steamPlayerMap = new Map<string, ISteamPlayer>();
+      const steamPlayerMap = new Map<string, ICachedSteamProfile>();
       for (const steamPlayer of steamPlayers) {
-        steamPlayerMap.set(steamPlayer.steamid, steamPlayer);
+        steamPlayerMap.set(steamPlayer!.steamid, steamPlayer!);
       }
 
       const team0WithSteamData = match.team_0_players.map((player) => ({

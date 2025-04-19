@@ -16,8 +16,12 @@ export default class CustomCache<T> {
     else this.cache.set(key, value, ttl!);
   }
 
-  async get(key: string): Promise<T | undefined> {
-    return (await this.cache.get(key)) as T | undefined;
+  get(key: string | null): T | null {
+    if (!key) return null;
+    const cached = this.cache.get(key);
+
+    if (cached) return cached as T;
+    return null;
   }
 
   delete(key: string): void {
@@ -26,6 +30,10 @@ export default class CustomCache<T> {
 
   clear(): void {
     this.cache.flushAll();
+  }
+
+  show(): void {
+    console.log("Cache tartalma: ", this.cache.keys());
   }
 }
 

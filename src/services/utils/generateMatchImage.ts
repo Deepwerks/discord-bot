@@ -1,9 +1,9 @@
 import { createCanvas, loadImage } from "canvas";
 import DeadlockMatchPlayer from "../clients/DeadlockClient/DeadlockMatchService/entities/DeadlockMatchPlayer";
-import ISteamPlayer from "../clients/SteamClient/SteamProfileService/interfaces/ISteamPlayer";
 import { useAssetsClient } from "../..";
 import { Collection } from "discord.js";
 import { getFormattedMatchTime } from "./getFormattedMatchTime";
+import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
 
 export interface IGenerateMatchImageOptions {
   match: {
@@ -14,11 +14,11 @@ export interface IGenerateMatchImageOptions {
     winning_team: number;
     team0WithSteamData: {
       deadlock_player: DeadlockMatchPlayer;
-      steam_player: ISteamPlayer;
+      steam_player: ICachedSteamProfile;
     }[];
     team1WithSteamData: {
       deadlock_player: DeadlockMatchPlayer;
-      steam_player: ISteamPlayer;
+      steam_player: ICachedSteamProfile;
     }[];
   };
 }
@@ -73,7 +73,6 @@ export async function generateMatchImage(
     "Healing",
   ];
 
-  const maxPlayers = Math.max(sapphireTeam.length, amberTeam.length);
   const centerX = canvasWidth / 2;
   const rowLabelX = centerX;
 
@@ -187,7 +186,7 @@ export async function generateMatchImage(
   async function renderPlayerData(
     team: {
       deadlock_player: DeadlockMatchPlayer;
-      steam_player: ISteamPlayer;
+      steam_player: ICachedSteamProfile;
     }[],
     startX: number
   ) {

@@ -25,7 +25,7 @@ export default class SteamProfileService implements ISteamProfileService {
   }
 
   async GetPlayer(steamID: ISteamID): Promise<ISteamPlayer> {
-    logger.info("[API CALL] Fetching steam profile...");
+    logger.info("[API CALL] Fetching a steam profile...");
     const response = await this.client.request<ISteamPlayersResponse>(
       "GET",
       `/ISteamUser/GetPlayerSummaries/v0002/?key=${
@@ -44,17 +44,16 @@ export default class SteamProfileService implements ISteamProfileService {
   }
 
   async GetPlayers(steamIDs: ISteamID[]): Promise<ISteamPlayer[]> {
+    logger.info(`[API CALL] Fetching ${steamIDs.length}x steam profiles...`);
     const players: ISteamPlayer[] = [];
 
-    const steamIDs64 = steamIDs.map((steamID) =>
-      this.convertToSteamId64(steamID)
-    );
+    const id64s = steamIDs.map((id) => this.convertToSteamId64(id));
 
     const response = await this.client.request<ISteamPlayersResponse>(
       "GET",
       `/ISteamUser/GetPlayerSummaries/v0002/?key=${
         this.client.apiKey
-      }&steamids=${steamIDs64.join(",")}`
+      }&steamids=${id64s.join(",")}`
     );
 
     for (const player of response.response.players) players.push(player);
@@ -106,7 +105,7 @@ export default class SteamProfileService implements ISteamProfileService {
       steamID64 = await resolveToSteamID64(steamId);
     }
 
-    const cachedProfile = await steamProfileCache.get(steamID64);
+    const cachedProfile = steamProfileCache.get(steamID64);
 
     if (!cachedProfile) {
       const steamProfile = await this.GetPlayer({
@@ -119,6 +118,47 @@ export default class SteamProfileService implements ISteamProfileService {
     }
 
     return cachedProfile as ICachedSteamProfile;
+  }
+
+  // Cached
+  async GetProfiles(account_ids: string[]) {
+    const cachedProfiles: (ICachedSteamProfile | null)[] = [];
+
+    for (const id of account_ids) {
+      cachedProfiles.push(
+        steamProfileCache.get(
+          this.convertToSteamId64({ type: "steamID3", value: id })
+        )
+      );
+    }
+
+    const missingIds = account_ids.filter((id, i) => !cachedProfiles[i]);
+
+    let newCachedProfiles;
+    if (missingIds.length) {
+      const missingSteamIds = missingIds.map((id) => ({
+        type: "steamID3",
+        value: id,
+      })) as ISteamID[];
+
+      newCachedProfiles = await this.GetPlayers(missingSteamIds);
+
+      newCachedProfiles.forEach((profile) => {
+        steamProfileCache.set(profile.steamid, profile as ICachedSteamProfile);
+      });
+    }
+
+    const result: ICachedSteamProfile[] = [];
+
+    for (const cachedProfile of cachedProfiles) {
+      if (cachedProfile) {
+        result.push(cachedProfile);
+      } else {
+        result.push(newCachedProfiles!.shift() as ICachedSteamProfile);
+      }
+    }
+
+    return result;
   }
 
   convertToSteamId64(steamID: ISteamID): string | null {
