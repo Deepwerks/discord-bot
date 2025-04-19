@@ -1,6 +1,7 @@
 import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
+  EmbedBuilder,
   PermissionsBitField,
 } from "discord.js";
 import Command from "../../base/classes/Command.";
@@ -23,7 +24,7 @@ export default class Store extends Command {
       default_member_permissions:
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: false,
-      cooldown: 1,
+      cooldown: 30,
       dev: true,
       options: [
         {
@@ -44,7 +45,7 @@ export default class Store extends Command {
 
     try {
       if (!player || player.length === 0) {
-        throw new CommandError("Player must not be empty");
+        throw new CommandError(t("errors.field_empty", { field: "Player" }));
       }
 
       let steamId: string | undefined;
@@ -57,16 +58,14 @@ export default class Store extends Command {
         );
 
         if (!_steamId || !isValidSteamId(_steamId))
-          throw new CommandError(
-            "Player not found. Try using SteamID instead!"
-          );
+          throw new CommandError(t("errors.steam_player_not_found"));
 
         steamId = _steamId;
       }
 
       steamIdType = getSteamIdType(steamId);
       if (!steamIdType) {
-        throw new CommandError("Could not detemine steam id type");
+        throw new CommandError(t("errors.get_steam_id_type_failed"));
       }
 
       const steamProfile = await useSteamClient.ProfileService.GetPlayer({
@@ -75,7 +74,7 @@ export default class Store extends Command {
       });
 
       if (!steamProfile) {
-        throw new CommandError("Could not find steam idprofile");
+        throw new CommandError(t("errors.steam_profile_not_found"));
       }
 
       await StoredPlayer.findOneAndUpdate(
@@ -88,13 +87,37 @@ export default class Store extends Command {
       );
 
       await interaction.reply({
-        content: `You have successfuly set your steam accout to: ${steamProfile.personaname} (${steamProfile.steamid})`,
+        embeds: [
+          new EmbedBuilder().setColor("Green").setDescription(
+            t("commands.store.success", {
+              name: steamProfile.personaname,
+              id: steamProfile.steamid,
+            })
+          ),
+        ],
         flags: ["Ephemeral"],
       });
     } catch (error) {
       logger.error(error);
+
+      if (error instanceof CommandError) {
+        await interaction.reply({
+          embeds: [
+            new EmbedBuilder().setColor("Red").setDescription(error.message),
+          ],
+          flags: ["Ephemeral"],
+        });
+
+        return;
+      }
+
       await interaction.reply({
-        content: "Something went wrong",
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Red")
+            .setDescription(t("errors.generic_error")),
+        ],
+        flags: ["Ephemeral"],
       });
     }
   }
