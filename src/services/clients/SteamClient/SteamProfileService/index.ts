@@ -7,6 +7,7 @@ import ISteamPlayersResponse from "./interfaces/ISteamPlayersResponse";
 export interface ISteamProfileService {
   GetPlayer(steamID: ISteamID): Promise<ISteamPlayer>;
   GetPlayers(steamIDs: ISteamID[]): Promise<ISteamPlayer[]>;
+  GetIdFromUsername(username: string): Promise<string | null>;
 }
 
 export default class SteamProfileService implements ISteamProfileService {
@@ -52,6 +53,19 @@ export default class SteamProfileService implements ISteamProfileService {
     for (const player of response.response.players) players.push(player);
 
     return players;
+  }
+
+  async GetIdFromUsername(username: string): Promise<string | null> {
+    const response = await this.client.request<any>(
+      "GET",
+      `/ISteamUser/ResolveVanityURL/v1/?key=${this.client.apiKey}&vanityurl=${username}`
+    );
+
+    if (response.response.success !== 1) {
+      return null;
+    }
+
+    return response.response.steamid;
   }
 
   convertToSteamId64(steamID: ISteamID): string | null {

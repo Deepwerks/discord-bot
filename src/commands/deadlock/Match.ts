@@ -16,8 +16,6 @@ import {
 } from "../../services/utils/generateMatchImage";
 import ISteamPlayer from "../../services/clients/SteamClient/SteamProfileService/interfaces/ISteamPlayer";
 import { useDeadlockClient, useSteamClient } from "../..";
-import { AxiosError } from "axios";
-import NotFoundError from "../../base/errors/NotFoundError";
 
 export default class Match extends Command {
   constructor(client: CustomClient) {
