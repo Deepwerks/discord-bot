@@ -102,6 +102,7 @@ export default class CommandHandler extends Event {
       }
     } catch (err) {
       logger.error("Command execution error", err);
+
       if (interaction.deferred || interaction.replied) {
         return interaction.editReply({
           embeds: [
@@ -111,17 +112,6 @@ export default class CommandHandler extends Event {
                 t("errors.generic_error") || "An unexpected error occurred."
               ),
           ],
-        });
-      } else {
-        return interaction.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setColor("Red")
-              .setDescription(
-                t("errors.generic_error") || "An unexpected error occurred."
-              ),
-          ],
-          flags: ["Ephemeral"],
         });
       }
     }

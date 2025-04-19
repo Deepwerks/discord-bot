@@ -1,4 +1,10 @@
+import { ICachedSteamProfile } from "../../../../base/interfaces/ICachedSteamProfile";
+import StoredPlayer from "../../../../base/schemas/StoredPlayer";
+import { steamProfileCache } from "../../../cache";
 import logger from "../../../logger";
+import { getSteamIdType } from "../../../utils/getSteamIdType";
+import { isValidSteamId } from "../../../utils/isValidSteamId";
+import { resolveToSteamID64 } from "../../../utils/resolveToSteamID64";
 import BaseClient from "../../BaseClient";
 import ISteamID from "./interfaces/ISteamID";
 import ISteamPlayer from "./interfaces/ISteamPlayer";
@@ -19,6 +25,7 @@ export default class SteamProfileService implements ISteamProfileService {
   }
 
   async GetPlayer(steamID: ISteamID): Promise<ISteamPlayer> {
+    logger.info("[API CALL] Fetching steam profile...");
     const response = await this.client.request<ISteamPlayersResponse>(
       "GET",
       `/ISteamUser/GetPlayerSummaries/v0002/?key=${
@@ -66,6 +73,52 @@ export default class SteamProfileService implements ISteamProfileService {
     }
 
     return response.response.steamid;
+  }
+
+  // Cached
+  async GetProfile(
+    account_id: string | null,
+    isValidSteamID64: boolean = false
+  ) {
+    if (!account_id) return null;
+    let steamID64: string = account_id;
+
+    if (!isValidSteamID64) {
+      let steamId: string | undefined;
+      let steamIdType: "steamID3" | "steamID" | "steamID64" | null;
+
+      if (isValidSteamId(account_id)) steamId = account_id;
+      else {
+        let _steamId = await this.GetIdFromUsername(account_id);
+
+        if (!_steamId || !isValidSteamId(_steamId)) return null;
+
+        steamId = _steamId;
+      }
+
+      steamIdType = getSteamIdType(steamId);
+
+      if (!steamIdType) {
+        logger.error("Could not determine steamID type");
+        return null;
+      }
+
+      steamID64 = await resolveToSteamID64(steamId);
+    }
+
+    const cachedProfile = await steamProfileCache.get(steamID64);
+
+    if (!cachedProfile) {
+      const steamProfile = await this.GetPlayer({
+        type: "steamID64",
+        value: steamID64,
+      });
+
+      steamProfileCache.set(steamID64, steamProfile as ICachedSteamProfile);
+      return steamProfile as ICachedSteamProfile;
+    }
+
+    return cachedProfile as ICachedSteamProfile;
   }
 
   convertToSteamId64(steamID: ISteamID): string | null {
