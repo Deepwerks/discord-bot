@@ -24,13 +24,15 @@ export default class BaseClient {
   public async request<T>(
     method: RequestMethod,
     url: string,
-    data?: object
+    data?: object,
+    params?: Record<string, any>
   ): Promise<T> {
     try {
       const response: AxiosResponse<T> = await this.client.request({
         method,
         url,
         data,
+        params,
       });
 
       return response.data;

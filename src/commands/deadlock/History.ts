@@ -2,18 +2,14 @@ import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   EmbedBuilder,
-  Events,
-  Guild,
   PermissionsBitField,
 } from "discord.js";
 import Command from "../../base/classes/Command.";
 import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
-import { isValidSteamId } from "../../services/utils/isValidSteamId";
 import CommandError from "../../base/errors/CommandError";
 import { useAssetsClient, useDeadlockClient, useSteamClient } from "../..";
-import { getSteamIdType } from "../../services/utils/getSteamIdType";
 import { getFormattedMatchTime } from "../../services/utils/getFormattedMatchTime";
 import pLimit from "p-limit";
 import logger from "../../services/logger";
@@ -29,7 +25,7 @@ export default class History extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 3,
-      dev: false,
+      dev: true,
       options: [
         {
           name: "player",
@@ -46,55 +42,32 @@ export default class History extends Command {
     t: TFunction<"translation", undefined>
   ) {
     const player = interaction.options.getString("player");
+    const startTime = performance.now();
 
     try {
-      if (!player || player.length === 0) {
-        throw new CommandError(t("errors.field_empty", { field: "Player" }));
-      }
+      let _steamId = player;
 
-      let steamId: string | undefined;
-      let steamIdType: "steamID3" | "steamID" | "steamID64" | null;
-
-      let _steamId: string | null;
       if (player === "me") {
         const storedPlayer = await StoredPlayer.findOne({
           discordId: interaction.user.id,
         });
 
-        if (!storedPlayer) {
+        if (!storedPlayer)
           throw new CommandError(t("errors.steam_not_yet_stored"));
-        }
 
         _steamId = storedPlayer.steamId;
-        steamIdType = storedPlayer.steamIdType;
-
-        steamId = _steamId;
-      } else {
-        if (isValidSteamId(player)) steamId = player;
-        else {
-          _steamId = await useSteamClient.ProfileService.GetIdFromUsername(
-            player
-          );
-
-          if (!_steamId || !isValidSteamId(_steamId))
-            throw new CommandError(t("errors.steam_player_not_found"));
-
-          steamId = _steamId;
-        }
-
-        steamIdType = getSteamIdType(steamId);
-        if (!steamIdType) {
-          throw new CommandError(t("errors.get_steam_id_type_failed"));
-        }
       }
 
-      const steamProfile = await useSteamClient.ProfileService.GetPlayer({
-        value: steamId!,
-        type: steamIdType,
-      });
+      const steamProfile = await useSteamClient.ProfileService.GetProfile(
+        _steamId
+      );
+
+      if (!steamProfile) {
+        throw new CommandError(t("errors.steam_profile_not_found"));
+      }
 
       const matches = await useDeadlockClient.PlayerService.GetMatchHistory(
-        steamId!,
+        steamProfile.steamid,
         15
       );
 
@@ -103,9 +76,9 @@ export default class History extends Command {
       const matchesString: string[] = await Promise.all(
         matches.map((match) =>
           limit(async () => {
-            const heroName = (
-              await useAssetsClient.HeroService.GetHero(match.hero_id)
-            ).name;
+            const heroName = (await useAssetsClient.HeroService.GetHeroCached(
+              match.hero_id
+            ))!.name;
             const champion = heroName.padEnd(15);
             const time = getFormattedMatchTime(match.match_duration_s).padEnd(
               9
@@ -145,7 +118,17 @@ ${header}
 ${matchesString.join("\n")}
       \`\`\``;
 
-      await interaction.reply({ content: response });
+      const endTime = performance.now();
+      const duration = (endTime - startTime).toFixed(2);
+      await interaction.reply({
+        content: response,
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Blue")
+            .setTimestamp()
+            .setFooter({ text: `Generated in: ${duration} ms` }),
+        ],
+      });
     } catch (error) {
       logger.error(error);
 
@@ -156,18 +139,16 @@ ${matchesString.join("\n")}
           ],
           flags: ["Ephemeral"],
         });
-
-        return;
+      } else {
+        await interaction.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor("Red")
+              .setDescription(t("commands.match.fetch_failed")),
+          ],
+          flags: ["Ephemeral"],
+        });
       }
-
-      await interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor("Red")
-            .setDescription(t("commands.match.fetch_failed")),
-        ],
-        flags: ["Ephemeral"],
-      });
     }
   }
 }

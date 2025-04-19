@@ -1,10 +1,9 @@
 import { createCanvas, loadImage } from "canvas";
 import DeadlockMatchPlayer from "../clients/DeadlockClient/DeadlockMatchService/entities/DeadlockMatchPlayer";
-import ISteamPlayer from "../clients/SteamClient/SteamProfileService/interfaces/ISteamPlayer";
-import { getDeadlockHero } from "./getDeadlockHero";
 import { useAssetsClient } from "../..";
 import { Collection } from "discord.js";
 import { getFormattedMatchTime } from "./getFormattedMatchTime";
+import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
 
 export interface IGenerateMatchImageOptions {
   match: {
@@ -15,11 +14,11 @@ export interface IGenerateMatchImageOptions {
     winning_team: number;
     team0WithSteamData: {
       deadlock_player: DeadlockMatchPlayer;
-      steam_player: ISteamPlayer;
+      steam_player: ICachedSteamProfile;
     }[];
     team1WithSteamData: {
       deadlock_player: DeadlockMatchPlayer;
-      steam_player: ISteamPlayer;
+      steam_player: ICachedSteamProfile;
     }[];
   };
 }
@@ -74,7 +73,6 @@ export async function generateMatchImage(
     "Healing",
   ];
 
-  const maxPlayers = Math.max(sapphireTeam.length, amberTeam.length);
   const centerX = canvasWidth / 2;
   const rowLabelX = centerX;
 
@@ -83,12 +81,15 @@ export async function generateMatchImage(
     centerX - playerSpacing * (sapphireTeam.length - 1) - spacingBetweenTeams;
   const amberStartX = centerX + spacingBetweenTeams;
 
-  const team0RankBadge = await loadImage(
-    useAssetsClient.DefaultService.GetRankImage(match.average_badge_team0)!
+  const team0BadgeUrl = await useAssetsClient.DefaultService.GetRankImage(
+    match.average_badge_team0
   );
-  const team1RankBadge = await loadImage(
-    useAssetsClient.DefaultService.GetRankImage(match.average_badge_team1)!
+  const team1BadgeUrl = await useAssetsClient.DefaultService.GetRankImage(
+    match.average_badge_team1
   );
+
+  const team0RankBadge = await loadImage(team0BadgeUrl!);
+  const team1RankBadge = await loadImage(team1BadgeUrl!);
 
   const fixedWidth = 120;
   const aspectRatio = team0RankBadge.height / team0RankBadge.width;
@@ -185,7 +186,7 @@ export async function generateMatchImage(
   async function renderPlayerData(
     team: {
       deadlock_player: DeadlockMatchPlayer;
-      steam_player: ISteamPlayer;
+      steam_player: ICachedSteamProfile;
     }[],
     startX: number
   ) {
@@ -203,8 +204,11 @@ export async function generateMatchImage(
       );
 
       // --- Avatar ---
-      const heroAvatar = (await getDeadlockHero(player.deadlock_player.hero_id))
-        .imageUrl;
+      const heroAvatar = (
+        await useAssetsClient.HeroService.GetHeroCached(
+          player.deadlock_player.hero_id
+        )
+      )?.images.icon_hero_card;
       if (heroAvatar) {
         const img = await loadImage(heroAvatar);
         ctx.drawImage(
@@ -226,9 +230,10 @@ export async function generateMatchImage(
       );
 
       if (player.deadlock_player.party !== 0) {
+        ctx.beginPath();
+        ctx.arc(x, startY + 30, 10, 0, Math.PI * 2);
         ctx.fillStyle = party_colors.get(player.deadlock_player.party)!;
-        ctx.font = "16px Arial";
-        ctx.fillText("👤", x, startY + 30);
+        ctx.fill();
       }
 
       // --- Stats ---

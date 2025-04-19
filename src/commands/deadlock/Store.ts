@@ -25,7 +25,7 @@ export default class Store extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 30,
-      dev: false,
+      dev: true,
       options: [
         {
           name: "steam",
@@ -107,18 +107,16 @@ export default class Store extends Command {
           ],
           flags: ["Ephemeral"],
         });
-
-        return;
+      } else {
+        await interaction.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor("Red")
+              .setDescription(t("errors.generic_error")),
+          ],
+          flags: ["Ephemeral"],
+        });
       }
-
-      await interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor("Red")
-            .setDescription(t("errors.generic_error")),
-        ],
-        flags: ["Ephemeral"],
-      });
     }
   }
 }

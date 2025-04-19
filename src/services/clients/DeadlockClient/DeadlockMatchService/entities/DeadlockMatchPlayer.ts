@@ -3,7 +3,7 @@ export default class DeadlockMatchPlayer {
 
   player_slot: number;
   team: number;
-  hero_id: number;
+  hero_id: string;
   party: number;
 
   kills: number;

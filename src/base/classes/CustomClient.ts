@@ -9,7 +9,6 @@ import config from "../../config";
 import logger from "../../services/logger";
 import { initI18n } from "../../services/i18n";
 import WebService from "../../services/web";
-import { useAssetsClient } from "../..";
 
 export default class CustomClient extends Client implements ICustomClient {
   config: IConfig;
@@ -46,8 +45,6 @@ export default class CustomClient extends Client implements ICustomClient {
       .catch((err) => logger.error(err));
 
     new WebService(this.config).Init();
-
-    await useAssetsClient.DefaultService.setRanks();
   }
 
   LoadHandlers(): void {

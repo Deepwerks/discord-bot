@@ -1,7 +1,7 @@
 export default class HistoryMatch {
   account_id: number;
   match_id: number;
-  hero_id: number;
+  hero_id: string;
   hero_level: number;
   start_time: number;
   game_mode: number;

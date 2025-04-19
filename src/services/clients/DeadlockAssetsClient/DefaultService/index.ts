@@ -1,29 +1,26 @@
+import { deadlockAssetsDefaultCache } from "../../../cache";
+import logger from "../../../logger";
 import BaseClient from "../../BaseClient";
 import DeadlockRank from "./entities/DeadlockRank";
 
 export interface IDefaultAssetsService {
   GetRanks(): Promise<DeadlockRank[]>;
-  setRanks(): void;
 }
 
 export default class DefaultAssetsService implements IDefaultAssetsService {
   private client: BaseClient;
-  public ranks: DeadlockRank[];
 
   constructor(client: BaseClient) {
     this.client = client;
-    this.ranks = [];
   }
 
-  async setRanks() {
-    this.ranks = await this.GetRanks();
-  }
-
-  GetRankImage(number: number) {
+  async GetRankImage(number: number) {
     const rank = Math.floor(number / 10);
     const subrank = number % 10;
 
-    const tierData = this.ranks.find((item) => item.tier === rank);
+    const tierData = (await this.GetRanksCached()).find(
+      (item) => item.tier === rank
+    );
     if (!tierData) return null;
 
     const images = tierData.images;
@@ -37,11 +34,23 @@ export default class DefaultAssetsService implements IDefaultAssetsService {
   }
 
   async GetRanks() {
+    logger.info("[API CALL] Fetching a deadlock ranks...");
     const response = await this.client.request<DeadlockRank[]>(
       "GET",
       `/v2/ranks`
     );
 
+    return response;
+  }
+
+  async GetRanksCached() {
+    const cached = deadlockAssetsDefaultCache.get("ranks");
+
+    if (cached) return cached;
+
+    const response = await this.GetRanks();
+
+    deadlockAssetsDefaultCache.set("ranks", response);
     return response;
   }
 }

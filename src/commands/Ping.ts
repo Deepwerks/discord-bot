@@ -19,15 +19,20 @@ export default class Ping extends Command {
   }
 
   async Execute(interaction: ChatInputCommandInteraction) {
-    const sent = await interaction.reply({
+    const startTime = performance.now();
+
+    await interaction.reply({
       content: "Pinging...",
       withResponse: true,
     });
 
+    const endTime = performance.now();
+    const duration = (endTime - startTime).toFixed(2);
+
     await interaction.editReply(
-      `Pong! 🏓 \n \`Latency: ${
-        Date.now() - sent.interaction.createdTimestamp
-      }ms\` \n \`API Latency: ${Math.round(this.client.ws.ping)}ms\``
+      `Pong! 🏓 \n \`Latency: ${duration}ms\` \n \`API Latency: ${Math.round(
+        this.client.ws.ping
+      )}ms\``
     );
   }
 }
