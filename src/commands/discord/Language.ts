@@ -67,7 +67,7 @@ export default class Language extends Command {
         setCachedLang(interaction.guildId!, selectedLanguage!);
       });
 
-      interaction.reply({
+      await interaction.reply({
         embeds: [
           new EmbedBuilder().setColor("Green").setDescription(
             newT("commands.language.set_success", {
@@ -80,7 +80,7 @@ export default class Language extends Command {
     } catch (error: any) {
       logger.error(error);
 
-      interaction.reply({
+      await interaction.reply({
         embeds: [
           new EmbedBuilder().setColor("Red").setDescription(
             t("commands.language.set_fail", {

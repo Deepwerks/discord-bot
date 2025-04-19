@@ -1,0 +1,267 @@
+{"level":"info","message":"⚙️ Starting the bot in development mode...","timestamp":"2025-04-17T16:09:21.600Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T16:09:22.230Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T16:16:30.025Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T16:16:30.674Z"}
+{"level":"info","message":"DeadlockAssistant#5260 is now ready!","timestamp":"2025-04-17T16:16:30.882Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T16:16:31.090Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T16:18:05.921Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T16:18:06.479Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T16:18:06.728Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T16:18:06.964Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T16:18:18.111Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T16:36:08.005Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T16:36:08.640Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T16:36:08.848Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T16:36:09.051Z"}
+{"level":"info","message":"[COMMAND] mexter used /emit","timestamp":"2025-04-17T16:36:18.886Z"}
+{"level":"info","message":"[COMMAND] mexter used /emit","timestamp":"2025-04-17T16:36:25.788Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:23:01.126Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:23:01.676Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:23:01.966Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T17:23:02.189Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:23:32.461Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:26:05.883Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:26:06.443Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:26:06.741Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T17:26:06.964Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:26:17.322Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:27:30.623Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:27:31.244Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:27:31.498Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T17:27:31.689Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:27:37.005Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:29:52.365Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:29:52.925Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:29:53.225Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T17:29:53.420Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:29:57.784Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:33:50.256Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:33:50.898Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:33:51.067Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T17:33:51.284Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:33:53.071Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:34:25.554Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:34:26.095Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:34:26.392Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T17:34:26.608Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:34:35.110Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:34:58.667Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:34:59.218Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:34:59.542Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T17:34:59.747Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:35:03.946Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:35:41.957Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:35:42.490Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:35:42.915Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T17:35:43.143Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:35:48.008Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:36:58.006Z"}
+{"level":"info","message":"i18n initialized...","timestamp":"2025-04-17T17:36:58.016Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:36:58.580Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:36:58.847Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T17:36:59.229Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:40:21.451Z"}
+{"level":"info","message":"i18n initialized...","timestamp":"2025-04-17T17:40:21.465Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:40:22.016Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:40:22.443Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T17:40:22.648Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:40:32.259Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:41:10.264Z"}
+{"level":"info","message":"i18n initialized...","timestamp":"2025-04-17T17:41:10.278Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:41:10.809Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:41:11.214Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T17:41:11.405Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:41:15.303Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:41:20.948Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:43:13.635Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T17:43:13.652Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:43:14.262Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:43:14.501Z"}
+{"level":"info","message":"Successfully loaded 2 developer application commands!","timestamp":"2025-04-17T17:43:14.720Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:45:22.167Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T17:45:22.180Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:45:22.758Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:45:23.026Z"}
+{"level":"info","message":"Successfully loaded 4 developer application commands!","timestamp":"2025-04-17T17:45:23.227Z"}
+{"level":"info","message":"Successfully loaded 2 global application commands!","timestamp":"2025-04-17T17:45:23.654Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T17:45:42.594Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:46:00.467Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:46:14.606Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:46:21.289Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:46:58.247Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T17:46:58.260Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:46:58.790Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:46:59.160Z"}
+{"level":"info","message":"Successfully loaded 4 developer application commands!","timestamp":"2025-04-17T17:46:59.357Z"}
+{"level":"info","message":"Successfully loaded 2 global application commands!","timestamp":"2025-04-17T17:46:59.756Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:47:02.275Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:48:26.295Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T17:48:26.308Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:48:26.933Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:48:27.321Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T17:48:27.567Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T17:48:41.220Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:48:45.993Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:49:19.215Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T17:49:19.228Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:49:19.792Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:49:20.015Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T17:49:20.214Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:49:28.854Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T17:49:35.395Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:49:40.603Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:52:29.101Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T17:52:29.114Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:52:29.711Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:52:30.112Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T17:52:30.309Z"}
+{"level":"info","message":"Getting guild language from Cache...","timestamp":"2025-04-17T17:52:38.070Z"}
+{"level":"info","message":"Setting guild language in Cache...","timestamp":"2025-04-17T17:52:38.115Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:52:38.116Z"}
+{"level":"info","message":"Getting guild language from Cache...","timestamp":"2025-04-17T17:52:38.116Z"}
+{"level":"info","message":"Getting guild language from Cache...","timestamp":"2025-04-17T17:52:47.849Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:52:47.850Z"}
+{"level":"info","message":"Getting guild language from Cache...","timestamp":"2025-04-17T17:52:47.850Z"}
+{"level":"info","message":"Getting guild language from Cache...","timestamp":"2025-04-17T17:53:03.169Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T17:53:03.170Z"}
+{"level":"info","message":"Setting guild language in Cache...","timestamp":"2025-04-17T17:53:03.221Z"}
+{"level":"info","message":"Getting guild language from Cache...","timestamp":"2025-04-17T17:53:12.561Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:53:12.562Z"}
+{"level":"info","message":"Getting guild language from Cache...","timestamp":"2025-04-17T17:53:12.562Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T17:54:39.823Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T17:54:39.837Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T17:54:40.381Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T17:54:40.676Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T17:54:40.895Z"}
+{"level":"info","message":"Getting guild language from Cache...","timestamp":"2025-04-17T17:54:45.138Z"}
+{"level":"info","message":"Setting guild language in Cache...","timestamp":"2025-04-17T17:54:45.180Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:54:45.181Z"}
+{"level":"info","message":"Getting guild language from Cache...","timestamp":"2025-04-17T17:54:45.181Z"}
+{"level":"info","message":"Getting guild language from Cache...","timestamp":"2025-04-17T17:55:01.814Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T17:55:01.814Z"}
+{"level":"info","message":"Setting guild language in Cache...","timestamp":"2025-04-17T17:55:01.862Z"}
+{"level":"info","message":"Getting guild language from Cache...","timestamp":"2025-04-17T17:55:08.121Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T17:55:08.121Z"}
+{"level":"info","message":"Getting guild language from Cache...","timestamp":"2025-04-17T17:55:08.122Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T18:02:42.001Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T18:02:42.015Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T18:02:42.644Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T18:02:42.918Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T18:02:43.121Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:02:53.263Z"}
+{"level":"info","message":"Setting cache...","timestamp":"2025-04-17T18:02:53.306Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:02:53.308Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:02:53.309Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:03:10.142Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T18:03:10.142Z"}
+{"level":"info","message":"Setting cache...","timestamp":"2025-04-17T18:03:10.192Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:03:16.216Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:03:16.216Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:03:16.217Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T18:03:46.777Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T18:03:46.790Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T18:03:47.350Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T18:03:47.607Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T18:03:47.845Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:03:55.871Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T18:04:06.102Z"}
+{"level":"info","message":"Setting cache...","timestamp":"2025-04-17T18:04:06.146Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:04:10.417Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T18:06:20.731Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T18:06:20.745Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T18:06:21.354Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T18:06:21.641Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T18:06:21.860Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:06:31.512Z"}
+{"level":"info","message":"Setting cache...","timestamp":"2025-04-17T18:06:31.556Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:06:31.558Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:06:31.558Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:07:11.394Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T18:07:11.395Z"}
+{"level":"info","message":"Setting cache...","timestamp":"2025-04-17T18:07:11.443Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:07:17.607Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:07:17.608Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:07:17.608Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T18:09:05.905Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T18:09:05.918Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T18:09:06.556Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T18:09:06.854Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T18:09:07.079Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:09:13.129Z"}
+{"level":"info","message":"Setting cache...","timestamp":"2025-04-17T18:09:13.177Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:09:13.179Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:09:13.179Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:09:21.718Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T18:09:21.719Z"}
+{"level":"info","message":"Setting cache...","timestamp":"2025-04-17T18:09:21.768Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:09:35.456Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:09:35.456Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:09:35.457Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:09:44.597Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T18:11:03.397Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T18:11:03.410Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T18:11:03.949Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T18:11:04.364Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T18:11:04.566Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:11:08.284Z"}
+{"level":"info","message":"Setting cache...","timestamp":"2025-04-17T18:11:08.327Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:11:08.328Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:11:08.328Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:11:19.804Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:11:19.805Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:11:19.806Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:11:29.815Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T18:11:29.815Z"}
+{"level":"info","message":"Setting cache...","timestamp":"2025-04-17T18:11:29.864Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:11:36.982Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:11:36.983Z"}
+{"level":"info","message":"Reading from cache...","timestamp":"2025-04-17T18:11:36.984Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T18:30:09.040Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T18:30:09.052Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T18:30:09.609Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T18:30:10.069Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T18:30:10.294Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:30:28.826Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T18:30:34.206Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:30:37.807Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T18:34:28.395Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T18:34:28.407Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T18:34:28.972Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T18:34:29.378Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T18:34:29.570Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:34:36.571Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T18:34:43.377Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:34:48.963Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T18:38:14.756Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T18:38:14.768Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T18:38:15.320Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T18:38:15.632Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T18:38:15.839Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:38:20.193Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T18:38:27.197Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:38:31.073Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:38:35.967Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T18:49:38.005Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T18:49:38.019Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T18:49:38.708Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T18:49:39.176Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T18:49:39.371Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:49:45.578Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T18:50:10.385Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T18:50:10.398Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T18:50:10.917Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T18:50:11.832Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T18:50:12.060Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:50:16.586Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T18:50:25.109Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:50:33.141Z"}
+{"level":"info","message":"Starting the bot in development mode...","timestamp":"2025-04-17T18:52:39.828Z"}
+{"level":"info","message":"i18n initialized!","timestamp":"2025-04-17T18:52:39.842Z"}
+{"level":"info","message":"Connected to MongoDB!","timestamp":"2025-04-17T18:52:40.399Z"}
+{"level":"info","message":"DeadlockAssistant [DEVELOPMENT]#4840 is now ready!","timestamp":"2025-04-17T18:52:40.655Z"}
+{"level":"info","message":"Successfully loaded 3 developer application commands!","timestamp":"2025-04-17T18:52:40.877Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:52:52.693Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T18:53:01.478Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:53:11.730Z"}
+{"level":"info","message":"[COMMAND] mexter used /language","timestamp":"2025-04-17T18:54:06.437Z"}
+{"level":"info","message":"[COMMAND] mexter used /test","timestamp":"2025-04-17T18:54:16.524Z"}
