@@ -4,6 +4,7 @@ import ISteamPlayer from "../clients/SteamClient/SteamProfileService/interfaces/
 import { getDeadlockHero } from "./getDeadlockHero";
 import { useAssetsClient } from "../..";
 import { Collection } from "discord.js";
+import { getFormattedMatchTime } from "./getFormattedMatchTime";
 
 export interface IGenerateMatchImageOptions {
   match: {
@@ -97,7 +98,7 @@ export async function generateMatchImage(
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 28px Arial";
   ctx.textAlign = "center";
-  ctx.fillText(msToHHMM(match.duration), canvasWidth / 2, 60);
+  ctx.fillText(getFormattedMatchTime(match.duration), canvasWidth / 2, 60);
 
   // Team names
   if (match.winning_team === 0) {
@@ -301,14 +302,4 @@ const shortenPlayerName = (playername: string) => {
   if (playername.length < 12) return playername;
 
   return playername.slice(0, 9) + "...";
-};
-
-const msToHHMM = (s: number) => {
-  const hours = Math.floor(s / 60);
-  const minutes = s % 60;
-
-  const paddedHours = hours.toString().padStart(2, "0");
-  const paddedMinutes = minutes.toString().padStart(2, "0");
-
-  return `${paddedHours}:${paddedMinutes}`;
 };
