@@ -2,8 +2,6 @@ import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   EmbedBuilder,
-  Events,
-  Guild,
   PermissionsBitField,
 } from "discord.js";
 import Command from "../../base/classes/Command.";
@@ -29,7 +27,7 @@ export default class History extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 3,
-      dev: false,
+      dev: true,
       options: [
         {
           name: "player",

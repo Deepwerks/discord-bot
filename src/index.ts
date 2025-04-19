@@ -20,6 +20,8 @@ const useAssetsClient = new DeadlockAssetsClient({
 
 new CustomClient().Init();
 
+export { useSteamClient, useDeadlockClient, useAssetsClient };
+
 process.on("uncaughtException", (err) => {
   logger.error("Uncaught Exception:", err);
 });
@@ -27,5 +29,3 @@ process.on("uncaughtException", (err) => {
 process.on("unhandledRejection", (reason, promise) => {
   logger.error("Unhandled Rejection at:", promise, "reason:", reason);
 });
-
-export { useSteamClient, useDeadlockClient, useAssetsClient };

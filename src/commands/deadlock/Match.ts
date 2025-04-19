@@ -30,7 +30,7 @@ export default class Match extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 6,
-      dev: false,
+      dev: true,
       options: [
         {
           name: "matchid",
@@ -47,6 +47,7 @@ export default class Match extends Command {
     t: TFunction<"translation", undefined>
   ) {
     const matchid = interaction.options.getString("matchid");
+    const startTime = performance.now();
 
     try {
       const sent = await interaction.deferReply();
@@ -150,15 +151,15 @@ export default class Match extends Command {
         name: "match.png",
       });
 
+      const endTime = performance.now();
+      const duration = (endTime - startTime).toFixed(2);
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setColor("Blue")
             .setTimestamp()
             .setFooter({
-              text: `Generated in ${
-                Date.now() - sent.interaction.createdTimestamp
-              }ms`,
+              text: `Generated in ${duration}ms`,
             }),
         ],
         files: [attachment],

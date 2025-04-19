@@ -8,9 +8,8 @@ import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
 import Command from "../../base/classes/Command.";
 import logger from "../../services/logger";
-import { getGuildLang } from "../../services/utils/getGuildLang";
 import i18next from "../../services/i18n";
-import CommandError from "../../base/errors/CommandError";
+import GuildConfig from "../../base/schemas/GuildConfig";
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -24,8 +23,10 @@ export default class CommandHandler extends Event {
   async Execute(interaction: ChatInputCommandInteraction) {
     if (!interaction.isChatInputCommand()) return;
 
-    const guildLang = await getGuildLang(interaction.guildId!);
-    const t = i18next.getFixedT(guildLang);
+    const guildLang = await GuildConfig.findOne({
+      guildId: interaction.guildId!,
+    });
+    const t = i18next.getFixedT(guildLang?.lang!);
 
     const command: Command = this.client.commands.get(interaction.commandName)!;
 

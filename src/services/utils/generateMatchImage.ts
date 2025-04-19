@@ -1,7 +1,6 @@
 import { createCanvas, loadImage } from "canvas";
 import DeadlockMatchPlayer from "../clients/DeadlockClient/DeadlockMatchService/entities/DeadlockMatchPlayer";
 import ISteamPlayer from "../clients/SteamClient/SteamProfileService/interfaces/ISteamPlayer";
-import { getDeadlockHero } from "./getDeadlockHero";
 import { useAssetsClient } from "../..";
 import { Collection } from "discord.js";
 import { getFormattedMatchTime } from "./getFormattedMatchTime";
@@ -83,12 +82,15 @@ export async function generateMatchImage(
     centerX - playerSpacing * (sapphireTeam.length - 1) - spacingBetweenTeams;
   const amberStartX = centerX + spacingBetweenTeams;
 
-  const team0RankBadge = await loadImage(
-    useAssetsClient.DefaultService.GetRankImage(match.average_badge_team0)!
+  const team0BadgeUrl = await useAssetsClient.DefaultService.GetRankImage(
+    match.average_badge_team0
   );
-  const team1RankBadge = await loadImage(
-    useAssetsClient.DefaultService.GetRankImage(match.average_badge_team1)!
+  const team1BadgeUrl = await useAssetsClient.DefaultService.GetRankImage(
+    match.average_badge_team1
   );
+
+  const team0RankBadge = await loadImage(team0BadgeUrl!);
+  const team1RankBadge = await loadImage(team1BadgeUrl!);
 
   const fixedWidth = 120;
   const aspectRatio = team0RankBadge.height / team0RankBadge.width;
@@ -203,8 +205,11 @@ export async function generateMatchImage(
       );
 
       // --- Avatar ---
-      const heroAvatar = (await getDeadlockHero(player.deadlock_player.hero_id))
-        .imageUrl;
+      const heroAvatar = (
+        await useAssetsClient.HeroService.GetHero(
+          player.deadlock_player.hero_id
+        )
+      ).images.icon_hero_card;
       if (heroAvatar) {
         const img = await loadImage(heroAvatar);
         ctx.drawImage(

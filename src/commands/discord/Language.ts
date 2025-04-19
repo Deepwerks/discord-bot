@@ -13,7 +13,6 @@ import { supportedLanguages } from "../../services/i18n";
 import CommandError from "../../base/errors/CommandError";
 import GuildConfig from "../../base/schemas/GuildConfig";
 import logger from "../../services/logger";
-import { setCachedLang } from "../../services/cache/langCache";
 import { TFunction } from "i18next";
 import i18next from "../../services/i18n";
 
@@ -63,9 +62,7 @@ export default class Language extends Command {
         { guildId: interaction.guildId },
         { lang: selectedLanguage },
         { upsert: true }
-      ).then(() => {
-        setCachedLang(interaction.guildId!, selectedLanguage!);
-      });
+      );
 
       interaction.reply({
         embeds: [
