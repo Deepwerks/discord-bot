@@ -230,9 +230,10 @@ export async function generateMatchImage(
       );
 
       if (player.deadlock_player.party !== 0) {
+        ctx.beginPath();
+        ctx.arc(x, startY + 30, 10, 0, Math.PI * 2);
         ctx.fillStyle = party_colors.get(player.deadlock_player.party)!;
-        ctx.font = "16px Arial";
-        ctx.fillText("👤", x, startY + 30);
+        ctx.fill();
       }
 
       // --- Stats ---
