@@ -76,9 +76,9 @@ export default class History extends Command {
       const matchesString: string[] = await Promise.all(
         matches.map((match) =>
           limit(async () => {
-            const heroName = (
-              await useAssetsClient.HeroService.GetHero(match.hero_id)
-            ).name;
+            const heroName = (await useAssetsClient.HeroService.GetHeroCached(
+              match.hero_id
+            ))!.name;
             const champion = heroName.padEnd(15);
             const time = getFormattedMatchTime(match.match_duration_s).padEnd(
               9

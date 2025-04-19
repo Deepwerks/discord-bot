@@ -1,5 +1,6 @@
 import NodeCache from "node-cache";
 import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
+import ICachedDeadlockHero from "../../base/interfaces/ICachedDeadlockHero";
 
 export default class CustomCache<T> {
   private cache: NodeCache;
@@ -38,3 +39,4 @@ export default class CustomCache<T> {
 }
 
 export const steamProfileCache = new CustomCache<ICachedSteamProfile>(3600);
+export const deadlockAssetsHeroCache = new CustomCache<ICachedDeadlockHero>(0);

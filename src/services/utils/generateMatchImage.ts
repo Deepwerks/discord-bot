@@ -205,10 +205,10 @@ export async function generateMatchImage(
 
       // --- Avatar ---
       const heroAvatar = (
-        await useAssetsClient.HeroService.GetHero(
+        await useAssetsClient.HeroService.GetHeroCached(
           player.deadlock_player.hero_id
         )
-      ).images.icon_hero_card;
+      )?.images.icon_hero_card;
       if (heroAvatar) {
         const img = await loadImage(heroAvatar);
         ctx.drawImage(

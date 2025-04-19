@@ -28,9 +28,12 @@ export default class SteamProfileService implements ISteamProfileService {
     logger.info("[API CALL] Fetching a steam profile...");
     const response = await this.client.request<ISteamPlayersResponse>(
       "GET",
-      `/ISteamUser/GetPlayerSummaries/v0002/?key=${
-        this.client.apiKey
-      }&steamids=${this.convertToSteamId64(steamID)}`
+      `/ISteamUser/GetPlayerSummaries/v0002/`,
+      undefined,
+      {
+        key: this.client.apiKey,
+        steamids: this.convertToSteamId64(steamID),
+      }
     );
 
     const players = response.response.players;

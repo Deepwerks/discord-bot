@@ -29,3 +29,7 @@ process.on("uncaughtException", (err) => {
 process.on("unhandledRejection", (reason, promise) => {
   logger.error("Unhandled Rejection at:", promise, "reason:", reason);
 });
+
+process.on("exit", (code) => {
+  console.log(`About to exit with code: ${code}`);
+});
