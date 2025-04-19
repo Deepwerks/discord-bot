@@ -5,7 +5,7 @@
     },
     "language": {
       "set_success": "✅ You have successfully set this server's language to '{{selectedLanguage}}'",
-      "set_fail": "❌ Failed to change this server's language."
+      "set_fail": "❌ Failed to change this server's language: {{error}}"
     },
     "emit": {
       "success": "Event emitted: '{{event}}'",
@@ -15,12 +15,16 @@
       "not_valid_steamid": "❌ Invalid steamID was given. I can only accept steamID, steamID3 or steamID64"
     },
     "match": {
-      "fail": "❌ Failed to get match data. Are you sure there is a match with the given id?"
+      "fail": "❌ Something went wrong...",
+      "fetch_failed": "Failed to fetch match details. The match ID might be invalid or the server is down."
     }
   },
   "warnings": {
     "cooldown": "❌ Please wait another `{{time}}` seconds to run this command!",
     "no_permission": "❌ You don't have permission to use this command!",
     "no_command": "❌ This command does not exist!"
+  },
+  "errors": {
+    "generic_error": "Something went wrong. Please try again later."
   }
 }

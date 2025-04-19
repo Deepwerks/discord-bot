@@ -10,11 +10,6 @@ export const supportedLanguages: ILanguage[] = [
     nameEnglish: "English",
     nameNative: "English",
   },
-  {
-    code: "hu",
-    nameEnglish: "Hungarian",
-    nameNative: "Magyar",
-  },
 ];
 
 export async function initI18n() {

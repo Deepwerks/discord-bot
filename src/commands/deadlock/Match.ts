@@ -1,5 +1,6 @@
 import {
   ApplicationCommandOptionType,
+  AttachmentBuilder,
   ChatInputCommandInteraction,
   EmbedBuilder,
   PermissionsBitField,
@@ -9,6 +10,14 @@ import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
 import logger from "../../services/logger";
+import {
+  generateMatchImage,
+  IGenerateMatchImageOptions,
+} from "../../services/utils/generateMatchImage";
+import ISteamPlayer from "../../services/clients/SteamClient/SteamProfileService/interfaces/ISteamPlayer";
+import { useDeadlockClient, useSteamClient } from "../..";
+import { AxiosError } from "axios";
+import NotFoundError from "../../base/errors/NotFoundError";
 
 export default class Match extends Command {
   constructor(client: CustomClient) {
@@ -39,29 +48,83 @@ export default class Match extends Command {
     const matchid = interaction.options.getString("matchid");
 
     try {
-      const match = await this.client.DeadlockClient.MatchService.GetMatch(
-        matchid!
+      const sent = await interaction.deferReply();
+      const match = await useDeadlockClient.MatchService.GetMatch(matchid!);
+
+      const allPlayers = [...match.team_0_players, ...match.team_1_players];
+      const steamIDInputs = allPlayers.map((player) => ({
+        type: "steamID3" as const,
+        value: String(player.account_id),
+      }));
+
+      const steamPlayers = await useSteamClient.ProfileService.GetPlayers(
+        steamIDInputs
       );
 
-      let matchResponse: string = `MatchID: ${match.match_id}\n Duration: ${match.duration_s}\n Team A: `;
-      matchResponse += match.team_0_players.map((p) => p.account_id).join(", ");
+      const steamPlayerMap = new Map<string, ISteamPlayer>();
+      for (const steamPlayer of steamPlayers) {
+        steamPlayerMap.set(steamPlayer.steamid, steamPlayer);
+      }
 
-      matchResponse += "\n Team B: ";
-      matchResponse += match.team_1_players.map((p) => p.account_id).join(", ");
+      const team0WithSteamData = match.team_0_players.map((player) => ({
+        deadlock_player: player,
+        steam_player: steamPlayerMap.get(
+          useSteamClient.ProfileService.convertToSteamId64({
+            type: "steamID3",
+            value: String(player.account_id),
+          })!
+        )!,
+      }));
 
-      return interaction.reply({
-        content: matchResponse,
+      const team1WithSteamData = match.team_1_players.map((player) => ({
+        deadlock_player: player,
+        steam_player: steamPlayerMap.get(
+          useSteamClient.ProfileService.convertToSteamId64({
+            type: "steamID3",
+            value: String(player.account_id),
+          })!
+        )!,
+      }));
+
+      const data: IGenerateMatchImageOptions = {
+        match: {
+          id: match.match_id,
+          duration: match.duration_s,
+          average_badge_team0: match.average_badge_team0,
+          average_badge_team1: match.average_badge_team1,
+          winning_team: match.winning_team,
+          team0WithSteamData,
+          team1WithSteamData,
+        },
+      };
+
+      const imageBuffer = await generateMatchImage(data);
+      const attachment = new AttachmentBuilder(imageBuffer, {
+        name: "match.png",
       });
-    } catch (error) {
-      logger.error(error);
 
-      return interaction.reply({
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor("Blue")
+            .setTimestamp()
+            .setFooter({
+              text: `Generated in ${
+                Date.now() - sent.interaction.createdTimestamp
+              }ms`,
+            }),
+        ],
+        files: [attachment],
+      });
+    } catch (err) {
+      logger.error("Match command failed", err);
+
+      await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setColor("Red")
-            .setDescription(t("commands.match.fail")),
+            .setDescription(t("commands.match.fetch_failed")),
         ],
-        flags: ["Ephemeral"],
       });
     }
   }

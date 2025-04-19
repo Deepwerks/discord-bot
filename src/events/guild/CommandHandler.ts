@@ -10,6 +10,7 @@ import Command from "../../base/classes/Command.";
 import logger from "../../services/logger";
 import { getGuildLang } from "../../services/utils/getGuildLang";
 import i18next from "../../services/i18n";
+import CommandError from "../../base/errors/CommandError";
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -82,21 +83,48 @@ export default class CommandHandler extends Event {
     timestamps.set(interaction.user.id, now);
     setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
 
-    try {
-      const subCommandGroup = interaction.options.getSubcommandGroup(false);
-      const subCommand = `${interaction.commandName}${
-        subCommandGroup ? `${subCommandGroup}` : ""
-      }.${interaction.options.getSubcommand(false) || ""}`;
+    const subCommandGroup = interaction.options.getSubcommandGroup(false);
+    const subCommand = `${interaction.commandName}${
+      subCommandGroup ? `${subCommandGroup}` : ""
+    }.${interaction.options.getSubcommand(false) || ""}`;
 
-      logger.info(
-        `[COMMAND] ${interaction.user.tag} used /${interaction.commandName}`
-      );
-      return (
-        this.client.subCommands.get(subCommand)?.Execute(interaction, t) ||
-        command.Execute(interaction, t)
-      );
-    } catch (error) {
-      logger.error(error);
+    logger.info(
+      `[COMMAND] ${interaction.user.tag} used /${interaction.commandName}`
+    );
+
+    try {
+      const subCommandHandler = this.client.subCommands.get(subCommand);
+      if (subCommandHandler) {
+        return await subCommandHandler.Execute(interaction, t);
+      } else {
+        return await command.Execute(interaction, t);
+      }
+    } catch (err) {
+      logger.error("Command execution error", err);
+
+      // Check if response was deferred to avoid double replies
+      if (interaction.deferred || interaction.replied) {
+        return interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor("Red")
+              .setDescription(
+                t("errors.generic_error") || "An unexpected error occurred."
+              ),
+          ],
+        });
+      } else {
+        return interaction.reply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor("Red")
+              .setDescription(
+                t("errors.generic_error") || "An unexpected error occurred."
+              ),
+          ],
+          flags: ["Ephemeral"],
+        });
+      }
     }
   }
 }

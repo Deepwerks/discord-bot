@@ -24,7 +24,7 @@ export default class Ping extends Command {
       withResponse: true,
     });
 
-    interaction.editReply(
+    await interaction.editReply(
       `Pong! 🏓 \n \`Latency: ${
         Date.now() - sent.interaction.createdTimestamp
       }ms\` \n \`API Latency: ${Math.round(this.client.ws.ping)}ms\``
