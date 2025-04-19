@@ -30,7 +30,7 @@ export default class Match extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: false,
       cooldown: 6,
-      dev: true,
+      dev: false,
       options: [
         {
           name: "matchid",
