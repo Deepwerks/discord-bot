@@ -23,7 +23,7 @@ export default class Store extends Command {
       category: Category.Deadlock,
       default_member_permissions:
         PermissionsBitField.Flags.UseApplicationCommands,
-      dm_permission: false,
+      dm_permission: true,
       cooldown: 30,
       dev: false,
       options: [

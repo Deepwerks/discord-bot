@@ -27,7 +27,7 @@ export default class History extends Command {
       category: Category.Deadlock,
       default_member_permissions:
         PermissionsBitField.Flags.UseApplicationCommands,
-      dm_permission: false,
+      dm_permission: true,
       cooldown: 3,
       dev: false,
       options: [
