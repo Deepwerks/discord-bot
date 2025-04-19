@@ -19,6 +19,8 @@ import { useDeadlockClient, useSteamClient } from "../..";
 import { isMatchId } from "../../services/utils/isMatchId";
 import StoredPlayer from "../../base/schemas/StoredPlayer";
 import CommandError from "../../base/errors/CommandError";
+import { resolveToSteamID64 } from "../../services/utils/resolveToSteamID64";
+import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
 
 export default class Match extends Command {
   constructor(client: CustomClient) {
@@ -30,13 +32,30 @@ export default class Match extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 6,
-      dev: false,
+      dev: true,
       options: [
         {
-          name: "matchid",
-          description: "Match ID",
+          name: "id",
+          description:
+            "Identifier (match id by default, but you can change the type to player id)",
           required: true,
           type: ApplicationCommandOptionType.String,
+        },
+        {
+          name: "type",
+          description: "Is it a match or player ID?",
+          required: false,
+          type: ApplicationCommandOptionType.String,
+          choices: [
+            {
+              name: "Match ID",
+              value: "match_id",
+            },
+            {
+              name: "Player ID",
+              value: "player_id",
+            },
+          ],
         },
       ],
     });
@@ -46,71 +65,54 @@ export default class Match extends Command {
     interaction: ChatInputCommandInteraction,
     t: TFunction<"translation", undefined>
   ) {
-    const matchid = interaction.options.getString("matchid");
+    const id = interaction.options.getString("id")!;
+    const type =
+      id === "me"
+        ? "player_id"
+        : interaction.options.getString("type") ?? "match_id";
+
+    const startTime = performance.now();
+
+    await interaction.deferReply();
 
     try {
-      const sent = await interaction.deferReply();
+      let _matchId: string = id;
 
-      let _matchId = matchid;
-
-      if (!isMatchId(matchid)) {
-        if (matchid === "me") {
+      if (type === "player_id") {
+        let steamID64 = id;
+        if (id === "me") {
           const storedPlayer = await StoredPlayer.findOne({
             discordId: interaction.user.id,
           });
 
-          if (!storedPlayer) {
+          if (!storedPlayer)
             throw new CommandError(t("errors.steam_not_yet_stored"));
-          }
 
-          const lastHistoryMatch =
-            await useDeadlockClient.PlayerService.GetMatchHistory(
-              storedPlayer.steamId,
-              1
-            );
-
-          if (lastHistoryMatch.length === 0) {
-            throw new CommandError("Player does not have a single match");
-          }
-
-          _matchId = String(lastHistoryMatch[0].match_id);
+          steamID64 = storedPlayer.steamId;
         } else {
-          let playername = matchid as string;
-
-          const id = await useSteamClient.ProfileService.GetIdFromUsername(
-            playername
-          );
-
-          if (!id) {
-            throw new CommandError(t("errors.steam_player_not_found"));
-          }
-
-          const lastHistoryMatch =
-            await useDeadlockClient.PlayerService.GetMatchHistory(id, 1);
-
-          if (lastHistoryMatch.length === 0) {
-            throw new CommandError("Player does not have a single match");
-          }
-
-          _matchId = String(lastHistoryMatch[0].match_id);
+          steamID64 = await resolveToSteamID64(id);
         }
+
+        const lastMatchOfPlayer =
+          await useDeadlockClient.PlayerService.GetMatchHistory(steamID64, 1);
+
+        if (!lastMatchOfPlayer.length)
+          throw new CommandError("Player do not have a match history.");
+
+        _matchId = String(lastMatchOfPlayer[0].match_id);
       }
 
       const match = await useDeadlockClient.MatchService.GetMatch(_matchId!);
 
       const allPlayers = [...match.team_0_players, ...match.team_1_players];
-      const steamIDInputs = allPlayers.map((player) => ({
-        type: "steamID3" as const,
-        value: String(player.account_id),
-      }));
 
-      const steamPlayers = await useSteamClient.ProfileService.GetPlayers(
-        steamIDInputs
+      const steamPlayers = await useSteamClient.ProfileService.GetProfiles(
+        allPlayers.map((p) => String(p.account_id))
       );
 
-      const steamPlayerMap = new Map<string, ISteamPlayer>();
+      const steamPlayerMap = new Map<string, ICachedSteamProfile>();
       for (const steamPlayer of steamPlayers) {
-        steamPlayerMap.set(steamPlayer.steamid, steamPlayer);
+        steamPlayerMap.set(steamPlayer!.steamid, steamPlayer!);
       }
 
       const team0WithSteamData = match.team_0_players.map((player) => ({
@@ -150,15 +152,15 @@ export default class Match extends Command {
         name: "match.png",
       });
 
+      const endTime = performance.now();
+      const duration = (endTime - startTime).toFixed(2);
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setColor("Blue")
             .setTimestamp()
             .setFooter({
-              text: `Generated in ${
-                Date.now() - sent.interaction.createdTimestamp
-              }ms`,
+              text: `Generated in ${duration}ms`,
             }),
         ],
         files: [attachment],
@@ -172,16 +174,15 @@ export default class Match extends Command {
             new EmbedBuilder().setColor("Red").setDescription(err.message),
           ],
         });
-        return;
+      } else {
+        await interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor("Red")
+              .setDescription(t("commands.match.fetch_failed")),
+          ],
+        });
       }
-
-      await interaction.editReply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor("Red")
-            .setDescription(t("commands.match.fetch_failed")),
-        ],
-      });
     }
   }
 }

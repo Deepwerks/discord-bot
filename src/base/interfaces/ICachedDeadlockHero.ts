@@ -1,4 +1,4 @@
-export default class DeadlockHero {
+export default interface ICachedDeadlockHero {
   id: string;
   class_name: string;
   name: string;
@@ -14,11 +14,4 @@ export default class DeadlockHero {
     top_bar_image: string;
     top_bar_image_webp: string;
   };
-
-  constructor(raw: any) {
-    this.id = raw.id;
-    this.class_name = raw.class_name;
-    this.name = raw.name;
-    this.images = raw.images;
-  }
 }
