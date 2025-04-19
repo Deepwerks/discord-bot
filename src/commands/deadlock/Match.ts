@@ -14,9 +14,7 @@ import {
   generateMatchImage,
   IGenerateMatchImageOptions,
 } from "../../services/utils/generateMatchImage";
-import ISteamPlayer from "../../services/clients/SteamClient/SteamProfileService/interfaces/ISteamPlayer";
 import { useDeadlockClient, useSteamClient } from "../..";
-import { isMatchId } from "../../services/utils/isMatchId";
 import StoredPlayer from "../../base/schemas/StoredPlayer";
 import CommandError from "../../base/errors/CommandError";
 import { resolveToSteamID64 } from "../../services/utils/resolveToSteamID64";
@@ -32,7 +30,7 @@ export default class Match extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 6,
-      dev: true,
+      dev: false,
       options: [
         {
           name: "id",
