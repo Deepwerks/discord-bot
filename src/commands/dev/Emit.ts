@@ -42,17 +42,17 @@ export default class Emit extends Command {
     });
   }
 
-  Execute(
+  async Execute(
     interaction: ChatInputCommandInteraction,
     t: TFunction<"translation", undefined>
-  ): void {
+  ) {
     const event = interaction.options.getString("event");
 
     if (event == Events.GuildCreate || event == Events.GuildDelete) {
       this.client.emit(event, interaction.guild as Guild);
     }
 
-    interaction.reply({
+    await interaction.reply({
       embeds: [
         new EmbedBuilder()
           .setColor("Green")
