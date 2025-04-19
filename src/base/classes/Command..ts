@@ -31,9 +31,9 @@ export default class Command implements ICommand {
     this.dev = options.dev;
   }
 
-  Execute(
+  async Execute(
     interaction: ChatInputCommandInteraction,
     t: TFunction<"translation", undefined>
-  ): void {}
+  ) {}
   AutoComplete(interaction: AutocompleteInteraction): void {}
 }

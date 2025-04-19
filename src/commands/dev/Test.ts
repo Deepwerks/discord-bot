@@ -23,7 +23,7 @@ export default class Test extends Command {
     interaction: ChatInputCommandInteraction,
     t: TFunction<"translation", undefined>
   ) {
-    interaction.reply({
+    await interaction.reply({
       content: t("commands.test.ran"),
       flags: ["Ephemeral"],
     });

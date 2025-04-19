@@ -63,7 +63,6 @@ export async function generateMatchImage(
   const startY = 300;
   const startTeamLabelY = 250;
   const teamLabelYOffset = 160;
-  const topY = startY - teamLabelYOffset - avatarHeight - 20;
   const rowLabels = [
     "Souls",
     "Kills",
@@ -75,7 +74,6 @@ export async function generateMatchImage(
   ];
 
   const maxPlayers = Math.max(sapphireTeam.length, amberTeam.length);
-  const totalTeamWidth = (maxPlayers - 1) * playerSpacing;
   const centerX = canvasWidth / 2;
   const rowLabelX = centerX;
 

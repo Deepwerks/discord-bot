@@ -13,8 +13,8 @@ export default class SubCommand implements ISubCommand {
     this.name = options.name;
   }
 
-  Execute(
+  async Execute(
     interaction: ChatInputCommandInteraction,
     t: TFunction<"translation", undefined>
-  ): void {}
+  ) {}
 }

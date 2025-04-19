@@ -48,41 +48,48 @@ export default class Language extends Command {
   ) {
     const selectedLanguage = interaction.options.getString("select");
 
-    if (
-      !supportedLanguages.map((lang) => lang.code).includes(selectedLanguage!)
-    ) {
-      throw new CommandError(
-        `Language \`${selectedLanguage}\` is not supported!`
-      );
-    }
+    try {
+      if (
+        !supportedLanguages.map((lang) => lang.code).includes(selectedLanguage!)
+      ) {
+        throw new CommandError(
+          `Language \`${selectedLanguage}\` is not supported!`
+        );
+      }
 
-    const newT = i18next.getFixedT(selectedLanguage!);
+      const newT = i18next.getFixedT(selectedLanguage!);
 
-    let statusColor: ColorResolvable = Colors.Green;
-    let statusMessage = newT("commands.language.set_success", {
-      selectedLanguage,
-    });
-
-    await GuildConfig.findOneAndUpdate(
-      { guildId: interaction.guildId },
-      { lang: selectedLanguage },
-      { upsert: true }
-    )
-      .then(() => {
+      await GuildConfig.findOneAndUpdate(
+        { guildId: interaction.guildId },
+        { lang: selectedLanguage },
+        { upsert: true }
+      ).then(() => {
         setCachedLang(interaction.guildId!, selectedLanguage!);
-      })
-      .catch((err) => {
-        logger.error(err);
-
-        statusColor = Colors.Red;
-        statusMessage = t("commands.language.set_fail");
       });
 
-    interaction.reply({
-      embeds: [
-        new EmbedBuilder().setColor(statusColor).setDescription(statusMessage),
-      ],
-      flags: ["Ephemeral"],
-    });
+      interaction.reply({
+        embeds: [
+          new EmbedBuilder().setColor("Green").setDescription(
+            newT("commands.language.set_success", {
+              selectedLanguage,
+            })
+          ),
+        ],
+        flags: ["Ephemeral"],
+      });
+    } catch (error: any) {
+      logger.error(error);
+
+      interaction.reply({
+        embeds: [
+          new EmbedBuilder().setColor("Red").setDescription(
+            t("commands.language.set_fail", {
+              error: error.message ?? "database error",
+            })
+          ),
+        ],
+        flags: ["Ephemeral"],
+      });
+    }
   }
 }

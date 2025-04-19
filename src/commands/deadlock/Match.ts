@@ -16,6 +16,8 @@ import {
 } from "../../services/utils/generateMatchImage";
 import ISteamPlayer from "../../services/clients/SteamClient/SteamProfileService/interfaces/ISteamPlayer";
 import { useDeadlockClient, useSteamClient } from "../..";
+import { AxiosError } from "axios";
+import NotFoundError from "../../base/errors/NotFoundError";
 
 export default class Match extends Command {
   constructor(client: CustomClient) {
@@ -45,8 +47,8 @@ export default class Match extends Command {
   ) {
     const matchid = interaction.options.getString("matchid");
 
-    const sent = await interaction.deferReply();
     try {
+      const sent = await interaction.deferReply();
       const match = await useDeadlockClient.MatchService.GetMatch(matchid!);
 
       const allPlayers = [...match.team_0_players, ...match.team_1_players];
@@ -101,7 +103,7 @@ export default class Match extends Command {
         name: "match.png",
       });
 
-      interaction.editReply({
+      await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setColor("Blue")
@@ -114,14 +116,14 @@ export default class Match extends Command {
         ],
         files: [attachment],
       });
-    } catch (error) {
-      logger.error(error);
+    } catch (err) {
+      logger.error("Match command failed", err);
 
-      interaction.editReply({
+      await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setColor("Red")
-            .setDescription(t("commands.match.fail")),
+            .setDescription(t("commands.match.fetch_failed")),
         ],
       });
     }
