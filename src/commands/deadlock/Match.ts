@@ -16,6 +16,9 @@ import {
 } from "../../services/utils/generateMatchImage";
 import ISteamPlayer from "../../services/clients/SteamClient/SteamProfileService/interfaces/ISteamPlayer";
 import { useDeadlockClient, useSteamClient } from "../..";
+import { isMatchId } from "../../services/utils/isMatchId";
+import StoredPlayer from "../../base/schemas/StoredPlayer";
+import CommandError from "../../base/errors/CommandError";
 
 export default class Match extends Command {
   constructor(client: CustomClient) {
@@ -47,7 +50,53 @@ export default class Match extends Command {
 
     try {
       const sent = await interaction.deferReply();
-      const match = await useDeadlockClient.MatchService.GetMatch(matchid!);
+
+      let _matchId = matchid;
+
+      if (!isMatchId(matchid)) {
+        if (matchid === "me") {
+          const storedPlayer = await StoredPlayer.findOne({
+            discordId: interaction.user.id,
+          });
+
+          if (!storedPlayer) {
+            throw new CommandError(t("errors.steam_not_yet_stored"));
+          }
+
+          const lastHistoryMatch =
+            await useDeadlockClient.PlayerService.GetMatchHistory(
+              storedPlayer.steamId,
+              1
+            );
+
+          if (lastHistoryMatch.length === 0) {
+            throw new CommandError("Player does not have a single match");
+          }
+
+          _matchId = String(lastHistoryMatch[0].match_id);
+        } else {
+          let playername = matchid as string;
+
+          const id = await useSteamClient.ProfileService.GetIdFromUsername(
+            playername
+          );
+
+          if (!id) {
+            throw new CommandError(t("errors.steam_player_not_found"));
+          }
+
+          const lastHistoryMatch =
+            await useDeadlockClient.PlayerService.GetMatchHistory(id, 1);
+
+          if (lastHistoryMatch.length === 0) {
+            throw new CommandError("Player does not have a single match");
+          }
+
+          _matchId = String(lastHistoryMatch[0].match_id);
+        }
+      }
+
+      const match = await useDeadlockClient.MatchService.GetMatch(_matchId!);
 
       const allPlayers = [...match.team_0_players, ...match.team_1_players];
       const steamIDInputs = allPlayers.map((player) => ({
@@ -116,6 +165,15 @@ export default class Match extends Command {
       });
     } catch (err) {
       logger.error("Match command failed", err);
+
+      if (err instanceof CommandError) {
+        await interaction.editReply({
+          embeds: [
+            new EmbedBuilder().setColor("Red").setDescription(err.message),
+          ],
+        });
+        return;
+      }
 
       await interaction.editReply({
         embeds: [
