@@ -4,7 +4,7 @@
       "ran": "Test command has been ran!"
     },
     "language": {
-      "set_success": "✅ You have successfully set this server's language to '{{selectedLanguage}}'",
+      "set_success": "✅ You have successfully set the language for this server to '{{selectedLanguage}}'",
       "set_fail": "❌ Failed to change this server's language: {{error}}"
     },
     "emit": {
@@ -12,27 +12,27 @@
       "fail": "Failed to emit event"
     },
     "history": {
-      "not_valid_steamid": "❌ Invalid steamID was given. I can only accept steamID, steamID3 or steamID64"
+      "not_valid_steamid": "❌ Invalid Steam ID. Please provide either SteamID, SteamID3, or SteamID64."
     },
     "match": {
       "fail": "❌ Something went wrong...",
       "fetch_failed": "Failed to fetch match details. The match ID might be invalid or the server is down."
     },
     "store": {
-      "success": "You have successfuly set your steam accout to: {{name}} ({{id}})"
+      "success": "You have successfully linked your Steam account: {{name}} ({{id}})"
     }
   },
   "warnings": {
     "cooldown": "❌ Please wait another `{{time}}` seconds to run this command!",
     "no_permission": "❌ You don't have permission to use this command!",
-    "no_command": "❌ This command does not exist!"
+    "no_command": "❌ Command not found. Please check the command name!"
   },
   "errors": {
-    "generic_error": "❌ Something went wrong. Please try again later...",
+    "generic_error": "❌ Something went wrong. Please try again later.",
     "steam_not_yet_stored": "❌ You have not yet connected your Steam account. Please use: '/store' first!",
     "steam_player_not_found": "❌ Player not found. Try using SteamID instead!",
     "get_steam_id_type_failed": "❌ Could not detemine steam id type",
-    "field_empty": "❌ '{{field}}' must not be empty!",
+    "field_empty": "❌ The {{field}} field cannot be empty!",
     "steam_profile_not_found": "❌ Steam profile not found!"
   }
 }

@@ -21,17 +21,18 @@ export default class Store extends Command {
   constructor(client: CustomClient) {
     super(client, {
       name: "store",
-      description: "Store your SteamID",
+      description:
+        "Store your Steam ID to enable the 'me' shortcut in certain commands!",
       category: Category.Deadlock,
       default_member_permissions:
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 30,
-      dev: true,
+      dev: false,
       options: [
         {
           name: "steam",
-          description: "Your name SteamID (steamID prefered)",
+          description: "Your Steam name or ID (SteamID preferred)",
           required: true,
           type: ApplicationCommandOptionType.String,
         },

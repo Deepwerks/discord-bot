@@ -25,11 +25,12 @@ export default class History extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 3,
-      dev: true,
+      dev: false,
       options: [
         {
           name: "player",
-          description: "Player's name or SteamID",
+          description:
+            'Player\'s name or SteamID | Use "me" to get your match history!',
           required: true,
           type: ApplicationCommandOptionType.String,
         },
