@@ -58,7 +58,7 @@ export default class History extends Command {
         _steamId = storedPlayer.steamId;
       }
 
-      const steamProfile = await useSteamClient.ProfileService.GetProfile(
+      const steamProfile = await useSteamClient.ProfileService.GetProfileCached(
         _steamId
       );
 

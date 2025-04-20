@@ -106,9 +106,10 @@ export default class Match extends Command {
 
       const allPlayers = [...match.team_0_players, ...match.team_1_players];
 
-      const steamPlayers = await useSteamClient.ProfileService.GetProfiles(
-        allPlayers.map((p) => String(p.account_id))
-      );
+      const steamPlayers =
+        await useSteamClient.ProfileService.GetProfilesCached(
+          allPlayers.map((p) => String(p.account_id))
+        );
 
       const steamPlayerMap = new Map<string, ICachedSteamProfile>();
       for (const steamPlayer of steamPlayers) {

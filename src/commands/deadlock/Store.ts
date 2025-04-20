@@ -14,6 +14,8 @@ import { useSteamClient } from "../..";
 import { getSteamIdType } from "../../services/utils/getSteamIdType";
 import logger from "../../services/logger";
 import StoredPlayer from "../../base/schemas/StoredPlayer";
+import { steamProfileCache } from "../../services/cache";
+import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
 
 export default class Store extends Command {
   constructor(client: CustomClient) {
@@ -68,7 +70,7 @@ export default class Store extends Command {
         throw new CommandError(t("errors.get_steam_id_type_failed"));
       }
 
-      const steamProfile = await useSteamClient.ProfileService.GetPlayer({
+      const steamProfile = await useSteamClient.ProfileService.FetchProfile({
         value: steamId,
         type: steamIdType,
       });
@@ -76,6 +78,11 @@ export default class Store extends Command {
       if (!steamProfile) {
         throw new CommandError(t("errors.steam_profile_not_found"));
       }
+
+      steamProfileCache.set(
+        steamProfile.steamid,
+        steamProfile as ICachedSteamProfile
+      );
 
       await StoredPlayer.findOneAndUpdate(
         { discordId: interaction.user.id },
