@@ -18,7 +18,7 @@ export default class Language extends Command {
   constructor(client: CustomClient) {
     super(client, {
       name: "language",
-      description: "Change the language",
+      description: "Change the bot's language",
       category: Category.Discord,
       default_member_permissions: PermissionsBitField.Flags.Administrator,
       dm_permission: false,
@@ -27,7 +27,7 @@ export default class Language extends Command {
       options: [
         {
           name: "select",
-          description: "Select the language",
+          description: "Choose the language",
           required: true,
           type: ApplicationCommandOptionType.String,
           choices: supportedLanguages.map((lang) => ({

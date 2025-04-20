@@ -11,8 +11,11 @@ import ISteamPlayer from "./interfaces/ISteamPlayer";
 import ISteamPlayersResponse from "./interfaces/ISteamPlayersResponse";
 
 export interface ISteamProfileService {
-  GetPlayer(steamID: ISteamID): Promise<ISteamPlayer>;
-  GetPlayers(steamIDs: ISteamID[]): Promise<ISteamPlayer[]>;
+  GetProfileCached(
+    account_id: string | null,
+    isValidSteamID64: boolean | undefined
+  ): Promise<ICachedSteamProfile | null>;
+  GetProfilesCached(account_ids: string[]): Promise<ICachedSteamProfile[]>;
   GetIdFromUsername(username: string): Promise<string | null>;
 }
 
@@ -24,8 +27,9 @@ export default class SteamProfileService implements ISteamProfileService {
     this.client = client;
   }
 
-  async GetPlayer(steamID: ISteamID): Promise<ISteamPlayer> {
+  async FetchProfile(steamID: ISteamID): Promise<ISteamPlayer> {
     logger.info("[API CALL] Fetching a steam profile...");
+
     const response = await this.client.request<ISteamPlayersResponse>(
       "GET",
       `/ISteamUser/GetPlayerSummaries/v0002/`,
@@ -46,22 +50,39 @@ export default class SteamProfileService implements ISteamProfileService {
     return players[0];
   }
 
-  async GetPlayers(steamIDs: ISteamID[]): Promise<ISteamPlayer[]> {
+  async FetchProfiles(steamIDs: ISteamID[]): Promise<ISteamPlayer[]> {
+    if (!steamIDs.length) return [];
+
     logger.info(`[API CALL] Fetching ${steamIDs.length}x steam profiles...`);
     const players: ISteamPlayer[] = [];
 
-    const id64s = steamIDs.map((id) => this.convertToSteamId64(id));
+    try {
+      const response = await this.client.request<ISteamPlayersResponse>(
+        "GET",
+        `/ISteamUser/GetPlayerSummaries/v0002/`,
+        undefined,
+        {
+          key: this.client.apiKey,
+          steamids: steamIDs.map((id) => id.value).join(","),
+        }
+      );
 
-    const response = await this.client.request<ISteamPlayersResponse>(
-      "GET",
-      `/ISteamUser/GetPlayerSummaries/v0002/?key=${
-        this.client.apiKey
-      }&steamids=${id64s.join(",")}`
-    );
+      for (const player of response.response.players) players.push(player);
 
-    for (const player of response.response.players) players.push(player);
+      return players;
+    } catch (error) {
+      logger.error(error);
 
-    return players;
+      return steamIDs.map(
+        (id) =>
+          ({
+            steamid: id.value,
+            personaname: "Unknown",
+            profileurl: "",
+            avatarmedium: "",
+          } as ISteamPlayer)
+      );
+    }
   }
 
   async GetIdFromUsername(username: string): Promise<string | null> {
@@ -78,7 +99,7 @@ export default class SteamProfileService implements ISteamProfileService {
   }
 
   // Cached
-  async GetProfile(
+  async GetProfileCached(
     account_id: string | null,
     isValidSteamID64: boolean = false
   ) {
@@ -111,7 +132,7 @@ export default class SteamProfileService implements ISteamProfileService {
     const cachedProfile = steamProfileCache.get(steamID64);
 
     if (!cachedProfile) {
-      const steamProfile = await this.GetPlayer({
+      const steamProfile = await this.FetchProfile({
         type: "steamID64",
         value: steamID64,
       });
@@ -124,44 +145,37 @@ export default class SteamProfileService implements ISteamProfileService {
   }
 
   // Cached
-  async GetProfiles(account_ids: string[]) {
-    const cachedProfiles: (ICachedSteamProfile | null)[] = [];
+  async GetProfilesCached(account_ids: string[]) {
+    account_ids = account_ids.map(
+      (id) => this.convertToSteamId64({ type: "steamID3", value: id })!
+    );
+
+    const cachedProfiles: Record<string, ICachedSteamProfile> = {};
+    const idsToFetch: string[] = [];
 
     for (const id of account_ids) {
-      cachedProfiles.push(
-        steamProfileCache.get(
-          this.convertToSteamId64({ type: "steamID3", value: id })
-        )
-      );
-    }
-
-    const missingIds = account_ids.filter((id, i) => !cachedProfiles[i]);
-
-    let newCachedProfiles;
-    if (missingIds.length) {
-      const missingSteamIds = missingIds.map((id) => ({
-        type: "steamID3",
-        value: id,
-      })) as ISteamID[];
-
-      newCachedProfiles = await this.GetPlayers(missingSteamIds);
-
-      newCachedProfiles.forEach((profile) => {
-        steamProfileCache.set(profile.steamid, profile as ICachedSteamProfile);
-      });
-    }
-
-    const result: ICachedSteamProfile[] = [];
-
-    for (const cachedProfile of cachedProfiles) {
-      if (cachedProfile) {
-        result.push(cachedProfile);
+      const cached = steamProfileCache.get(id);
+      if (cached) {
+        cachedProfiles[id] = cached;
       } else {
-        result.push(newCachedProfiles!.shift() as ICachedSteamProfile);
+        idsToFetch.push(id);
       }
     }
 
-    return result;
+    const fetchedProfiles = await this.FetchProfiles(
+      idsToFetch.map((id) => ({ type: "steamID64", value: id }))
+    );
+
+    for (const profile of fetchedProfiles) {
+      steamProfileCache.set(profile.steamid, profile);
+      cachedProfiles[profile.steamid] = profile;
+    }
+
+    return account_ids.map((id) => {
+      const profile = cachedProfiles[id];
+      if (!profile) throw new Error(`Steam profile not found for ID: ${id}`);
+      return profile;
+    });
   }
 
   convertToSteamId64(steamID: ISteamID): string | null {

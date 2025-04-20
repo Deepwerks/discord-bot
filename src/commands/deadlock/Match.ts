@@ -24,7 +24,7 @@ export default class Match extends Command {
   constructor(client: CustomClient) {
     super(client, {
       name: "match",
-      description: "Get match details",
+      description: "Get Deadlock match details by match or player ID",
       category: Category.Deadlock,
       default_member_permissions:
         PermissionsBitField.Flags.UseApplicationCommands,
@@ -35,13 +35,13 @@ export default class Match extends Command {
         {
           name: "id",
           description:
-            "Identifier (match id by default, but you can change the type to player id)",
+            'Match ID (default) or Steam ID — use "me" for your latest match',
           required: true,
           type: ApplicationCommandOptionType.String,
         },
         {
           name: "type",
-          description: "Is it a match or player ID?",
+          description: "Specify if it's a match or player ID",
           required: false,
           type: ApplicationCommandOptionType.String,
           choices: [
@@ -104,9 +104,10 @@ export default class Match extends Command {
 
       const allPlayers = [...match.team_0_players, ...match.team_1_players];
 
-      const steamPlayers = await useSteamClient.ProfileService.GetProfiles(
-        allPlayers.map((p) => String(p.account_id))
-      );
+      const steamPlayers =
+        await useSteamClient.ProfileService.GetProfilesCached(
+          allPlayers.map((p) => String(p.account_id))
+        );
 
       const steamPlayerMap = new Map<string, ICachedSteamProfile>();
       for (const steamPlayer of steamPlayers) {

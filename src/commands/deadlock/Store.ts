@@ -14,12 +14,15 @@ import { useSteamClient } from "../..";
 import { getSteamIdType } from "../../services/utils/getSteamIdType";
 import logger from "../../services/logger";
 import StoredPlayer from "../../base/schemas/StoredPlayer";
+import { steamProfileCache } from "../../services/cache";
+import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
 
 export default class Store extends Command {
   constructor(client: CustomClient) {
     super(client, {
       name: "store",
-      description: "Store your SteamID",
+      description:
+        "Store your Steam ID to enable the 'me' shortcut in certain commands!",
       category: Category.Deadlock,
       default_member_permissions:
         PermissionsBitField.Flags.UseApplicationCommands,
@@ -29,7 +32,7 @@ export default class Store extends Command {
       options: [
         {
           name: "steam",
-          description: "Your name SteamID (steamID prefered)",
+          description: "Your Steam name or ID (SteamID preferred)",
           required: true,
           type: ApplicationCommandOptionType.String,
         },
@@ -68,7 +71,7 @@ export default class Store extends Command {
         throw new CommandError(t("errors.get_steam_id_type_failed"));
       }
 
-      const steamProfile = await useSteamClient.ProfileService.GetPlayer({
+      const steamProfile = await useSteamClient.ProfileService.FetchProfile({
         value: steamId,
         type: steamIdType,
       });
@@ -76,6 +79,11 @@ export default class Store extends Command {
       if (!steamProfile) {
         throw new CommandError(t("errors.steam_profile_not_found"));
       }
+
+      steamProfileCache.set(
+        steamProfile.steamid,
+        steamProfile as ICachedSteamProfile
+      );
 
       await StoredPlayer.findOneAndUpdate(
         { discordId: interaction.user.id },
