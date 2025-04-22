@@ -1,6 +1,9 @@
 import {
+  ActionRowBuilder,
   ApplicationCommandOptionType,
   AttachmentBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   ChatInputCommandInteraction,
   EmbedBuilder,
   PermissionsBitField,
@@ -30,7 +33,7 @@ export default class Match extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 6,
-      dev: false,
+      dev: true,
       options: [
         {
           name: "id",
@@ -146,6 +149,14 @@ export default class Match extends Command {
         },
       };
 
+      const linkButton = new ButtonBuilder()
+        .setLabel("📈 View on Statlocker")
+        .setStyle(ButtonStyle.Link)
+        .setURL(`https://statlocker.gg/match/${match.match_id}`);
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        linkButton
+      );
+
       const imageBuffer = await generateMatchImage(data);
       const attachment = new AttachmentBuilder(imageBuffer, {
         name: "match.png",
@@ -163,6 +174,7 @@ export default class Match extends Command {
             }),
         ],
         files: [attachment],
+        components: [row],
       });
     } catch (err) {
       logger.error("Match command failed", err);
