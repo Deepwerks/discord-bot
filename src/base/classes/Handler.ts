@@ -6,6 +6,7 @@ import Event from "./Event";
 import Command from "./Command.";
 import SubCommand from "./SubCommand";
 import logger from "../../services/logger";
+import Modal from "./CustomModal";
 
 export default class Handler implements IHandler {
   client: CustomClient;
@@ -61,6 +62,26 @@ export default class Handler implements IHandler {
 
       this.client.commands.set(command.name, command as Command);
 
+      return delete require.cache[require.resolve(file)];
+    });
+  }
+
+  async LoadModals() {
+    const files = (await glob("build/modals/**/*.js")).map((filePath: string) =>
+      path.resolve(filePath)
+    );
+
+    files.map(async (file: string) => {
+      const ModalClass = (await import(file)).default;
+      const modal: Modal = new ModalClass(this.client);
+
+      if (!modal.customId || typeof modal.Execute !== "function") {
+        logger.warn(`${file.split("/").pop()} is missing customId or Execute.`);
+        return delete require.cache[require.resolve(file)];
+      }
+
+      this.client.modals.set(modal.customId, modal);
+      logger.info(`Loaded modal: ${modal.customId}`);
       return delete require.cache[require.resolve(file)];
     });
   }

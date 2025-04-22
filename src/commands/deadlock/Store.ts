@@ -1,8 +1,12 @@
 import {
+  ActionRowBuilder,
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   EmbedBuilder,
+  ModalBuilder,
   PermissionsBitField,
+  TextInputBuilder,
+  TextInputStyle,
 } from "discord.js";
 import Command from "../../base/classes/Command.";
 import CustomClient from "../../base/classes/CustomClient";
@@ -29,14 +33,7 @@ export default class Store extends Command {
       dm_permission: true,
       cooldown: 30,
       dev: true,
-      options: [
-        {
-          name: "steam",
-          description: "Your Steam name or ID (SteamID preferred)",
-          required: true,
-          type: ApplicationCommandOptionType.String,
-        },
-      ],
+      options: [],
     });
   }
 
@@ -44,87 +41,22 @@ export default class Store extends Command {
     interaction: ChatInputCommandInteraction,
     t: TFunction<"translation", undefined>
   ) {
-    const player = interaction.options.getString("steam");
+    const modal = new ModalBuilder()
+      .setCustomId("submitSteamId")
+      .setTitle("Submit Your Steam ID");
 
-    try {
-      if (!player || player.length === 0) {
-        throw new CommandError(t("errors.field_empty", { field: "Player" }));
-      }
+    const steamIdInput = new TextInputBuilder()
+      .setCustomId("steam_id_input")
+      .setLabel("Enter your Steam ID or Steam64 ID")
+      .setPlaceholder("e.g., 76561198012345678")
+      .setStyle(TextInputStyle.Short)
+      .setRequired(true);
 
-      let steamId: string | undefined;
-      let steamIdType: "steamID3" | "steamID" | "steamID64" | null;
+    const actionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
+      steamIdInput
+    );
+    modal.addComponents(actionRow);
 
-      if (isValidSteamId(player)) steamId = player;
-      else {
-        let _steamId = await useSteamClient.ProfileService.GetIdFromUsername(
-          player
-        );
-
-        if (!_steamId || !isValidSteamId(_steamId))
-          throw new CommandError(t("errors.steam_player_not_found"));
-
-        steamId = _steamId;
-      }
-
-      steamIdType = getSteamIdType(steamId);
-      if (!steamIdType) {
-        throw new CommandError(t("errors.get_steam_id_type_failed"));
-      }
-
-      const steamProfile = await useSteamClient.ProfileService.FetchProfile({
-        value: steamId,
-        type: steamIdType,
-      });
-
-      if (!steamProfile) {
-        throw new CommandError(t("errors.steam_profile_not_found"));
-      }
-
-      steamProfileCache.set(
-        steamProfile.steamid,
-        steamProfile as ICachedSteamProfile
-      );
-
-      await StoredPlayer.findOneAndUpdate(
-        { discordId: interaction.user.id },
-        {
-          steamId: steamProfile.steamid,
-          steamIdType: steamIdType,
-        },
-        { upsert: true }
-      );
-
-      await interaction.reply({
-        embeds: [
-          new EmbedBuilder().setColor("Green").setDescription(
-            t("commands.store.success", {
-              name: steamProfile.personaname,
-              id: steamProfile.steamid,
-            })
-          ),
-        ],
-        flags: ["Ephemeral"],
-      });
-    } catch (error) {
-      logger.error(error);
-
-      if (error instanceof CommandError) {
-        await interaction.reply({
-          embeds: [
-            new EmbedBuilder().setColor("Red").setDescription(error.message),
-          ],
-          flags: ["Ephemeral"],
-        });
-      } else {
-        await interaction.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setColor("Red")
-              .setDescription(t("errors.generic_error")),
-          ],
-          flags: ["Ephemeral"],
-        });
-      }
-    }
+    await interaction.showModal(modal);
   }
 }
