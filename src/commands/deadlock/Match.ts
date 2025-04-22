@@ -110,7 +110,7 @@ export default class Match extends Command {
         await DeadlockMatchSchema.findOne({ match_id: _matchId });
       if (!match) {
         match = await useDeadlockClient.MatchService.GetMatch(_matchId!);
-        await DeadlockMatchSchema.create(match)
+        DeadlockMatchSchema.create(match)
           .then(() => logger.info("Match saved in db..."))
           .catch((err) => logger.error("Failed to save match to db: " + err));
       } else logger.info("Getting match from db...");
