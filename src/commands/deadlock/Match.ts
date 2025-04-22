@@ -18,10 +18,13 @@ import {
   IGenerateMatchImageOptions,
 } from "../../services/utils/generateMatchImage";
 import { useDeadlockClient, useSteamClient } from "../..";
-import StoredPlayer from "../../base/schemas/StoredPlayer";
+import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
 import CommandError from "../../base/errors/CommandError";
 import { resolveToSteamID64 } from "../../services/utils/resolveToSteamID64";
 import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
+import DeadlockMatchSchema, {
+  IDeadlockMatchSchema,
+} from "../../base/schemas/DeadlockMatchSchema";
 
 export default class Match extends Command {
   constructor(client: CustomClient) {
@@ -103,7 +106,14 @@ export default class Match extends Command {
         _matchId = String(lastMatchOfPlayer[0].match_id);
       }
 
-      const match = await useDeadlockClient.MatchService.GetMatch(_matchId!);
+      let match: IDeadlockMatchSchema | null =
+        await DeadlockMatchSchema.findOne({ match_id: _matchId });
+      if (!match) {
+        match = await useDeadlockClient.MatchService.GetMatch(_matchId!);
+        await DeadlockMatchSchema.create(match)
+          .then(() => logger.info("Match saved in db..."))
+          .catch((err) => logger.error("Failed to save match to db: " + err));
+      } else logger.info("Getting match from db...");
 
       const allPlayers = [...match.team_0_players, ...match.team_1_players];
 

@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose";
 
-interface ISteamProfile {
+interface ISteamProfileSchema {
   steamid: string;
   personaname: string;
   profileurl: string;
@@ -8,9 +8,9 @@ interface ISteamProfile {
   discordid?: string;
 }
 
-export default model<ISteamProfile>(
+export default model<ISteamProfileSchema>(
   "SteamProfile",
-  new Schema<ISteamProfile>(
+  new Schema<ISteamProfileSchema>(
     {
       steamid: { type: String, required: true, unique: true },
       personaname: { type: String, required: true },

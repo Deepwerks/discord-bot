@@ -2,7 +2,7 @@ import DeadlockMatchPlayer from "./DeadlockMatchPlayer";
 
 export default class DeadlockMatch {
   match_id: number;
-  start_time: Date;
+  start_time: number;
 
   duration_s: number;
   match_outcome: number;
@@ -16,7 +16,7 @@ export default class DeadlockMatch {
 
   constructor(match_info: any) {
     this.match_id = match_info.match_id;
-    this.start_time = new Date(match_info.start_time);
+    this.start_time = match_info.start_time;
     this.duration_s = match_info.duration_s;
     this.match_outcome = match_info.match_outcome;
     this.winning_team = match_info.winning_team;

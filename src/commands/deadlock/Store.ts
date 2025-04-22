@@ -13,7 +13,7 @@ import CommandError from "../../base/errors/CommandError";
 import { useSteamClient } from "../..";
 import { getSteamIdType } from "../../services/utils/getSteamIdType";
 import logger from "../../services/logger";
-import StoredPlayer from "../../base/schemas/StoredPlayer";
+import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
 import { steamProfileCache } from "../../services/cache";
 import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
 

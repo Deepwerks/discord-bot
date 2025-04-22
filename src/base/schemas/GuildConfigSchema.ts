@@ -1,13 +1,13 @@
 import { model, Schema } from "mongoose";
 
-interface IGuildConfig {
+interface IGuildConfigSchema {
   guildId: string;
   lang: string;
 }
 
-export default model<IGuildConfig>(
+export default model<IGuildConfigSchema>(
   "GuildConfig",
-  new Schema<IGuildConfig>(
+  new Schema<IGuildConfigSchema>(
     {
       guildId: { type: String, required: true, unique: true },
       lang: { type: String, default: "en" },
