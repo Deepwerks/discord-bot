@@ -1,17 +1,21 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { RequestMethod } from "../../base/types/RequestMethod";
 import NotFoundError from "../../base/errors/NotFoundError";
+import Bottleneck from "bottleneck";
 
 export interface IBaseApiOptions {
   baseURL: string;
   apiKey: string;
+  limiter?: Bottleneck;
 }
 
 export default class BaseClient {
   private client: AxiosInstance;
   public apiKey: string;
 
-  constructor({ baseURL, apiKey }: IBaseApiOptions) {
+  private limiter: Bottleneck;
+
+  constructor({ baseURL, apiKey, limiter }: IBaseApiOptions) {
     this.client = axios.create({
       baseURL,
       headers: {
@@ -19,6 +23,7 @@ export default class BaseClient {
       },
     });
     this.apiKey = apiKey;
+    this.limiter = limiter || new Bottleneck();
   }
 
   public async request<T>(
@@ -28,14 +33,16 @@ export default class BaseClient {
     params?: Record<string, any>
   ): Promise<T> {
     try {
-      const response: AxiosResponse<T> = await this.client.request({
-        method,
-        url,
-        data,
-        params,
-      });
+      return await this.limiter.schedule(async () => {
+        const response: AxiosResponse<T> = await this.client.request({
+          method,
+          url,
+          data,
+          params,
+        });
 
-      return response.data;
+        return response.data;
+      });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // Handle Axios-specific errors

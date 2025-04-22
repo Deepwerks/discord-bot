@@ -28,7 +28,7 @@ export default class Store extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 30,
-      dev: false,
+      dev: true,
       options: [
         {
           name: "steam",

@@ -4,10 +4,15 @@ import SteamClient from "./services/clients/SteamClient";
 import config from "./config";
 import { DeadlockAssetsClient } from "./services/clients/DeadlockAssetsClient";
 import logger from "./services/logger";
+import Bottleneck from "bottleneck";
 
 const useSteamClient = new SteamClient({
   apiKey: config.steam_api_key,
   baseURL: config.steam_api_url,
+  limiter: new Bottleneck({
+    maxConcurrent: 1,
+    minTime: 333,
+  }),
 });
 const useDeadlockClient = new DeadlockClient({
   apiKey: config.deadlock_api_key,
