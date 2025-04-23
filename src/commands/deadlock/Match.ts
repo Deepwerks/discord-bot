@@ -116,14 +116,11 @@ export default class Match extends Command {
           ...deadlockMatch.team_0_players,
           ...deadlockMatch.team_1_players,
         ];
-        const statlockerProfilePromises = allPlayers.map(
-          async (p) =>
-            await useStatlockerClient.ProfileService.GetProfileCache(
-              String(p.account_id)
-            )
-        );
 
-        const results = await Promise.all(statlockerProfilePromises);
+        const results =
+          await useStatlockerClient.ProfileService.GetProfilesCache(
+            allPlayers.map((p) => String(p.account_id))
+          );
 
         const statlockerProfileMap = new Map<number, string>();
         for (const profile of results) {

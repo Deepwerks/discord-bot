@@ -37,8 +37,9 @@ export default class StatlockerProfileService
 
     try {
       const response = await this.client.request<IStatlockerProfile[]>(
-        "GET",
-        `/api/open/profile/${account_ids.join(",")}`
+        "POST",
+        `/api/profile/batch-profiles`,
+        account_ids.map((id) => Number(id))
       );
 
       return response;
