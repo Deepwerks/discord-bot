@@ -1,41 +1,59 @@
 import { useSteamClient } from "../..";
 
-export async function resolveToSteamID64(input: string) {
-  // SteamID64 ellenőrzés
-  if (/^\d{17}$/.test(input)) {
-    return input;
+const steamIdCache = new Map<string, string>();
+
+export async function resolveToSteamID64(input: string): Promise<string> {
+  // Check cache first
+  if (steamIdCache.has(input)) {
+    return steamIdCache.get(input)!;
   }
 
-  // SteamID32 konvertálása
-  if (/^STEAM_/.test(input)) {
+  let steamID64: string;
+
+  // SteamID64 check
+  if (/^\d{17}$/.test(input)) {
+    steamID64 = input;
+  }
+
+  // SteamID32
+  else if (/^STEAM_/.test(input)) {
     const parts = input.split(":");
     const Y = parseInt(parts[1], 10);
     const Z = parseInt(parts[2], 10);
-    return (
+    steamID64 = (
       BigInt(Z) * BigInt(2) +
       BigInt(Y) +
       BigInt("76561197960265728")
     ).toString();
   }
 
-  // SteamID3 konvertálása
-  if (/^\[U:1:\d+\]$/.test(input)) {
+  // SteamID3
+  else if (/^\[U:1:\d+\]$/.test(input)) {
     const accountId = parseInt(input.match(/\d+/)![0], 10);
-    return (BigInt(accountId) + BigInt("76561197960265728")).toString();
+    steamID64 = (BigInt(accountId) + BigInt("76561197960265728")).toString();
   }
 
-  // Számként értelmezhető bemenet (pl. SteamID32 szám)
-  if (/^\d+$/.test(input)) {
+  // Numeric input (e.g., SteamID32)
+  else if (/^\d+$/.test(input)) {
     const accountId = parseInt(input, 10);
-    return (BigInt(accountId) + BigInt("76561197960265728")).toString();
+    steamID64 = (BigInt(accountId) + BigInt("76561197960265728")).toString();
   }
 
-  // Egyéni felhasználónév (vanity URL) feloldása
-  const response = await useSteamClient.ProfileService.GetIdFromUsername(input);
+  // Vanity URL
+  else {
+    const response = await useSteamClient.ProfileService.GetIdFromUsername(
+      input
+    );
 
-  if (response) {
-    return response;
-  } else {
-    throw new Error("Nem sikerült feloldani a felhasználónevet.");
+    if (!response) {
+      throw new Error("Nem sikerült feloldani a felhasználónevet.");
+    }
+
+    steamID64 = response;
   }
+
+  // Store in cache
+  steamIdCache.set(input, steamID64);
+
+  return steamID64;
 }

@@ -1,7 +1,7 @@
 export default class HistoryMatch {
   account_id: number;
   match_id: number;
-  hero_id: string;
+  hero_id: number;
   hero_level: number;
   start_time: number;
   game_mode: number;
@@ -23,7 +23,7 @@ export default class HistoryMatch {
   constructor(raw: any) {
     this.account_id = raw.account_id;
     this.match_id = raw.match_id;
-    this.hero_id = raw.hero_id;
+    this.hero_id = Number(raw.hero_id);
     this.hero_level = raw.hero_level;
     this.start_time = raw.start_time;
     this.game_mode = raw.game_mode;

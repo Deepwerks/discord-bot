@@ -2,6 +2,7 @@ import NodeCache from "node-cache";
 import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
 import ICachedDeadlockHero from "../../base/interfaces/ICachedDeadlockHero";
 import DeadlockRank from "../clients/DeadlockAssetsClient/DefaultService/entities/DeadlockRank";
+import IStatlockerProfile from "../clients/StatlockerClient/StatlockerProfileService/interfaces/IStatlockerProfile";
 
 export default class CustomCache<T> {
   private cache: NodeCache;
@@ -13,12 +14,12 @@ export default class CustomCache<T> {
     });
   }
 
-  set(key: string, value: T, ttl?: number): void {
+  set(key: string | number, value: T, ttl?: number): void {
     if (ttl) this.cache.set(key, value, ttl);
     else this.cache.set(key, value, ttl!);
   }
 
-  get(key: string | null): T | null {
+  get(key: string | number | null): T | null {
     if (!key) return null;
     const cached = this.cache.get(key);
 
@@ -39,6 +40,9 @@ export default class CustomCache<T> {
   }
 }
 
-export const steamProfileCache = new CustomCache<ICachedSteamProfile>(3600);
+export const steamProfileCache = new CustomCache<ICachedSteamProfile>(6 * 3600);
+export const statlockerProfileCache = new CustomCache<IStatlockerProfile>(
+  6 * 3600
+);
 export const deadlockAssetsHeroCache = new CustomCache<ICachedDeadlockHero>(0);
 export const deadlockAssetsDefaultCache = new CustomCache<DeadlockRank[]>(0);

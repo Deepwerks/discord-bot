@@ -3,23 +3,20 @@ import DeadlockMatchPlayer from "../clients/DeadlockClient/DeadlockMatchService/
 import { useAssetsClient } from "../..";
 import { Collection } from "discord.js";
 import { getFormattedMatchTime } from "./getFormattedMatchTime";
-import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
+
+interface IDeadlockPlayerWithName extends DeadlockMatchPlayer {
+  name: string;
+}
 
 export interface IGenerateMatchImageOptions {
   match: {
-    id: number;
-    duration: number;
+    match_id: number;
+    duration_s: number;
     average_badge_team0: number;
     average_badge_team1: number;
     winning_team: number;
-    team0WithSteamData: {
-      deadlock_player: DeadlockMatchPlayer;
-      steam_player: ICachedSteamProfile;
-    }[];
-    team1WithSteamData: {
-      deadlock_player: DeadlockMatchPlayer;
-      steam_player: ICachedSteamProfile;
-    }[];
+    team_0_players: IDeadlockPlayerWithName[];
+    team_1_players: IDeadlockPlayerWithName[];
   };
 }
 
@@ -28,8 +25,8 @@ export async function generateMatchImage(
 ): Promise<Buffer> {
   const { match } = options;
 
-  const sapphireTeam = match.team0WithSteamData;
-  const amberTeam = match.team1WithSteamData;
+  const sapphireTeam = match.team_0_players;
+  const amberTeam = match.team_1_players;
 
   const party_colors = new Collection<number, string>([
     [0, "#FF6B6B"],
@@ -95,11 +92,27 @@ export async function generateMatchImage(
   const aspectRatio = team0RankBadge.height / team0RankBadge.width;
   const scaledHeight = fixedWidth * aspectRatio;
 
+  const heroes = [
+    ...match.team_0_players.map((h) => h.hero_id),
+    ...match.team_1_players.map((h) => h.hero_id),
+  ];
+
+  const heroPromises = heroes.map(
+    async (hero) => await useAssetsClient.HeroService.GetHeroCached(hero)
+  );
+  const resolvedHeroes = await Promise.all(heroPromises);
+
+  const heroImages: Collection<number, string> = new Collection();
+
+  for (const hero of resolvedHeroes) {
+    heroImages.set(hero?.id!, hero?.images.icon_hero_card!);
+  }
+
   // Title
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 28px Arial";
   ctx.textAlign = "center";
-  ctx.fillText(getFormattedMatchTime(match.duration), canvasWidth / 2, 60);
+  ctx.fillText(getFormattedMatchTime(match.duration_s), canvasWidth / 2, 60);
 
   // Team names
   if (match.winning_team === 0) {
@@ -184,10 +197,7 @@ export async function generateMatchImage(
   const columnBottomY = startY + labelGap * rowLabels.length; // az utolsó stat alj
 
   async function renderPlayerData(
-    team: {
-      deadlock_player: DeadlockMatchPlayer;
-      steam_player: ICachedSteamProfile;
-    }[],
+    team: IDeadlockPlayerWithName[],
     startX: number
   ) {
     for (let i = 0; i < team.length; i++) {
@@ -204,11 +214,7 @@ export async function generateMatchImage(
       );
 
       // --- Avatar ---
-      const heroAvatar = (
-        await useAssetsClient.HeroService.GetHeroCached(
-          player.deadlock_player.hero_id
-        )
-      )?.images.icon_hero_card;
+      const heroAvatar = heroImages.get(player.hero_id);
       if (heroAvatar) {
         const img = await loadImage(heroAvatar);
         ctx.drawImage(
@@ -223,16 +229,12 @@ export async function generateMatchImage(
       // --- Player name ---
       ctx.fillStyle = "#fff";
       ctx.font = "bold 16px Arial";
-      ctx.fillText(
-        shortenPlayerName(player.steam_player.personaname),
-        x,
-        startY + 10
-      );
+      ctx.fillText(shortenPlayerName(player.name), x, startY + 10);
 
-      if (player.deadlock_player.party !== 0) {
+      if (player.party !== 0) {
         ctx.beginPath();
         ctx.arc(x, startY + 30, 10, 0, Math.PI * 2);
-        ctx.fillStyle = party_colors.get(player.deadlock_player.party)!;
+        ctx.fillStyle = party_colors.get(player.party)!;
         ctx.fill();
       }
 
@@ -240,37 +242,37 @@ export async function generateMatchImage(
       ctx.fillStyle = "#fff";
       ctx.font = "16px Arial";
       ctx.fillText(
-        player.deadlock_player.net_worth.toLocaleString(),
+        player.net_worth.toLocaleString(),
         x,
         startY + labelGap * 1 + nameStatGap
       );
       ctx.fillText(
-        player.deadlock_player.kills.toString(),
+        player.kills.toString(),
         x,
         startY + labelGap * 2 + nameStatGap
       );
       ctx.fillText(
-        player.deadlock_player.deaths.toString(),
+        player.deaths.toString(),
         x,
         startY + labelGap * 3 + nameStatGap
       );
       ctx.fillText(
-        player.deadlock_player.assists.toString(),
+        player.assists.toString(),
         x,
         startY + labelGap * 4 + nameStatGap
       );
       ctx.fillText(
-        player.deadlock_player.damage_dealt.toLocaleString(),
+        player.damage_dealt.toLocaleString(),
         x,
         startY + labelGap * 5 + nameStatGap
       );
       ctx.fillText(
-        player.deadlock_player.obj_damage.toLocaleString(),
+        player.obj_damage.toLocaleString(),
         x,
         startY + labelGap * 6 + nameStatGap
       );
       ctx.fillText(
-        player.deadlock_player.healing.toLocaleString(),
+        player.healing.toLocaleString(),
         x,
         startY + labelGap * 7 + nameStatGap
       );

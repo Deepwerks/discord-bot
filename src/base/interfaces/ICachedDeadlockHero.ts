@@ -1,5 +1,5 @@
 export default interface ICachedDeadlockHero {
-  id: string;
+  id: number;
   class_name: string;
   name: string;
   images: {
