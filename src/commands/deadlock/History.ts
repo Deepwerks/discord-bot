@@ -9,7 +9,7 @@ import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
 import CommandError from "../../base/errors/CommandError";
-import { useAssetsClient, useDeadlockClient, useSteamClient } from "../..";
+import { useAssetsClient, useDeadlockClient, useStatlockerClient } from "../..";
 import { getFormattedMatchTime } from "../../services/utils/getFormattedMatchTime";
 import pLimit from "p-limit";
 import logger from "../../services/logger";
@@ -59,16 +59,15 @@ export default class History extends Command {
         _steamId = storedPlayer.steamId;
       }
 
-      const steamProfile = await useSteamClient.ProfileService.GetProfileCached(
-        _steamId
-      );
+      const steamProfile =
+        await useStatlockerClient.ProfileService.GetProfileCache(_steamId!);
 
       if (!steamProfile) {
         throw new CommandError(t("errors.steam_profile_not_found"));
       }
 
       const matches = await useDeadlockClient.PlayerService.GetMatchHistory(
-        steamProfile.steamid,
+        String(steamProfile.accountId),
         15
       );
 
@@ -113,7 +112,7 @@ export default class History extends Command {
         "Detailed      ".padEnd(15);
 
       const response = `\`\`\`diff
-${steamProfile.personaname}'s last ${matches.length} matches:
+${steamProfile.name}'s last ${matches.length} matches:
 
 ${header}
 ${matchesString.join("\n")}

@@ -2,6 +2,7 @@ import { model, Schema } from "mongoose";
 
 export interface IDeadlockMatchPlayerSchema {
   account_id: number;
+  name: string;
 
   player_slot: number;
   team: number;
@@ -41,6 +42,7 @@ export interface IDeadlockMatchSchema {
 
 const DeadlockMatchPlayerSchema = new Schema<IDeadlockMatchPlayerSchema>({
   account_id: { type: Number, required: true },
+  name: { type: String, required: true },
 
   player_slot: { type: Number, required: true },
   team: { type: Number, required: true },

@@ -5,13 +5,13 @@ import Bottleneck from "bottleneck";
 
 export interface IBaseApiOptions {
   baseURL: string;
-  apiKey: string;
+  apiKey?: string;
   limiter?: Bottleneck;
 }
 
 export default class BaseClient {
   private client: AxiosInstance;
-  public apiKey: string;
+  public apiKey?: string;
 
   private limiter: Bottleneck;
 

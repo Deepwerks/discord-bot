@@ -1,8 +1,6 @@
 import {
   ActionRowBuilder,
-  ApplicationCommandOptionType,
   ChatInputCommandInteraction,
-  EmbedBuilder,
   ModalBuilder,
   PermissionsBitField,
   TextInputBuilder,
@@ -12,15 +10,6 @@ import Command from "../../base/classes/Command.";
 import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
-import { isValidSteamId } from "../../services/utils/isValidSteamId";
-import CommandError from "../../base/errors/CommandError";
-import { useSteamClient } from "../..";
-import { getSteamIdType } from "../../services/utils/getSteamIdType";
-import logger from "../../services/logger";
-import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
-import { steamProfileCache } from "../../services/cache";
-import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
-
 export default class Store extends Command {
   constructor(client: CustomClient) {
     super(client, {
@@ -43,12 +32,12 @@ export default class Store extends Command {
   ) {
     const modal = new ModalBuilder()
       .setCustomId("submitSteamId")
-      .setTitle("Submit Your Steam ID");
+      .setTitle("Submit Your Steam Profile");
 
     const steamIdInput = new TextInputBuilder()
       .setCustomId("steam_id_input")
-      .setLabel("Enter your Steam ID or Steam64 ID")
-      .setPlaceholder("e.g., 76561198012345678")
+      .setLabel("Enter your Steam profile URL")
+      .setPlaceholder("e.g., https://steamcommunity.com/profiles/...")
       .setStyle(TextInputStyle.Short)
       .setRequired(true);
 

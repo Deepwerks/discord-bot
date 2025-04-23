@@ -13,15 +13,11 @@ import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
 import logger from "../../services/logger";
-import {
-  generateMatchImage,
-  IGenerateMatchImageOptions,
-} from "../../services/utils/generateMatchImage";
-import { useDeadlockClient, useSteamClient } from "../..";
+import { generateMatchImage } from "../../services/utils/generateMatchImage";
+import { useDeadlockClient, useStatlockerClient } from "../..";
 import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
 import CommandError from "../../base/errors/CommandError";
 import { resolveToSteamID64 } from "../../services/utils/resolveToSteamID64";
-import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
 import DeadlockMatchSchema, {
   IDeadlockMatchSchema,
 } from "../../base/schemas/DeadlockMatchSchema";
@@ -108,56 +104,52 @@ export default class Match extends Command {
 
       let match: IDeadlockMatchSchema | null =
         await DeadlockMatchSchema.findOne({ match_id: _matchId });
+
       if (!match) {
-        match = await useDeadlockClient.MatchService.GetMatch(_matchId!);
-        DeadlockMatchSchema.create(match)
-          .then(() => logger.info("Match saved in db..."))
-          .catch((err) => logger.error("Failed to save match to db: " + err));
-      } else logger.info("Getting match from db...");
+        logger.info("Saving match to db...");
 
-      const allPlayers = [...match.team_0_players, ...match.team_1_players];
-
-      const steamPlayers =
-        await useSteamClient.ProfileService.GetProfilesCached(
-          allPlayers.map((p) => String(p.account_id))
+        let deadlockMatch = await useDeadlockClient.MatchService.GetMatch(
+          _matchId
         );
 
-      const steamPlayerMap = new Map<string, ICachedSteamProfile>();
-      for (const steamPlayer of steamPlayers) {
-        steamPlayerMap.set(steamPlayer!.steamid, steamPlayer!);
+        const allPlayers = [
+          ...deadlockMatch.team_0_players,
+          ...deadlockMatch.team_1_players,
+        ];
+        const statlockerProfilePromises = allPlayers.map(
+          async (p) =>
+            await useStatlockerClient.ProfileService.GetProfileCache(
+              String(p.account_id)
+            )
+        );
+
+        const results = await Promise.all(statlockerProfilePromises);
+
+        const statlockerProfileMap = new Map<number, string>();
+        for (const profile of results) {
+          statlockerProfileMap.set(profile.accountId, profile.name);
+        }
+
+        match = {
+          match_id: deadlockMatch.match_id,
+          duration_s: deadlockMatch.duration_s,
+          average_badge_team0: deadlockMatch.average_badge_team0,
+          average_badge_team1: deadlockMatch.average_badge_team1,
+          start_time: deadlockMatch.start_time,
+          match_outcome: deadlockMatch.match_outcome,
+          winning_team: deadlockMatch.winning_team,
+          team_0_players: deadlockMatch.team_0_players.map((p) => ({
+            ...p,
+            name: statlockerProfileMap.get(p.account_id)!,
+          })),
+          team_1_players: deadlockMatch.team_1_players.map((p) => ({
+            ...p,
+            name: statlockerProfileMap.get(p.account_id)!,
+          })),
+        };
+
+        DeadlockMatchSchema.create(match).catch((err) => logger.error(err));
       }
-
-      const team0WithSteamData = match.team_0_players.map((player) => ({
-        deadlock_player: player,
-        steam_player: steamPlayerMap.get(
-          useSteamClient.ProfileService.convertToSteamId64({
-            type: "steamID3",
-            value: String(player.account_id),
-          })!
-        )!,
-      }));
-
-      const team1WithSteamData = match.team_1_players.map((player) => ({
-        deadlock_player: player,
-        steam_player: steamPlayerMap.get(
-          useSteamClient.ProfileService.convertToSteamId64({
-            type: "steamID3",
-            value: String(player.account_id),
-          })!
-        )!,
-      }));
-
-      const data: IGenerateMatchImageOptions = {
-        match: {
-          id: match.match_id,
-          duration: match.duration_s,
-          average_badge_team0: match.average_badge_team0,
-          average_badge_team1: match.average_badge_team1,
-          winning_team: match.winning_team,
-          team0WithSteamData,
-          team1WithSteamData,
-        },
-      };
 
       const linkButton = new ButtonBuilder()
         .setLabel("📈 View on Statlocker")
@@ -167,7 +159,7 @@ export default class Match extends Command {
         linkButton
       );
 
-      const imageBuffer = await generateMatchImage(data);
+      const imageBuffer = await generateMatchImage({ match });
       const attachment = new AttachmentBuilder(imageBuffer, {
         name: "match.png",
       });

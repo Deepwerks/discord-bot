@@ -5,6 +5,8 @@ import config from "./config";
 import { DeadlockAssetsClient } from "./services/clients/DeadlockAssetsClient";
 import logger from "./services/logger";
 import Bottleneck from "bottleneck";
+import StatlockerClient from "./services/clients/StatlockerClient";
+import { deadlockAssetsHeroCache } from "./services/cache";
 
 const useSteamClient = new SteamClient({
   apiKey: config.steam_api_key,
@@ -22,10 +24,18 @@ const useAssetsClient = new DeadlockAssetsClient({
   apiKey: config.deadlock_api_key,
   baseURL: config.deadlock_assets_api_url,
 });
+const useStatlockerClient = new StatlockerClient({
+  baseURL: config.statlocker_api_url,
+});
 
 new CustomClient().Init();
 
-export { useSteamClient, useDeadlockClient, useAssetsClient };
+export {
+  useSteamClient,
+  useDeadlockClient,
+  useAssetsClient,
+  useStatlockerClient,
+};
 
 process.on("uncaughtException", (err) => {
   logger.error("Uncaught Exception:", err);
