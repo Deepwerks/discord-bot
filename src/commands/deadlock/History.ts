@@ -104,7 +104,7 @@ export default class History extends Command {
       );
 
       const header =
-        "Champion        ".padEnd(15) +
+        "Character       ".padEnd(15) +
         "Time     ".padEnd(9) +
         "Mode     ".padEnd(9) +
         "Match ID     ".padEnd(13) +

@@ -103,7 +103,7 @@ export default class Match extends Command {
       }
 
       let match: IDeadlockMatchSchema | null =
-        await DeadlockMatchSchema.findOne({ match_id: _matchId });
+        await DeadlockMatchSchema.findOne({ match_id: _matchId }).lean();
 
       if (!match) {
         logger.info("Saving match to db...");
@@ -116,14 +116,11 @@ export default class Match extends Command {
           ...deadlockMatch.team_0_players,
           ...deadlockMatch.team_1_players,
         ];
-        const statlockerProfilePromises = allPlayers.map(
-          async (p) =>
-            await useStatlockerClient.ProfileService.GetProfileCache(
-              String(p.account_id)
-            )
-        );
 
-        const results = await Promise.all(statlockerProfilePromises);
+        const results =
+          await useStatlockerClient.ProfileService.GetProfilesCache(
+            allPlayers.map((p) => String(p.account_id))
+          );
 
         const statlockerProfileMap = new Map<number, string>();
         for (const profile of results) {
@@ -155,6 +152,7 @@ export default class Match extends Command {
         .setLabel("📈 View on Statlocker")
         .setStyle(ButtonStyle.Link)
         .setURL(`https://statlocker.gg/match/${match.match_id}`);
+
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
         linkButton
       );

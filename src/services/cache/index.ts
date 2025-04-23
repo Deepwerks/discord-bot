@@ -14,12 +14,12 @@ export default class CustomCache<T> {
     });
   }
 
-  set(key: string, value: T, ttl?: number): void {
+  set(key: string | number, value: T, ttl?: number): void {
     if (ttl) this.cache.set(key, value, ttl);
     else this.cache.set(key, value, ttl!);
   }
 
-  get(key: string | null): T | null {
+  get(key: string | number | null): T | null {
     if (!key) return null;
     const cached = this.cache.get(key);
 

@@ -6,7 +6,7 @@ export interface IDeadlockMatchPlayerSchema {
 
   player_slot: number;
   team: number;
-  hero_id: string;
+  hero_id: number;
   party: number;
 
   kills: number;
@@ -46,7 +46,7 @@ const DeadlockMatchPlayerSchema = new Schema<IDeadlockMatchPlayerSchema>({
 
   player_slot: { type: Number, required: true },
   team: { type: Number, required: true },
-  hero_id: { type: String, required: true },
+  hero_id: { type: Number, required: true },
   party: { type: Number, required: true },
 
   kills: { type: Number, required: true },
