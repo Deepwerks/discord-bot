@@ -31,8 +31,8 @@ export default class Match extends Command {
       default_member_permissions:
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
-      cooldown: 0,
-      dev: true,
+      cooldown: 8,
+      dev: false,
       options: [
         {
           name: "id",

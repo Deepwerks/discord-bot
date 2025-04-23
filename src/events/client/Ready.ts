@@ -1,4 +1,4 @@
-import { Collection, Events, REST, Routes } from "discord.js";
+import { ActivityType, Collection, Events, REST, Routes } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
 import Command from "../../base/classes/Command.";
@@ -15,6 +15,16 @@ export default class Ready extends Event {
 
   async Execute() {
     logger.info(`${this.client.user?.tag} is now ready!`);
+
+    this.client.user?.setPresence({
+      activities: [
+        {
+          name: "your Statlocker 📊",
+          type: ActivityType.Watching,
+        },
+      ],
+      status: "online", // online | idle | dnd | invisible
+    });
 
     const cliendId = this.client.config.discord_client_id;
     const rest = new REST().setToken(this.client.config.discord_bot_token);

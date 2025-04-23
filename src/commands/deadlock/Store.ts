@@ -21,7 +21,7 @@ export default class Store extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 30,
-      dev: true,
+      dev: false,
       options: [],
     });
   }
