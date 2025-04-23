@@ -1,5 +1,4 @@
 import { ICachedSteamProfile } from "../../../../base/interfaces/ICachedSteamProfile";
-import StoredPlayer from "../../../../base/schemas/StoredPlayer";
 import { steamProfileCache } from "../../../cache";
 import logger from "../../../logger";
 import { getSteamIdType } from "../../../utils/getSteamIdType";

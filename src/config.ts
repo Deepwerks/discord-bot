@@ -28,6 +28,7 @@ switch (running_env) {
       deadlock_api_key: process.env.DEADLOCK_API_KEY!,
       deadlock_api_url: process.env.DEADLOCK_API_URL!,
       deadlock_assets_api_url: process.env.DEADLOCK_ASSETS_API_URL!,
+      statlocker_api_url: process.env.STATLOCKER_API_URL!,
     };
     break;
   case "development":
@@ -46,6 +47,7 @@ switch (running_env) {
       deadlock_api_key: process.env.DEADLOCK_API_KEY!,
       deadlock_api_url: process.env.DEADLOCK_API_URL!,
       deadlock_assets_api_url: process.env.DEADLOCK_ASSETS_API_URL!,
+      statlocker_api_url: process.env.STATLOCKER_API_URL!,
     };
     break;
   case "test":
@@ -62,6 +64,7 @@ switch (running_env) {
       deadlock_api_key: "wasd",
       deadlock_api_url: "deadlock",
       deadlock_assets_api_url: "assets",
+      statlocker_api_url: "statlocker",
     };
     break;
 
