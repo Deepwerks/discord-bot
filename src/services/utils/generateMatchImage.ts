@@ -102,7 +102,7 @@ export async function generateMatchImage(
   );
   const resolvedHeroes = await Promise.all(heroPromises);
 
-  const heroImages: Collection<string, string> = new Collection();
+  const heroImages: Collection<number, string> = new Collection();
 
   for (const hero of resolvedHeroes) {
     heroImages.set(hero?.id!, hero?.images.icon_hero_card!);

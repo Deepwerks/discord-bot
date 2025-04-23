@@ -5,7 +5,7 @@ import BaseClient from "../../BaseClient";
 import DeadlockHero from "./entities/DeadlockHero";
 
 export interface IDeadlockHeroService {
-  GetHero(heroId: string): void;
+  GetHero(heroId: number): void;
 }
 
 export default class DeadlockHeroService implements IDeadlockHeroService {
@@ -15,7 +15,7 @@ export default class DeadlockHeroService implements IDeadlockHeroService {
     this.client = client;
   }
 
-  async GetHero(heroId: string) {
+  async GetHero(heroId: number) {
     logger.info("[API CALL] Fetching a deadlock hero...");
     const response = await this.client.request<any>(
       "GET",
@@ -25,7 +25,7 @@ export default class DeadlockHeroService implements IDeadlockHeroService {
     return new DeadlockHero(response);
   }
 
-  async GetHeroCached(heroId: string): Promise<ICachedDeadlockHero | null> {
+  async GetHeroCached(heroId: number): Promise<ICachedDeadlockHero | null> {
     const cached = deadlockAssetsHeroCache.get(heroId);
 
     if (cached) return cached;

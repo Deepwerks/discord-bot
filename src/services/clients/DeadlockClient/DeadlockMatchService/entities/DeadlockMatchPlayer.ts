@@ -3,7 +3,7 @@ export default class DeadlockMatchPlayer {
 
   player_slot: number;
   team: number;
-  hero_id: string;
+  hero_id: number;
   party: number;
 
   kills: number;
@@ -25,7 +25,7 @@ export default class DeadlockMatchPlayer {
     this.account_id = raw.account_id;
     this.player_slot = raw.player_slot;
     this.team = raw.team;
-    this.hero_id = raw.hero_id;
+    this.hero_id = Number(raw.hero_id);
     this.party = raw.party;
 
     this.kills = raw.kills;

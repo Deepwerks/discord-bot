@@ -103,7 +103,7 @@ export default class Match extends Command {
       }
 
       let match: IDeadlockMatchSchema | null =
-        await DeadlockMatchSchema.findOne({ match_id: _matchId });
+        await DeadlockMatchSchema.findOne({ match_id: _matchId }).lean();
 
       if (!match) {
         logger.info("Saving match to db...");
@@ -155,6 +155,7 @@ export default class Match extends Command {
         .setLabel("📈 View on Statlocker")
         .setStyle(ButtonStyle.Link)
         .setURL(`https://statlocker.gg/match/${match.match_id}`);
+
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
         linkButton
       );

@@ -6,7 +6,6 @@ import { steam64ToSteamID3 } from "../services/utils/steam64Tosteam3";
 import { useSteamClient } from "..";
 import StoredPlayerSchema from "../base/schemas/StoredPlayerSchema";
 import CommandError from "../base/errors/CommandError";
-import { statlockerProfileCache, steamProfileCache } from "../services/cache";
 
 export default class StoreSteam extends Modal {
   constructor(client: CustomClient) {
