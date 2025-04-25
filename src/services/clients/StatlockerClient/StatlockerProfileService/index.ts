@@ -82,11 +82,13 @@ export default class StatlockerProfileService
       }
     }
 
-    const fetchedProfiles = await this.FetchProfiles(idsToFetch);
+    if (idsToFetch.length !== 0) {
+      const fetchedProfiles = await this.FetchProfiles(idsToFetch);
 
-    for (const profile of fetchedProfiles) {
-      statlockerProfileCache.set(String(profile.accountId), profile);
-      cachedProfiles[profile.accountId] = profile;
+      for (const profile of fetchedProfiles) {
+        statlockerProfileCache.set(String(profile.accountId), profile);
+        cachedProfiles[profile.accountId] = profile;
+      }
     }
 
     return account_ids.map((id) => {
