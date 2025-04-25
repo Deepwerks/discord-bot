@@ -55,24 +55,23 @@ process.on("exit", (code) => {
 });
 
 setInterval(() => {
+  const MAX_MEMORY_MB = 512;
 
-const MAX_MEMORY_MB = 512;
+  const used = process.memoryUsage().rss;
+  const mem = used / 1024 / 1024;
 
-const used = process.memoryUsage().rss;
-const mem = used / 1024 / 1024;
+  const usage = process.memoryUsage();
 
-const usage = process.memoryUsage();
+  logger.debug(`[MEMORY] RSS: ${(usage.rss / 1024 / 1024).toFixed(2)} MB`);
 
-logger.info(`[MEMORY] RSS: ${(usage.rss / 1024 / 1024).toFixed(2)} MB`);
+  if (mem > MAX_MEMORY_MB * 0.8) {
+    logger.warn(
+      `[MEMORY] High memory usage: flushing cache (>${MAX_MEMORY_MB * 0.8})...`
+    );
 
-if (mem > MAX_MEMORY_MB * 0.8) {
-  logger.warn(
-    `[MEMORY] High memory usage: flushing cache (>${MAX_MEMORY_MB * 0.8})...`
-  );
-
-  steamProfileCache.clear();
-  statlockerProfileCache.clear();
-  deadlockAssetsHeroCache.clear();
-  deadlockAssetsDefaultCache.clear();
-}
+    steamProfileCache.clear();
+    statlockerProfileCache.clear();
+    deadlockAssetsHeroCache.clear();
+    deadlockAssetsDefaultCache.clear();
+  }
 }, 60_000);
