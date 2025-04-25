@@ -6,6 +6,12 @@ import { DeadlockAssetsClient } from "./services/clients/DeadlockAssetsClient";
 import logger from "./services/logger";
 import Bottleneck from "bottleneck";
 import StatlockerClient from "./services/clients/StatlockerClient";
+import {
+  deadlockAssetsDefaultCache,
+  deadlockAssetsHeroCache,
+  statlockerProfileCache,
+  steamProfileCache,
+} from "./services/cache";
 
 const useSteamClient = new SteamClient({
   apiKey: config.steam_api_key,
@@ -47,3 +53,23 @@ process.on("unhandledRejection", (reason, promise) => {
 process.on("exit", (code) => {
   console.log(`About to exit with code: ${code}`);
 });
+
+setInterval(() => {
+  const memoryUsage = process.memoryUsage();
+  const heapUsedMB = (memoryUsage.heapUsed / 1024 / 1024).toFixed(2);
+  const heapTotalMB = (memoryUsage.heapTotal / 1024 / 1024).toFixed(2);
+  const usage = memoryUsage.heapUsed / memoryUsage.heapTotal;
+
+  logger.info(
+    `Heap Used: ${heapUsedMB} MB / ${heapTotalMB} MB (${(usage * 100).toFixed(
+      2
+    )}%)`
+  );
+
+  if (usage > 0.8) {
+    logger.warn("Memory usage above 80%, flushing node-cache...");
+
+    steamProfileCache.clear();
+    statlockerProfileCache.clear();
+  }
+}, 10000);
