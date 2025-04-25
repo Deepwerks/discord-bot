@@ -18,9 +18,6 @@ import { useDeadlockClient, useStatlockerClient } from "../..";
 import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
 import CommandError from "../../base/errors/CommandError";
 import { resolveToSteamID64 } from "../../services/utils/resolveToSteamID64";
-import DeadlockMatchSchema, {
-  IDeadlockMatchSchema,
-} from "../../base/schemas/DeadlockMatchSchema";
 
 export default class Match extends Command {
   constructor(client: CustomClient) {
@@ -102,51 +99,41 @@ export default class Match extends Command {
         _matchId = String(lastMatchOfPlayer[0].match_id);
       }
 
-      let match: IDeadlockMatchSchema | null =
-        await DeadlockMatchSchema.findOne({ match_id: _matchId }).lean();
+      let deadlockMatch = await useDeadlockClient.MatchService.GetMatch(
+        _matchId
+      );
 
-      if (!match) {
-        logger.info("Saving match to db...");
+      const allPlayers = [
+        ...deadlockMatch.team_0_players,
+        ...deadlockMatch.team_1_players,
+      ];
 
-        let deadlockMatch = await useDeadlockClient.MatchService.GetMatch(
-          _matchId
-        );
+      const results = await useStatlockerClient.ProfileService.GetProfilesCache(
+        allPlayers.map((p) => String(p.account_id))
+      );
 
-        const allPlayers = [
-          ...deadlockMatch.team_0_players,
-          ...deadlockMatch.team_1_players,
-        ];
-
-        const results =
-          await useStatlockerClient.ProfileService.GetProfilesCache(
-            allPlayers.map((p) => String(p.account_id))
-          );
-
-        const statlockerProfileMap = new Map<number, string>();
-        for (const profile of results) {
-          statlockerProfileMap.set(profile.accountId, profile.name);
-        }
-
-        match = {
-          match_id: deadlockMatch.match_id,
-          duration_s: deadlockMatch.duration_s,
-          average_badge_team0: deadlockMatch.average_badge_team0,
-          average_badge_team1: deadlockMatch.average_badge_team1,
-          start_time: deadlockMatch.start_time,
-          match_outcome: deadlockMatch.match_outcome,
-          winning_team: deadlockMatch.winning_team,
-          team_0_players: deadlockMatch.team_0_players.map((p) => ({
-            ...p,
-            name: statlockerProfileMap.get(p.account_id)!,
-          })),
-          team_1_players: deadlockMatch.team_1_players.map((p) => ({
-            ...p,
-            name: statlockerProfileMap.get(p.account_id)!,
-          })),
-        };
-
-        DeadlockMatchSchema.create(match).catch((err) => logger.error(err));
+      const statlockerProfileMap = new Map<number, string>();
+      for (const profile of results) {
+        statlockerProfileMap.set(profile.accountId, profile.name);
       }
+
+      const match = {
+        match_id: deadlockMatch.match_id,
+        duration_s: deadlockMatch.duration_s,
+        average_badge_team0: deadlockMatch.average_badge_team0,
+        average_badge_team1: deadlockMatch.average_badge_team1,
+        start_time: deadlockMatch.start_time,
+        match_outcome: deadlockMatch.match_outcome,
+        winning_team: deadlockMatch.winning_team,
+        team_0_players: deadlockMatch.team_0_players.map((p) => ({
+          ...p,
+          name: statlockerProfileMap.get(p.account_id)!,
+        })),
+        team_1_players: deadlockMatch.team_1_players.map((p) => ({
+          ...p,
+          name: statlockerProfileMap.get(p.account_id)!,
+        })),
+      };
 
       const linkButton = new ButtonBuilder()
         .setLabel("📈 View on Statlocker")

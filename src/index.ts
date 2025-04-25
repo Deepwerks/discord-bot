@@ -55,21 +55,23 @@ process.on("exit", (code) => {
 });
 
 setInterval(() => {
-  const memoryUsage = process.memoryUsage();
-  const heapUsedMB = (memoryUsage.heapUsed / 1024 / 1024).toFixed(2);
-  const heapTotalMB = (memoryUsage.heapTotal / 1024 / 1024).toFixed(2);
-  const usage = memoryUsage.heapUsed / memoryUsage.heapTotal;
+  const MAX_MEMORY_MB = 512;
 
-  logger.info(
-    `Heap Used: ${heapUsedMB} MB / ${heapTotalMB} MB (${(usage * 100).toFixed(
-      2
-    )}%)`
-  );
+  const used = process.memoryUsage().rss;
+  const mem = used / 1024 / 1024;
 
-  if (usage > 0.8) {
-    logger.warn("Memory usage above 80%, flushing node-cache...");
+  const usage = process.memoryUsage();
+
+  logger.info(`[MEMORY] RSS: ${(usage.rss / 1024 / 1024).toFixed(2)} MB`);
+
+  if (mem > MAX_MEMORY_MB * 0.8) {
+    logger.warn(
+      `[MEMORY] High memory usage: flushing cache (>${MAX_MEMORY_MB * 0.8})...`
+    );
 
     steamProfileCache.clear();
     statlockerProfileCache.clear();
+    deadlockAssetsHeroCache.clear();
+    deadlockAssetsDefaultCache.clear();
   }
-}, 10000);
+}, 60_000);
