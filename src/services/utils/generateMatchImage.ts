@@ -13,6 +13,7 @@ export interface IGenerateMatchImageOptions {
   match: {
     match_id: number;
     duration_s: number;
+    start_date: string;
     average_badge_team0: number;
     average_badge_team1: number;
     winning_team: number;
@@ -42,7 +43,7 @@ export async function generateMatchImage(
   const nameStatGap = 20;
 
   const canvasWidth = 1800;
-  const canvasHeight = 800;
+  const canvasHeight = 850;
   const canvas = new Canvas(canvasWidth, canvasHeight);
   const ctx = canvas.getContext("2d");
 
@@ -147,7 +148,7 @@ export async function generateMatchImage(
   ctx.drawImage(
     team0RankBadge,
     sapphireStartX - fixedWidth * 0.5,
-    0,
+    10,
     fixedWidth,
     scaledHeight
   );
@@ -186,7 +187,7 @@ export async function generateMatchImage(
   ctx.drawImage(
     team1RankBadge,
     amberTeamLabelX - fixedWidth * 0.5,
-    0,
+    10,
     fixedWidth,
     scaledHeight
   );
@@ -194,8 +195,15 @@ export async function generateMatchImage(
   ctx.textAlign = "center";
   ctx.font = "16px Arial";
 
-  const columnTopY = startY - avatarHeight; // az avatar teteje
-  const columnBottomY = startY + labelGap * rowLabels.length; // az utolsó stat alj
+  const columnTopY = startY - avatarHeight;
+  const columnBottomY = startY + labelGap * rowLabels.length;
+
+  // Date
+  ctx.fillStyle = "#999";
+  ctx.textAlign = "right";
+  ctx.font = "bold 16px Arial";
+  ctx.fillText(match.match_id.toString(), canvasWidth - 75, canvasHeight - 50);
+  ctx.fillText(match.start_date, canvasWidth - 75, canvasHeight - 30);
 
   async function renderPlayerData(
     team: IDeadlockPlayerWithName[],
@@ -230,6 +238,7 @@ export async function generateMatchImage(
       // --- Player name ---
       ctx.fillStyle = "#fff";
       ctx.font = "bold 16px Arial";
+      ctx.textAlign = "center";
       ctx.fillText(shortenPlayerName(player.name), x, startY + 10);
 
       if (player.party !== 0) {

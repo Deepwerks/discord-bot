@@ -120,6 +120,7 @@ export default class Match extends Command {
       const match = {
         match_id: deadlockMatch.match_id,
         duration_s: deadlockMatch.duration_s,
+        start_date: deadlockMatch.start_date.format("D MMMM, YYYY"),
         average_badge_team0: deadlockMatch.average_badge_team0,
         average_badge_team1: deadlockMatch.average_badge_team1,
         start_time: deadlockMatch.start_time,
