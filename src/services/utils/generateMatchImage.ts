@@ -116,6 +116,28 @@ export async function generateMatchImage(
   ctx.textAlign = "center";
   ctx.fillText(getFormattedMatchTime(match.duration_s), canvasWidth / 2, 60);
 
+  // Points
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "22px Arial";
+
+  ctx.textAlign = "left";
+  ctx.fillText(
+    match.team_0_players
+      .reduce((sum, player) => sum + player.net_worth, 0)
+      .toLocaleString(),
+    canvasWidth / 2 - 175,
+    55
+  );
+
+  ctx.textAlign = "right";
+  ctx.fillText(
+    match.team_1_players
+      .reduce((sum, player) => sum + player.net_worth, 0)
+      .toLocaleString(),
+    canvasWidth / 2 + 175,
+    55
+  );
+
   // Team names
   if (match.winning_team === 0) {
     ctx.font = "bold 22px Arial";
