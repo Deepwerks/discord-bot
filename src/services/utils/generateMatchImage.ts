@@ -265,7 +265,7 @@ export async function generateMatchImage(
   const boxX = Layout.canvasWidth / 2 - boxWidth / 2;
   const boxY = 20;
 
-  ctx.fillStyle = "rgba(255, 255, 255, 0.05)"; // semi-transparent white
+  ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
   ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
 
   ctx.fillStyle = Colors.white;
