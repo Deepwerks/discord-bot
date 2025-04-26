@@ -1,8 +1,9 @@
-import { createCanvas, loadImage } from "canvas";
 import DeadlockMatchPlayer from "../clients/DeadlockClient/DeadlockMatchService/entities/DeadlockMatchPlayer";
 import { useAssetsClient } from "../..";
 import { Collection } from "discord.js";
 import { getFormattedMatchTime } from "./getFormattedMatchTime";
+
+import { Canvas, loadImage } from "@napi-rs/canvas";
 
 interface IDeadlockPlayerWithName extends DeadlockMatchPlayer {
   name: string;
@@ -42,7 +43,7 @@ export async function generateMatchImage(
 
   const canvasWidth = 1800;
   const canvasHeight = 800;
-  const canvas = createCanvas(canvasWidth, canvasHeight);
+  const canvas = new Canvas(canvasWidth, canvasHeight);
   const ctx = canvas.getContext("2d");
 
   ctx.fillStyle = "#1e1e2f";
@@ -302,7 +303,7 @@ export async function generateMatchImage(
     ctx.fillText(label, rowLabelX, rowY);
   });
 
-  return canvas.toBuffer();
+  return canvas.toBuffer("image/png");
 }
 
 const shortenPlayerName = (playername: string) => {
