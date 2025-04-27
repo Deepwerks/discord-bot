@@ -10,6 +10,7 @@ import logger from "../../services/logger";
 import { initI18n } from "../../services/i18n";
 import WebService from "../../services/web";
 import ModalHandler from "../interfaces/IModalHandler";
+import { useAssetsClient } from "../..";
 
 export default class CustomClient extends Client implements ICustomClient {
   config: IConfig;
@@ -38,6 +39,8 @@ export default class CustomClient extends Client implements ICustomClient {
       } mode...`
     );
     await initI18n();
+
+    await useAssetsClient.HeroService.LoadAllHeroesToCache();
 
     this.LoadHandlers();
 
