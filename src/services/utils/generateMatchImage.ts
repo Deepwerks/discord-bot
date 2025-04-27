@@ -1,7 +1,7 @@
 import DeadlockMatchPlayer from "../clients/DeadlockClient/DeadlockMatchService/entities/DeadlockMatchPlayer";
 import { useAssetsClient } from "../..";
 import { getFormattedMatchTime } from "./getFormattedMatchTime";
-import { Canvas, loadImage, SKRSContext2D } from "@napi-rs/canvas";
+import { Canvas, loadImage, SKRSContext2D, Image } from "@napi-rs/canvas";
 
 interface IDeadlockPlayerWithName extends DeadlockMatchPlayer {
   name: string;
@@ -31,6 +31,7 @@ const Layout = {
   startY: 300,
   nameStatGap: 20,
   marginX: 50,
+  badgeDesiredWidth: 120,
 };
 
 const Fonts = {
@@ -105,6 +106,30 @@ function getBestStats(players: IDeadlockPlayerWithName[]) {
     obj_damage: Math.max(...players.map((p) => p.obj_damage)),
     healing: Math.max(...players.map((p) => p.healing)),
   };
+}
+
+function getCenteredPosition(
+  x: number,
+  y: number,
+  imageWidth: number,
+  imageHeight: number
+) {
+  return {
+    x: x - imageWidth / 2,
+    y: y - imageHeight / 2,
+  };
+}
+
+function cropBadgeCentered(
+  img: Image,
+  maxWidth: number
+): { sx: number; sy: number; sw: number; sh: number } {
+  if (img.width <= maxWidth) {
+    return { sx: 0, sy: 0, sw: img.width, sh: img.height };
+  }
+  const excessWidth = img.width - maxWidth;
+  const sx = excessWidth / 2;
+  return { sx, sy: 0, sw: maxWidth, sh: img.height };
 }
 
 // --- Drawing Functions ---
@@ -310,9 +335,56 @@ export async function generateMatchImage(
   const amberRightmostX =
     amberStartX + (amberTeam.length - 1) * Layout.playerSpacing;
 
-  if (team0Badge)
-    ctx.drawImage(team0Badge, sapphireLeftmostX - 60, 10, 120, 120);
-  if (team1Badge) ctx.drawImage(team1Badge, amberRightmostX - 60, 10, 120, 120);
+  if (team0Badge) {
+    const crop = cropBadgeCentered(team0Badge, 500); // pl. 500px max width
+    const scaledHeight = Layout.badgeDesiredWidth * (crop.sh / crop.sw);
+
+    const sapphireLeftmostX = sapphireStartX;
+    const team0Position = getCenteredPosition(
+      sapphireLeftmostX,
+      scaledHeight / 2 + 25,
+      Layout.badgeDesiredWidth,
+      scaledHeight
+    );
+
+    ctx.drawImage(
+      team0Badge,
+      crop.sx,
+      crop.sy,
+      crop.sw,
+      crop.sh,
+      team0Position.x,
+      team0Position.y,
+      Layout.badgeDesiredWidth,
+      scaledHeight
+    );
+  }
+
+  if (team1Badge) {
+    const crop = cropBadgeCentered(team1Badge, 500);
+    const scaledHeight = Layout.badgeDesiredWidth * (crop.sh / crop.sw);
+
+    const amberRightmostX =
+      amberStartX + (amberTeam.length - 1) * Layout.playerSpacing;
+    const team1Position = getCenteredPosition(
+      amberRightmostX,
+      scaledHeight / 2 + 25,
+      Layout.badgeDesiredWidth,
+      scaledHeight
+    );
+
+    ctx.drawImage(
+      team1Badge,
+      crop.sx,
+      crop.sy,
+      crop.sw,
+      crop.sh,
+      team1Position.x,
+      team1Position.y,
+      Layout.badgeDesiredWidth,
+      scaledHeight
+    );
+  }
 
   // Team names + Victory
   ctx.font = Fonts.team;
