@@ -129,7 +129,7 @@ export default class Stats extends Command {
       const description = `
         ${
           !heroName
-            ? `Global Stats ${globalStatBlock}  \nAdditional Stats ${additionalStatBlock}`
+            ? `\`\`\`Predicted Rank: ${steamProfile.performanceRankMessage}\`\`\` \nGlobal Stats ${globalStatBlock}  \nAdditional Stats ${additionalStatBlock}`
             : `Stats on ${hero?.name} ${heroStatBlock} ${
                 heroSpecificStats.length
                   ? `\nHero Specific Stats ${heroSpecificStatBlock}`
