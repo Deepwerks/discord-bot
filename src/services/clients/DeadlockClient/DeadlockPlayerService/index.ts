@@ -1,4 +1,9 @@
+import logger from "../../../logger";
 import BaseClient from "../../BaseClient";
+import {
+  VariableRequestParams,
+  VariableResponse,
+} from "./entities/CommandResponse";
 import HeroStats from "./entities/HeroStats";
 import HistoryMatch from "./entities/HistoryMatch";
 
@@ -36,5 +41,34 @@ export default class DeadlockPlayerService implements IDeadlockPlayerService {
     );
 
     return response.slice(0, limit);
+  };
+
+  GetStats = async (
+    account_id: string,
+    hero_name: string,
+    variables: string[]
+  ): Promise<VariableResponse> => {
+    logger.info("Fetching Deadlock Stats for a player...");
+    const params: VariableRequestParams = {
+      account_id,
+      variables,
+    };
+
+    if (variables.some((variable) => variable.includes("hero_")) && hero_name) {
+      params.hero_name = hero_name;
+    }
+
+    const response = await this.client.request<VariableResponse>(
+      "GET",
+      "/v1/commands/variables/resolve",
+      undefined,
+      {
+        account_id,
+        variables: variables.join(","),
+        hero_name: params.hero_name,
+      }
+    );
+
+    return response;
   };
 }
