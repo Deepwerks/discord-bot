@@ -1,9 +1,12 @@
+import dayjs from "dayjs";
+
 export default class HistoryMatch {
   account_id: number;
   match_id: number;
   hero_id: number;
   hero_level: number;
   start_time: number;
+  start_date: dayjs.Dayjs;
   game_mode: number;
   match_mode: number;
   player_team: number;
@@ -26,6 +29,7 @@ export default class HistoryMatch {
     this.hero_id = Number(raw.hero_id);
     this.hero_level = raw.hero_level;
     this.start_time = raw.start_time;
+    this.start_date = dayjs.unix(this.start_time);
     this.game_mode = raw.game_mode;
     this.match_mode = raw.match_mode;
     this.player_team = raw.player_team;

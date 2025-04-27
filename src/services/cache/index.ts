@@ -3,6 +3,7 @@ import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
 import ICachedDeadlockHero from "../../base/interfaces/ICachedDeadlockHero";
 import DeadlockRank from "../clients/DeadlockAssetsClient/DefaultService/entities/DeadlockRank";
 import IStatlockerProfile from "../clients/StatlockerClient/StatlockerProfileService/interfaces/IStatlockerProfile";
+import { Collection } from "discord.js";
 
 export default class CustomCache<T> {
   private cache: NodeCache;
@@ -37,6 +38,20 @@ export default class CustomCache<T> {
 
   show(): void {
     console.log("Cache tartalma: ", this.cache.keys());
+  }
+
+  getAll(): Collection<string, T> {
+    const keys = this.cache.keys();
+    const allRecords: Collection<string, T> = new Collection();
+
+    keys.forEach((key) => {
+      const value = this.cache.get(key);
+      if (value !== undefined) {
+        allRecords.set(key, value as T);
+      }
+    });
+
+    return allRecords;
   }
 }
 
