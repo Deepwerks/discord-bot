@@ -1,6 +1,6 @@
+import { logger } from "../../../..";
 import { ICachedSteamProfile } from "../../../../base/interfaces/ICachedSteamProfile";
 import { steamProfileCache } from "../../../cache";
-import logger from "../../../logger";
 import { getSteamIdType } from "../../../utils/getSteamIdType";
 import { isValidSteamId } from "../../../utils/isValidSteamId";
 import { resolveToSteamID64 } from "../../../utils/resolveToSteamID64";

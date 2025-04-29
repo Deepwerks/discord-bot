@@ -1,5 +1,5 @@
+import { logger } from "../../../..";
 import { statlockerProfileCache } from "../../../cache";
-import logger from "../../../logger";
 import BaseClient from "../../BaseClient";
 import IStatlockerProfile from "./interfaces/IStatlockerProfile";
 

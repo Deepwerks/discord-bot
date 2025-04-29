@@ -1,4 +1,4 @@
-import logger from "../../../logger";
+import { logger } from "../../../..";
 import BaseClient from "../../BaseClient";
 import {
   VariableRequestParams,

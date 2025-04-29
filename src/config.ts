@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import IConfig from "./base/interfaces/IConfig";
-import logger from "./services/logger";
+import { logger } from ".";
 
 let config: IConfig | null = null;
 

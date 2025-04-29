@@ -1,5 +1,5 @@
+import { logger } from "../../../..";
 import { deadlockAssetsDefaultCache } from "../../../cache";
-import logger from "../../../logger";
 import BaseClient from "../../BaseClient";
 import DeadlockRank from "./entities/DeadlockRank";
 

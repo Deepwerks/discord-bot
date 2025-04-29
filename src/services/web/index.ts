@@ -1,6 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from "express";
-import logger from "../logger";
 import IConfig from "../../base/interfaces/IConfig";
+import { logger } from "../..";
 
 export interface IWebService {
   config: IConfig;
