@@ -3,7 +3,6 @@ import { DeadlockClient } from "./services/clients/DeadlockClient";
 import SteamClient from "./services/clients/SteamClient";
 import config from "./config";
 import { DeadlockAssetsClient } from "./services/clients/DeadlockAssetsClient";
-import logger from "./services/logger";
 import Bottleneck from "bottleneck";
 import StatlockerClient from "./services/clients/StatlockerClient";
 import {
@@ -12,6 +11,9 @@ import {
   statlockerProfileCache,
   steamProfileCache,
 } from "./services/cache";
+import { logtailLogger } from "./services/logger";
+
+const logger = logtailLogger;
 
 const useSteamClient = new SteamClient({
   apiKey: config.steam_api_key,
@@ -40,6 +42,7 @@ export {
   useDeadlockClient,
   useAssetsClient,
   useStatlockerClient,
+  logger,
 };
 
 process.on("uncaughtException", (err) => {

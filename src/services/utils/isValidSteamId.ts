@@ -1,4 +1,4 @@
-import logger from "../logger";
+import { logger } from "../..";
 
 export function isValidSteamId(id: string): boolean {
   try {

@@ -1,3 +1,4 @@
+import { logger } from "../../../..";
 import BaseClient from "../../BaseClient";
 import DeadlockMatch from "./entities/DeadlockMatch";
 
@@ -13,6 +14,7 @@ export default class DeadlockMatchService implements IDeadlockMatchService {
   }
 
   async GetMatch(matchId: string): Promise<DeadlockMatch> {
+    logger.info("[API CALL] Fetching a deadlock match...");
     const response = await this.client.request<any>(
       "GET",
       `/v1/matches/${matchId}/metadata`

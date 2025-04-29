@@ -7,9 +7,9 @@ import {
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
 import Command from "../../base/classes/Command.";
-import logger from "../../services/logger";
 import i18next from "../../services/i18n";
 import GuildConfig from "../../base/schemas/GuildConfigSchema";
+import { logger } from "../..";
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {

@@ -1,9 +1,8 @@
 import { EmbedBuilder, ModalSubmitInteraction } from "discord.js";
 import CustomClient from "../base/classes/CustomClient";
 import Modal from "../base/classes/CustomModal";
-import logger from "../services/logger";
 import { steam64ToSteamID3 } from "../services/utils/steam64Tosteam3";
-import { useSteamClient } from "..";
+import { logger, useSteamClient } from "..";
 import StoredPlayerSchema from "../base/schemas/StoredPlayerSchema";
 import CommandError from "../base/errors/CommandError";
 

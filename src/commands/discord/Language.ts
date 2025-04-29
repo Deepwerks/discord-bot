@@ -10,9 +10,9 @@ import Category from "../../base/enums/Category";
 import { supportedLanguages } from "../../services/i18n";
 import CommandError from "../../base/errors/CommandError";
 import GuildConfig from "../../base/schemas/GuildConfigSchema";
-import logger from "../../services/logger";
 import { TFunction } from "i18next";
 import i18next from "../../services/i18n";
+import { logger } from "../..";
 
 export default class Language extends Command {
   constructor(client: CustomClient) {

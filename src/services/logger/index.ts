@@ -1,13 +1,15 @@
 import winston from "winston";
-import "winston-daily-rotate-file";
-import path from "path";
+import { Logtail } from "@logtail/node";
+import { LogtailTransport } from "@logtail/winston";
 
-const logDir = "logs";
-
-const { combine, timestamp, printf, errors, colorize, json } = winston.format;
+const { combine, timestamp, printf, errors, colorize } = winston.format;
 
 const logFormat = printf(({ level, message, timestamp, stack }) => {
   return `${timestamp} [${level}]: ${stack || message}`;
+});
+
+const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN!, {
+  endpoint: process.env.LOGTAIL_ENDPOINT,
 });
 
 const transports: winston.transport[] = [
@@ -19,31 +21,18 @@ const transports: winston.transport[] = [
       logFormat
     ),
   }),
-  new winston.transports.DailyRotateFile({
-    filename: path.join(logDir, "application-%DATE%.log"),
-    datePattern: "YYYY-MM-DD",
-    zippedArchive: true,
-    maxSize: "20m",
-    maxFiles: "14d",
-    level: "info",
-    format: combine(timestamp(), errors({ stack: true }), json()),
-  }),
-  new winston.transports.DailyRotateFile({
-    filename: path.join(logDir, "errors-%DATE%.log"),
-    datePattern: "YYYY-MM-DD",
-    level: "error",
-    zippedArchive: true,
-    maxSize: "20m",
-    maxFiles: "30d",
-    format: combine(timestamp(), errors({ stack: true }), json()),
-  }),
 ];
 
-const logger = winston.createLogger({
+transports.push(new LogtailTransport(logtail));
+
+export const logtailLogger = winston.createLogger({
   level: process.env.NODE_ENV === "development" ? "debug" : "info",
   format: combine(errors({ stack: true })),
   transports,
   exitOnError: false,
+  defaultMeta: {
+    service: "DeadlockAssistant",
+    environment: process.env.NODE_ENV,
+    version: process.env.npm_package_version,
+  },
 });
-
-export default logger;
