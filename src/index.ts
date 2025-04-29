@@ -65,7 +65,9 @@ setInterval(() => {
 
   const usage = process.memoryUsage();
 
-  logger.debug(`[MEMORY] RSS: ${(usage.rss / 1024 / 1024).toFixed(2)} MB`);
+  logger.debug(`[MEMORY] RSS: ${(usage.rss / 1024 / 1024).toFixed(2)} MB`, {
+    memory: usage.rss / 1024 / 1024,
+  });
 
   if (mem > MAX_MEMORY_MB * 0.8) {
     logger.warn(
