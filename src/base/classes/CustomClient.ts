@@ -6,11 +6,10 @@ import Command from "./Command.";
 import SubCommand from "./SubCommand";
 import { connect } from "mongoose";
 import config from "../../config";
-import logger from "../../services/logger";
 import { initI18n } from "../../services/i18n";
 import WebService from "../../services/web";
 import ModalHandler from "../interfaces/IModalHandler";
-import { useAssetsClient } from "../..";
+import { logger, useAssetsClient } from "../..";
 
 export default class CustomClient extends Client implements ICustomClient {
   config: IConfig;

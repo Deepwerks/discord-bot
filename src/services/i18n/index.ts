@@ -2,7 +2,7 @@ import i18next from "i18next";
 import Backend from "i18next-fs-backend";
 import path from "path";
 import ILanguage from "../../base/interfaces/ILanguage";
-import logger from "../logger";
+import { logger } from "../..";
 
 export const supportedLanguages: ILanguage[] = [
   {

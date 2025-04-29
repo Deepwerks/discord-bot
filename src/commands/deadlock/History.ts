@@ -9,10 +9,14 @@ import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
 import CommandError from "../../base/errors/CommandError";
-import { useAssetsClient, useDeadlockClient, useStatlockerClient } from "../..";
+import {
+  logger,
+  useAssetsClient,
+  useDeadlockClient,
+  useStatlockerClient,
+} from "../..";
 import { getFormattedMatchTime } from "../../services/utils/getFormattedMatchTime";
 import pLimit from "p-limit";
-import logger from "../../services/logger";
 import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
 
 export default class History extends Command {

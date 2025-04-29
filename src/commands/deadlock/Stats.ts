@@ -9,8 +9,7 @@ import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
 import CommandError from "../../base/errors/CommandError";
-import { useDeadlockClient, useStatlockerClient } from "../..";
-import logger from "../../services/logger";
+import { logger, useDeadlockClient, useStatlockerClient } from "../..";
 import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
 import { findHeroByName } from "../../services/utils/findHeroByName";
 

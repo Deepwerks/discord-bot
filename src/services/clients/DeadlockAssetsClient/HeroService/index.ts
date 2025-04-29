@@ -1,6 +1,6 @@
+import { logger } from "../../../..";
 import ICachedDeadlockHero from "../../../../base/interfaces/ICachedDeadlockHero";
 import { deadlockAssetsHeroCache } from "../../../cache";
-import logger from "../../../logger";
 import BaseClient from "../../BaseClient";
 import DeadlockHero from "./entities/DeadlockHero";
 

@@ -5,8 +5,8 @@ import CustomClient from "./CustomClient";
 import Event from "./Event";
 import Command from "./Command.";
 import SubCommand from "./SubCommand";
-import logger from "../../services/logger";
 import Modal from "./CustomModal";
+import { logger } from "../..";
 
 export default class Handler implements IHandler {
   client: CustomClient;
