@@ -20,9 +20,9 @@ export default class Changelog extends Command {
       default_member_permissions:
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
-      cooldown: 3,
+      cooldown: 30,
       options: [],
-      dev: true,
+      dev: false,
     });
   }
 
