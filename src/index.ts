@@ -53,10 +53,6 @@ process.on("unhandledRejection", (reason, promise) => {
   logger.error("Unhandled Rejection at:", promise, "reason:", reason);
 });
 
-process.on("exit", (code) => {
-  console.log(`About to exit with code: ${code}`);
-});
-
 setInterval(() => {
   const MAX_MEMORY_MB = 512;
 

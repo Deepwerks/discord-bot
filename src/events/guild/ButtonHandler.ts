@@ -6,9 +6,11 @@ import {
 } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
-import { logger, useAssetsClient, useDeadlockClient } from "../..";
+import { logger } from "../..";
 import i18next from "../../services/i18n";
 import GuildConfig from "../../base/schemas/GuildConfigSchema";
+import logInteraction from "../../services/logger/logInteraction";
+import { InteractionType } from "../../base/schemas/UserInteractionSchema";
 
 export default class ButtonHandler extends Event {
   constructor(client: CustomClient) {
@@ -72,6 +74,12 @@ export default class ButtonHandler extends Event {
       timestamps.set(interaction.user.id, now);
       setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
 
+      logInteraction(
+        buttonActionHandler.customId,
+        InteractionType.Button,
+        interaction.user.id,
+        interaction.guildId
+      );
       return await buttonActionHandler.Execute(interaction, t);
     } catch (err) {
       logger.error("ButtonAction execution error", err);
