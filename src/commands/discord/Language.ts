@@ -4,7 +4,7 @@ import {
   EmbedBuilder,
   PermissionsBitField,
 } from "discord.js";
-import Command from "../../base/classes/Command.";
+import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { supportedLanguages } from "../../services/i18n";

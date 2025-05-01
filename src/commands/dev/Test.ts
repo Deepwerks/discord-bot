@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, PermissionsBitField } from "discord.js";
-import Command from "../../base/classes/Command.";
+import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
