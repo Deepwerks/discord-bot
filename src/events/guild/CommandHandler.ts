@@ -10,6 +10,8 @@ import Command from "../../base/classes/Command";
 import i18next from "../../services/i18n";
 import GuildConfig from "../../base/schemas/GuildConfigSchema";
 import { logger } from "../..";
+import logInteraction from "../../services/logger/logInteraction";
+import { InteractionType } from "../../base/schemas/UserInteractionSchema";
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -93,6 +95,12 @@ export default class CommandHandler extends Event {
       `[COMMAND] ${interaction.user.tag} used /${interaction.commandName}`
     );
 
+    logInteraction(
+      command.name,
+      InteractionType.Command,
+      interaction.user.id,
+      interaction.guildId
+    );
     try {
       const subCommandHandler = this.client.subCommands.get(subCommand);
       if (subCommandHandler) {
