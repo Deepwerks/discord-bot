@@ -33,6 +33,20 @@ export default class DefaultAssetsService implements IDefaultAssetsService {
     return (images as Record<string, string>)[key] || null;
   }
 
+  async GetRankName(number: number | undefined) {
+    if (number === undefined) return "Unknown";
+
+    const rank = Math.floor(number / 10);
+    const subrank = number % 10;
+
+    const tierData = (await this.GetRanksCached()).find(
+      (item) => item.tier === rank
+    );
+    if (!tierData) return "Unknown";
+
+    return `${tierData.name}${subrank > 0 ? ` ${subrank}` : ""}`;
+  }
+
   async GetRanks() {
     logger.info("[API CALL] Fetching a deadlock ranks...");
     const response = await this.client.request<DeadlockRank[]>(

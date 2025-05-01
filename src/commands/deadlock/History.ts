@@ -74,6 +74,10 @@ export default class History extends Command {
         String(steamProfile.accountId),
         15
       );
+      const mmrMatches = await useDeadlockClient.PlayerService.GetMMRHistory(
+        String(steamProfile.accountId),
+        15
+      );
 
       const limit = pLimit(10);
 
@@ -87,7 +91,11 @@ export default class History extends Command {
             const time = getFormattedMatchTime(match.match_duration_s).padEnd(
               9
             );
-            const mode = "Ranked".padEnd(9);
+            const rank = (
+              await useAssetsClient.DefaultService.GetRankName(
+                mmrMatches.find((m) => m.match_id === match.match_id)?.rank
+              )
+            ).padEnd(15);
             const matchId = match.match_id.toString().padEnd(13);
             const kdaValue = (
               (match.player_kills + match.player_assists) /
@@ -99,7 +107,7 @@ export default class History extends Command {
                 15
               );
 
-            const line = `${champion}${time}${mode}${matchId}${kda}${detailed}`;
+            const line = `${champion}${time}${rank}${matchId}${kda}${detailed}`;
 
             const prefix = match.match_result === match.player_team ? "+" : "-";
             return `${prefix}${line}`;
@@ -110,7 +118,7 @@ export default class History extends Command {
       const header =
         "Character       ".padEnd(15) +
         "Time     ".padEnd(9) +
-        "Mode     ".padEnd(9) +
+        "Rank       ".padEnd(15) +
         "Match ID     ".padEnd(13) +
         "KDA   ".padEnd(6) +
         "Detailed      ".padEnd(15);
