@@ -1,7 +1,7 @@
 import { ActivityType, Collection, Events, REST, Routes } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
-import Command from "../../base/classes/Command.";
+import Command from "../../base/classes/Command";
 import { logger } from "../..";
 
 export default class Ready extends Event {

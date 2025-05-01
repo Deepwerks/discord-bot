@@ -6,7 +6,7 @@ import {
 } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
-import Command from "../../base/classes/Command.";
+import Command from "../../base/classes/Command";
 import i18next from "../../services/i18n";
 import GuildConfig from "../../base/schemas/GuildConfigSchema";
 import { logger } from "../..";

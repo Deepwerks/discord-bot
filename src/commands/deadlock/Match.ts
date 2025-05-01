@@ -5,10 +5,11 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ChatInputCommandInteraction,
+  ComponentType,
   EmbedBuilder,
   PermissionsBitField,
 } from "discord.js";
-import Command from "../../base/classes/Command.";
+import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
@@ -28,7 +29,7 @@ export default class Match extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 8,
-      dev: false,
+      dev: true,
       options: [
         {
           name: "id",
@@ -136,11 +137,19 @@ export default class Match extends Command {
       };
 
       const linkButton = new ButtonBuilder()
-        .setLabel("📈 View on Statlocker")
+        .setLabel("View on Statlocker")
         .setStyle(ButtonStyle.Link)
-        .setURL(`https://statlocker.gg/match/${match.match_id}`);
+        .setURL(`https://statlocker.gg/match/${match.match_id}`)
+        .setEmoji("1367520315244023868");
+
+      const showPlayersButton = new ButtonBuilder()
+        .setLabel("Show Players")
+        .setStyle(ButtonStyle.Primary)
+        .setCustomId("show_players:" + match.match_id)
+        .setEmoji("👥");
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        showPlayersButton,
         linkButton
       );
 

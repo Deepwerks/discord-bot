@@ -3,10 +3,11 @@ import path from "path";
 import { glob } from "glob";
 import CustomClient from "./CustomClient";
 import Event from "./Event";
-import Command from "./Command.";
+import Command from "./Command";
 import SubCommand from "./SubCommand";
 import Modal from "./CustomModal";
 import { logger } from "../..";
+import ButtonAction from "./ButtonAction";
 
 export default class Handler implements IHandler {
   client: CustomClient;
@@ -61,6 +62,31 @@ export default class Handler implements IHandler {
       }
 
       this.client.commands.set(command.name, command as Command);
+
+      return delete require.cache[require.resolve(file)];
+    });
+  }
+
+  async LoadButtonActions() {
+    const files = (await glob("build/buttonActions/**/*.js")).map(
+      (filePath: string) => path.resolve(filePath)
+    );
+
+    files.map(async (file: string) => {
+      const buttonAction: ButtonAction = new (await import(file)).default(
+        this.client
+      );
+
+      if (!buttonAction.customId)
+        return (
+          delete require.cache[require.resolve(file)] &&
+          logger.info(`${file.split("/").pop()} does not have an id.`)
+        );
+
+      this.client.buttons.set(
+        buttonAction.customId,
+        buttonAction as ButtonAction
+      );
 
       return delete require.cache[require.resolve(file)];
     });
