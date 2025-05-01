@@ -6,6 +6,7 @@ import {
 } from "./entities/CommandResponse";
 import HeroStats from "./entities/HeroStats";
 import HistoryMatch from "./entities/HistoryMatch";
+import MMRHistoryRecord from "./entities/MMRHistory";
 
 export interface IDeadlockPlayerService {
   GetHeroStats(
@@ -70,5 +71,17 @@ export default class DeadlockPlayerService implements IDeadlockPlayerService {
     );
 
     return response;
+  };
+
+  GetMMRHistory = async (
+    account_id: string,
+    limit: number = 50
+  ): Promise<MMRHistoryRecord[]> => {
+    const response = await this.client.request<MMRHistoryRecord[]>(
+      "GET",
+      `/v1/players/${account_id}/mmr-history`
+    );
+
+    return response.reverse().slice(0, limit);
   };
 }
