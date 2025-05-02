@@ -40,7 +40,7 @@ const calculateKDA = (m: any) =>
 const safeAvg = (arr: number[]) =>
   arr.length === 0 ? 0 : arr.reduce((a, b) => a + b, 0) / arr.length;
 const formatTags = (tags: Tag[]) =>
-  tags.map((tag) => "`" + tag.label + "`").join("    ");
+  tags.map((tag) => "`" + tag.label.replace(" ", "\u00A0") + "`").join("    ");
 
 export default class Performance extends Command {
   constructor(client: CustomClient) {
