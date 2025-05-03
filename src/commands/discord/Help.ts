@@ -3,7 +3,6 @@ import {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
   EmbedBuilder,
-  OAuth2Scopes,
   PermissionsBitField,
 } from "discord.js";
 import Command from "../../base/classes/Command";
