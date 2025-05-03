@@ -71,7 +71,12 @@ export default class DeadlockMeme extends Command {
 async function getDeadlockMemeEmbed(): Promise<EmbedBuilder | null> {
   try {
     const res = await fetch(
-      "https://www.reddit.com/r/DeadlockTheGame/top.json?limit=25&t=week"
+      "https://www.reddit.com/r/DeadlockTheGame/top.json?limit=25&t=week",
+      {
+        headers: {
+          "User-Agent": "DeadlockAssistant",
+        },
+      }
     );
 
     if (!res.ok) {
@@ -103,6 +108,7 @@ async function getDeadlockMemeEmbed(): Promise<EmbedBuilder | null> {
       .setFooter({ text: `Posted by u/${post.author}` })
       .setColor(0xff4500);
   } catch (error) {
+    logger.error(error);
     throw new CommandError("Failed to fetch memes from Reddit.");
   }
 }
