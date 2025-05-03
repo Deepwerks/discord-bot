@@ -74,7 +74,7 @@ async function getDeadlockMemeEmbed(): Promise<EmbedBuilder | null> {
       "https://www.reddit.com/r/DeadlockTheGame/top.json?limit=25&t=week",
       {
         headers: {
-          "User-Agent": "DeadlockAssistant",
+          "User-Agent": "linux:deadlockassistant:1.6.0 (by /u/Mexter-)",
         },
       }
     );
