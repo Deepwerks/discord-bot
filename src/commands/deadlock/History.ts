@@ -29,7 +29,7 @@ export default class History extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 3,
-      dev: false,
+      dev: true,
       options: [
         {
           name: "player",

@@ -54,7 +54,7 @@ export default class DefaultAssetsService implements IDefaultAssetsService {
       `/v2/ranks`
     );
 
-    return response;
+    return response.map((rank) => new DeadlockRank(rank));
   }
 
   async GetRanksCached() {

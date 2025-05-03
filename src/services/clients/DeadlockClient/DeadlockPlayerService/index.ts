@@ -29,7 +29,9 @@ export default class DeadlockPlayerService implements IDeadlockPlayerService {
       `/v1/players/${account_id}/hero-stats`
     );
 
-    return response.find((stats) => stats.hero_id === hero_id);
+    return response
+      .map((s) => new HeroStats(s))
+      .find((stats) => stats.hero_id === hero_id);
   };
 
   GetMatchHistory = async (
@@ -41,7 +43,7 @@ export default class DeadlockPlayerService implements IDeadlockPlayerService {
       `/v1/players/${account_id}/match-history`
     );
 
-    return response.slice(0, limit);
+    return response.map((m) => new HistoryMatch(m)).slice(0, limit);
   };
 
   GetStats = async (
@@ -82,6 +84,9 @@ export default class DeadlockPlayerService implements IDeadlockPlayerService {
       `/v1/players/${account_id}/mmr-history`
     );
 
-    return response.reverse().slice(0, limit);
+    return response
+      .map((h) => new MMRHistoryRecord(h))
+      .reverse()
+      .slice(0, limit);
   };
 }

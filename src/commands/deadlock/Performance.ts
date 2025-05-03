@@ -52,7 +52,7 @@ export default class Performance extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 8,
-      dev: false,
+      dev: true,
       options: [
         {
           name: "player",
