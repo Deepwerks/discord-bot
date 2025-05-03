@@ -13,7 +13,7 @@ export default class Command implements ICommand {
   name: string;
   description: string;
   category: Category;
-  options: object;
+  options: Array<object>;
   default_member_permissions: bigint;
   dm_permission: boolean;
   cooldown: number;
