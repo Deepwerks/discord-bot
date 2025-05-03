@@ -6,7 +6,6 @@ import {
 import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
-import ChangelogSchema from "../../base/schemas/ChangelogSchema";
 import { logger } from "../..";
 import { TFunction } from "i18next";
 import CommandError from "../../base/errors/CommandError";
@@ -20,7 +19,7 @@ export default class DeadlockMeme extends Command {
       default_member_permissions:
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
-      cooldown: 3,
+      cooldown: 6,
       options: [],
       dev: false,
     });
@@ -70,11 +69,15 @@ export default class DeadlockMeme extends Command {
 
 async function getDeadlockMemeEmbed(): Promise<EmbedBuilder | null> {
   try {
+    const token = await getRedditAccessToken();
+
     const res = await fetch(
-      "https://www.reddit.com/r/DeadlockTheGame/top.json?limit=25&t=week",
+      "https://oauth.reddit.com/r/DeadlockTheGame/top?limit=25&t=week",
       {
         headers: {
-          "User-Agent": "linux:deadlockassistant:1.6.0 (by /u/Mexter-)",
+          Authorization: `Bearer ${token}`,
+          "User-Agent":
+            "web:com.mexter.deadlockassistant:v1.6.0 (by /u/Mexter-)",
         },
       }
     );
@@ -111,4 +114,27 @@ async function getDeadlockMemeEmbed(): Promise<EmbedBuilder | null> {
     logger.error(error);
     throw new CommandError("Failed to fetch memes from Reddit.");
   }
+}
+
+async function getRedditAccessToken(): Promise<string> {
+  const clientId = process.env.REDDIT_CLIENT_ID!;
+  const clientSecret = process.env.REDDIT_CLIENT_SECRET!;
+  const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+
+  const res = await fetch("https://www.reddit.com/api/v1/access_token", {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+      "User-Agent": "web:com.mexter.deadlockassistant:v1.6.0 (by /u/Mexter-)",
+    },
+    body: "grant_type=client_credentials",
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to get Reddit access token: ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data.access_token;
 }
