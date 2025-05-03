@@ -9,10 +9,6 @@ import HistoryMatch from "./entities/HistoryMatch";
 import MMRHistoryRecord from "./entities/MMRHistory";
 
 export interface IDeadlockPlayerService {
-  GetHeroStats(
-    account_id: string,
-    hero_id: number
-  ): Promise<HeroStats | undefined>;
   GetMatchHistory(account_id: string, limit: number): Promise<HistoryMatch[]>;
 }
 
@@ -23,15 +19,17 @@ export default class DeadlockPlayerService implements IDeadlockPlayerService {
     this.client = client;
   }
 
-  GetHeroStats = async (account_id: string, hero_id: number) => {
+  GetHeroStats = async (account_id: string, hero_id?: number) => {
     const response = await this.client.request<HeroStats[]>(
       "GET",
       `/v1/players/${account_id}/hero-stats`
     );
 
-    return response
-      .map((s) => new HeroStats(s))
-      .find((stats) => stats.hero_id === hero_id);
+    const heroStats = response.map((s) => new HeroStats(s));
+
+    return hero_id
+      ? heroStats.find((stats) => stats.hero_id === hero_id)
+      : heroStats;
   };
 
   GetMatchHistory = async (

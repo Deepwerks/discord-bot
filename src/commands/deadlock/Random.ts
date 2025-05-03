@@ -20,7 +20,7 @@ export default class Random extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 2,
-      dev: true,
+      dev: false,
       options: [],
     });
   }

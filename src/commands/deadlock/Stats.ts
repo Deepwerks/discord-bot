@@ -23,7 +23,7 @@ export default class Stats extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 6,
-      dev: true,
+      dev: false,
       options: [
         {
           name: "player",
