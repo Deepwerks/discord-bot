@@ -1,5 +1,6 @@
 import {
   ApplicationCommandOptionType,
+  AutocompleteInteraction,
   ChatInputCommandInteraction,
   EmbedBuilder,
   PermissionsBitField,
@@ -9,7 +10,7 @@ import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
 import CommandError from "../../base/errors/CommandError";
-import { logger, useDeadlockClient, useStatlockerClient } from "../..";
+import { logger, useAssetsClient, useDeadlockClient, useStatlockerClient } from "../..";
 import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
 import { findHeroByName } from "../../services/utils/findHeroByName";
 
@@ -37,6 +38,7 @@ export default class Stats extends Command {
           description: "If given, returns the player's stats on the given hero",
           required: false,
           type: ApplicationCommandOptionType.String,
+          autocomplete: true,
         },
       ],
     });
@@ -171,6 +173,23 @@ export default class Stats extends Command {
         });
       }
     }
+  }
+
+  async AutoComplete(interaction: AutocompleteInteraction) {
+    // Check if the focused option is the hero_name option
+    const focusedOption = interaction.options.getFocused(true);
+    if (focusedOption.name !== "hero_name") return;
+    const focusedValue = focusedOption.value.toLowerCase();
+
+    // Get all hero names from the cache
+    const heroNames = useAssetsClient.HeroService.getCachedHeroes().map((h) => h.name);
+
+    // Filter the hero names based on the focused value
+    const suggestions = heroNames
+      .filter((h) => h.toLowerCase().includes(focusedValue))
+      .map((h) => ({name: h, value: h}));
+
+    await interaction.respond(suggestions);
   }
 }
 
