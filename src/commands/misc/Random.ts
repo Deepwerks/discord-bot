@@ -8,14 +8,14 @@ import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
 import CommandError from "../../base/errors/CommandError";
-import { logger, useAssetsClient, useDeadlockClient } from "../..";
+import { logger, useAssetsClient } from "../..";
 
 export default class Random extends Command {
   constructor(client: CustomClient) {
     super(client, {
       name: "random",
       description: "Get a random hero",
-      category: Category.Deadlock,
+      category: Category.Misc,
       default_member_permissions:
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
