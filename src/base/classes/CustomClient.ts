@@ -9,7 +9,7 @@ import config from "../../config";
 import { initI18n } from "../../services/i18n";
 import WebService from "../../services/web";
 import ModalHandler from "../interfaces/IModalHandler";
-import { logger, useAssetsClient } from "../..";
+import { logger, useAssetsClient, useRedditClient } from "../..";
 import ButtonAction from "./ButtonAction";
 
 export default class CustomClient extends Client implements ICustomClient {
@@ -46,6 +46,7 @@ export default class CustomClient extends Client implements ICustomClient {
     await initI18n();
 
     await useAssetsClient.HeroService.LoadAllHeroesToCache();
+    await useRedditClient.Init();
 
     this.LoadHandlers();
 

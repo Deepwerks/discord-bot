@@ -12,6 +12,7 @@ import {
   steamProfileCache,
 } from "./services/cache";
 import { logtailLogger } from "./services/logger";
+import RedditClient from "./services/clients/RedditClient";
 
 const logger = logtailLogger;
 
@@ -34,6 +35,7 @@ const useAssetsClient = new DeadlockAssetsClient({
 const useStatlockerClient = new StatlockerClient({
   baseURL: config.statlocker_api_url,
 });
+const useRedditClient = new RedditClient({});
 
 new CustomClient().Init();
 
@@ -42,6 +44,7 @@ export {
   useDeadlockClient,
   useAssetsClient,
   useStatlockerClient,
+  useRedditClient,
   logger,
 };
 
