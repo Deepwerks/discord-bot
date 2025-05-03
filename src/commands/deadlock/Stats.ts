@@ -147,7 +147,7 @@ export default class Stats extends Command {
         .setDescription(description)
         .setTimestamp()
         .setFooter({
-          text: "DeadlockAssistant",
+          text: `PlayerID: ${steamProfile.accountId}`,
           iconURL: this.client.user!.displayAvatarURL(),
         });
 

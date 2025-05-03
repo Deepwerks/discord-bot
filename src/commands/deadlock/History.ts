@@ -47,7 +47,6 @@ export default class History extends Command {
     t: TFunction<"translation", undefined>
   ) {
     const player = interaction.options.getString("player");
-    const startTime = performance.now();
 
     try {
       let _steamId = player;
@@ -130,15 +129,13 @@ ${header}
 ${matchesString.join("\n")}
       \`\`\``;
 
-      const endTime = performance.now();
-      const duration = (endTime - startTime).toFixed(2);
       await interaction.reply({
         content: response,
         embeds: [
           new EmbedBuilder()
             .setColor("Blue")
             .setTimestamp()
-            .setFooter({ text: `Generated in: ${duration} ms` }),
+            .setFooter({ text: `PlayerID: ${steamProfile.accountId}` }),
         ],
       });
     } catch (error) {

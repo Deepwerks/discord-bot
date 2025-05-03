@@ -16,13 +16,13 @@ export default class DeadlockHeroService implements IDeadlockHeroService {
   }
 
   async GetHero(heroId: number) {
-    logger.info("[API CALL] Fetching a deadlock hero...");
+    logger.info("[API CALL] Fetching a deadlock hero...", heroId);
     const response = await this.client.request<DeadlockHero>(
       "GET",
       `/v2/heroes/${heroId}`
     );
 
-    return response;
+    return new DeadlockHero(response);
   }
 
   async GetHeroCached(heroId: number): Promise<ICachedDeadlockHero | null> {
@@ -39,13 +39,20 @@ export default class DeadlockHeroService implements IDeadlockHeroService {
 
   async LoadAllHeroesToCache() {
     logger.info("[API CALL] Fetching all deadlock heroes...");
-    const allHeroes = await this.client.request<DeadlockHero[]>(
+    const allHeroesRaw = await this.client.request<DeadlockHero[]>(
       "GET",
       "/v2/heroes"
     );
+    const allHeroes = allHeroesRaw.map((hero) => new DeadlockHero(hero));
 
-    for (const hero of allHeroes) {
+    for (const hero of allHeroes.filter(
+      (h) => !h.disabled && !h.in_development && !h.limited_testing
+    )) {
       deadlockAssetsHeroCache.set(hero.id, hero as ICachedDeadlockHero);
     }
+  }
+
+  getCachedHeroes() {
+    return deadlockAssetsHeroCache.getAll();
   }
 }
