@@ -38,6 +38,12 @@ export default class Stats extends Command {
           required: false,
           type: ApplicationCommandOptionType.String,
         },
+        {
+          name: "private",
+          description: "Only show result to you",
+          required: false,
+          type: ApplicationCommandOptionType.Boolean,
+        },
       ],
     });
   }
@@ -47,6 +53,7 @@ export default class Stats extends Command {
     t: TFunction<"translation", undefined>
   ) {
     const player = interaction.options.getString("player");
+    const ephemeral = interaction.options.getBoolean("private", false);
 
     const HeroSpecificStats: Record<string, string[]> = {
       "Grey Talon": ["max_guided_owl_stacks", "max_spirit_snare_stacks"],
@@ -55,7 +62,7 @@ export default class Stats extends Command {
     };
 
     try {
-      await interaction.deferReply();
+      await interaction.deferReply({flags: ephemeral ? ["Ephemeral"] : []});
       let _steamId = player;
 
       if (player === "me") {

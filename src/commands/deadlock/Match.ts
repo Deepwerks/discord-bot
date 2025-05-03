@@ -54,6 +54,12 @@ export default class Match extends Command {
             },
           ],
         },
+        {
+          name: "private",
+          description: "Only show result to you",
+          required: false,
+          type: ApplicationCommandOptionType.Boolean,
+        },
       ],
     });
   }
@@ -67,10 +73,11 @@ export default class Match extends Command {
       id === "me"
         ? "player_id"
         : interaction.options.getString("type") ?? "match_id";
+    const ephemeral = interaction.options.getBoolean("private", false);
 
     const startTime = performance.now();
 
-    await interaction.deferReply();
+    await interaction.deferReply({flags: ephemeral ? ["Ephemeral"] : []});
 
     try {
       let _matchId: string = id;
