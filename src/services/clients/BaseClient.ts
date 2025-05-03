@@ -44,6 +44,7 @@ export default class BaseClient {
         return response.data;
       });
     } catch (error) {
+      console.error(JSON.stringify(error, null, 2));
       if (axios.isAxiosError(error)) {
         // Handle Axios-specific errors
         if (error.response) {
