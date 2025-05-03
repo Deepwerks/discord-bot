@@ -4,13 +4,13 @@ import NotFoundError from "../../base/errors/NotFoundError";
 import Bottleneck from "bottleneck";
 
 export interface IBaseApiOptions {
-  baseURL: string;
+  baseURL?: string;
   apiKey?: string;
   limiter?: Bottleneck;
 }
 
 export default class BaseClient {
-  private client: AxiosInstance;
+  public client: AxiosInstance;
   public apiKey?: string;
 
   private limiter: Bottleneck;
