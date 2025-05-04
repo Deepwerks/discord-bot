@@ -19,17 +19,6 @@ import PerformanceTagService, {
   IPerformanceTag,
 } from "../../services/calculators/PerformanceTagService";
 
-enum TagType {
-  Positive = "positive",
-  Negative = "negative",
-  Neutral = "neutral",
-}
-
-type Tag = {
-  label: string;
-  type: TagType;
-};
-
 const safeAvg = (arr: number[]) =>
   arr.length === 0 ? 0 : arr.reduce((a, b) => a + b, 0) / arr.length;
 const formatTags = (tags: IPerformanceTag[]) =>
@@ -45,7 +34,7 @@ export default class Performance extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 8,
-      dev: true,
+      dev: false,
       options: [
         {
           name: "player",

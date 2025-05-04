@@ -7,6 +7,15 @@ export interface IPerformanceTag {
   calculate: (matches: HistoryMatch[]) => boolean;
 }
 
+const averages = {
+  kills: 7.024553,
+  deaths: 6.759147,
+  assists: 9.160868,
+  netWorth: 32050.335539,
+  lastHits: 148.591511,
+  matchDuration: 1970.137647,
+};
+
 export default class PerformanceTagService {
   tags: IPerformanceTag[];
   matches: HistoryMatch[];
@@ -42,7 +51,7 @@ export default class PerformanceTagService {
       {
         name: "🎯 One Trick",
         description: "Plays the same hero most of the time.",
-        criteria: "More than 60% of matches are played on the same hero.",
+        criteria: `More than 60% of matches are played on the same hero.`,
         calculate: (matches) => {
           const total = matches.length;
           const heroCount = matches.reduce((map, match) => {
@@ -55,20 +64,25 @@ export default class PerformanceTagService {
       {
         name: "🏋️‍♂️ Carry",
         description: "High kills and net worth with low deaths.",
-        criteria: "Avg net worth > 15,000, kills > 8, deaths < 5.",
+        criteria: `Avg net worth > ${averages.netWorth
+          .toFixed()
+          .toLocaleString()}, kills > ${(averages.kills * 1.3).toFixed(
+          2
+        )}, deaths <= ${averages.deaths.toFixed(2)}.`,
         calculate: (matches) =>
-          average(matches.map((m) => m.net_worth)) > 15000 &&
-          average(matches.map((m) => m.player_kills)) > 8 &&
-          average(matches.map((m) => m.player_deaths)) < 5,
+          average(matches.map((m) => m.net_worth)) > averages.netWorth &&
+          average(matches.map((m) => m.player_kills)) > averages.kills * 1.3 &&
+          average(matches.map((m) => m.player_deaths)) <= averages.deaths,
       },
       {
         name: "🩺 Support",
-        description: "High assists, low kills and net worth.",
-        criteria: "Avg assists > 10, net worth < 10,000, kills < 4.",
+        description: "High assists, low kills.",
+        criteria: `Avg assists > ${averages.assists.toFixed(
+          2
+        )}, kills < ${averages.kills.toFixed(2)}.`,
         calculate: (matches) =>
-          average(matches.map((m) => m.player_assists)) > 10 &&
-          average(matches.map((m) => m.player_kills)) < 4 &&
-          average(matches.map((m) => m.net_worth)) < 10000,
+          average(matches.map((m) => m.player_assists)) > averages.assists &&
+          average(matches.map((m) => m.player_kills)) < averages.kills,
       },
       {
         name: "🧩 Flex",
@@ -80,21 +94,29 @@ export default class PerformanceTagService {
       {
         name: "🎲 Risky",
         description: "Aggressive play with high kills and deaths.",
-        criteria: "Avg kills > 7 and deaths > 6.",
+        criteria: `Avg kills > ${averages.kills.toFixed(
+          2
+        )} and deaths > ${averages.deaths.toFixed(2)}.`,
         calculate: (matches) =>
-          average(matches.map((m) => m.player_kills)) > 7 &&
-          average(matches.map((m) => m.player_deaths)) > 6,
+          average(matches.map((m) => m.player_kills)) > averages.kills &&
+          average(matches.map((m) => m.player_deaths)) > averages.deaths,
       },
       {
         name: "🌾 Farmer",
         description: "Focuses on farming creeps.",
-        criteria: "Avg last hits > 250.",
-        calculate: (matches) => average(matches.map((m) => m.last_hits)) > 250,
+        criteria: `Avg last hits > ${averages.lastHits.toFixed()}, Avg networth > ${(
+          averages.netWorth * 1.1
+        )
+          .toFixed()
+          .toLocaleString()}`,
+        calculate: (matches) =>
+          average(matches.map((m) => m.last_hits)) > averages.lastHits &&
+          average(matches.map((m) => m.net_worth)) > averages.netWorth * 1.1,
       },
       {
         name: "🚪 Leaver",
         description: "Leaves or abandons matches frequently.",
-        criteria: "More than 10% of matches are abandoned.",
+        criteria: `More than 10% of matches are abandoned.`,
         calculate: (matches) =>
           matches.filter((m) => m.team_abandoned !== null).length /
             matches.length >
@@ -103,30 +125,34 @@ export default class PerformanceTagService {
       {
         name: "🧨 Clutch",
         description: "Wins more often in long matches.",
-        criteria: "Winrate > 60% in matches longer than 40 minutes.",
+        criteria: `Winrate > 10% in matches longer than 40 minutes.`,
         calculate: (matches) => {
           const longMatches = matches.filter((m) => m.match_duration_s > 2400);
           return (
             longMatches.length >= 10 &&
             longMatches.filter((m) => m.match_result === m.player_team).length /
               longMatches.length >=
-              0.6
+              0.1
           );
         },
       },
       {
         name: "💀 Feeder",
-        description: "Dies a lot across most matches.",
-        criteria: "Average deaths > 8.",
+        description: "Dies a lot across most matches, without securing kills.",
+        criteria: `Average deaths > ${(averages.deaths * 1.3).toFixed(
+          2
+        )}, Avg kills <= ${averages.kills.toFixed(2)}.`,
         calculate: (matches) =>
-          average(matches.map((m) => m.player_deaths)) > 8,
+          average(matches.map((m) => m.player_deaths)) >
+            averages.deaths * 1.3 &&
+          average(matches.map((m) => m.player_kills)) <= averages.kills,
       },
       {
         name: "🛡️ Durable",
         description: "Rarely dies and survives well.",
-        criteria: "Average deaths < 3.",
+        criteria: `Average deaths < ${(averages.deaths * 0.7).toFixed(2)}.`,
         calculate: (matches) =>
-          average(matches.map((m) => m.player_deaths)) < 3,
+          average(matches.map((m) => m.player_deaths)) < averages.deaths * 0.7,
       },
       {
         name: "⏳ Long Games",
@@ -193,28 +219,6 @@ export default class PerformanceTagService {
         },
       },
       {
-        name: "📈 Climbing",
-        description: "KDA is improving over time.",
-        criteria: "KDA is non-decreasing over the last 5 matches.",
-        calculate: (matches) => {
-          const recent = matches.slice(0, 5);
-          return (
-            recent.length === 5 && isNonDecreasing(recent.map(calculateKDA))
-          );
-        },
-      },
-      {
-        name: "📉 Slumping",
-        description: "KDA is steadily declining.",
-        criteria: "KDA is non-increasing over the last 5 matches.",
-        calculate: (matches) => {
-          const recent = matches.slice(0, 5);
-          return (
-            recent.length === 5 && isNonIncreasing(recent.map(calculateKDA))
-          );
-        },
-      },
-      {
         name: "🃏 Wildcard",
         description: "No strong or obvious patterns detected.",
         criteria: "Displayed if no other tags are matched.",
@@ -230,11 +234,9 @@ const average = (numbers: number[]): number =>
     ? 0
     : numbers.reduce((sum, n) => sum + n, 0) / numbers.length;
 
-const calculateKDA = (m: HistoryMatch): number =>
+const calculateKDA = (m: {
+  player_kills: number;
+  player_assists: number;
+  player_deaths: number;
+}): number =>
   (m.player_kills + m.player_assists) / Math.max(1, m.player_deaths);
-
-const isNonDecreasing = (arr: number[]): boolean =>
-  arr.every((val, i, a) => i === 0 || a[i - 1] <= val);
-
-const isNonIncreasing = (arr: number[]): boolean =>
-  arr.every((val, i, a) => i === 0 || a[i - 1] >= val);
