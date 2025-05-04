@@ -1,5 +1,8 @@
 import {
+  ActionRowBuilder,
   ApplicationCommandOptionType,
+  ButtonBuilder,
+  ButtonStyle,
   ChatInputCommandInteraction,
   EmbedBuilder,
   PermissionsBitField,
@@ -12,35 +15,14 @@ import CommandError from "../../base/errors/CommandError";
 import { logger, useDeadlockClient, useStatlockerClient } from "../..";
 import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
 
-enum TagType {
-  Positive = "positive",
-  Negative = "negative",
-  Neutral = "neutral",
-}
+import PerformanceTagService, {
+  IPerformanceTag,
+} from "../../services/calculators/PerformanceTagService";
 
-type Tag = {
-  label: string;
-  type: TagType;
-};
-
-const THRESHOLDS = {
-  kdaStdDev: 3.0,
-  feederDeaths: 10,
-  hardCarryKills: 10,
-  hardCarryWinRate: 60,
-  supportAssists: 15,
-  supportKillsCap: 4,
-  durableDeathsCap: 5,
-  longMatchDurationMin: 40,
-  shortMatchDurationMin: 25,
-};
-
-const calculateKDA = (m: any) =>
-  (m.player_kills + m.player_assists) / Math.max(1, m.player_deaths);
 const safeAvg = (arr: number[]) =>
   arr.length === 0 ? 0 : arr.reduce((a, b) => a + b, 0) / arr.length;
-const formatTags = (tags: Tag[]) =>
-  tags.map((tag) => "`" + tag.label.replace(" ", "\u00A0") + "`").join("    ");
+const formatTags = (tags: IPerformanceTag[]) =>
+  tags.map((tag) => "`" + tag.name.replace(" ", "\u00A0") + "`").join("    ");
 
 export default class Performance extends Command {
   constructor(client: CustomClient) {
@@ -102,11 +84,8 @@ export default class Performance extends Command {
         return;
       }
 
-      const kdas = matches.map(calculateKDA);
-      const kdaAvg = safeAvg(kdas);
-      const kdaStdDev = Math.sqrt(
-        kdas.reduce((a, b) => a + Math.pow(b - kdaAvg, 2), 0) / kdas.length
-      );
+      const performanceService = new PerformanceTagService(matches);
+      const tags = performanceService.getMatchingTags();
 
       const winRate =
         (matches.filter((m) => m.match_result === m.player_team).length /
@@ -124,74 +103,7 @@ export default class Performance extends Command {
         heroCounts.set(m.hero_id, (heroCounts.get(m.hero_id) || 0) + 1)
       );
 
-      const mostPlayed = [...heroCounts.entries()].sort((a, b) => b[1] - a[1]);
-      const mostPlayedCount = mostPlayed[0][1];
-      const flex = heroCounts.size >= 5;
-      const oneTrick = mostPlayedCount / matches.length > 0.6;
-
-      const recentResults = matches.slice(0, 5);
-      const recentKdas = recentResults.map(calculateKDA);
-      const recentWinCount = recentResults.filter(
-        (m) => m.match_result === m.player_team
-      ).length;
-      const recentLossCount = recentResults.filter(
-        (m) => m.match_result !== m.player_team
-      ).length;
-      const recentKdaAvg = safeAvg(recentKdas);
-
-      const tags: Tag[] = [];
-      if (flex && !oneTrick)
-        tags.push({ label: "🎭 Flex", type: TagType.Positive });
-      if (oneTrick && !flex)
-        tags.push({ label: "🎯 One Trick Pony", type: TagType.Negative });
-      if (oneTrick && flex)
-        tags.push({ label: "🌀 Rerolling Identity", type: TagType.Negative });
-
-      if (kdaStdDev > THRESHOLDS.kdaStdDev)
-        tags.push({ label: "📉 Inconsistent", type: TagType.Negative });
-      if (avgDeaths > THRESHOLDS.feederDeaths)
-        tags.push({ label: "⚰️ Feeder", type: TagType.Negative });
-      if (
-        avgKills > THRESHOLDS.hardCarryKills &&
-        winRate > THRESHOLDS.hardCarryWinRate
-      )
-        tags.push({ label: "🔥 Hard Carry", type: TagType.Positive });
-      if (
-        avgAssists > THRESHOLDS.supportAssists &&
-        avgKills < THRESHOLDS.supportKillsCap
-      )
-        tags.push({ label: "🧱 Supportive", type: TagType.Neutral });
-      if (avgDeaths < THRESHOLDS.durableDeathsCap)
-        tags.push({ label: "🛡️ Durable", type: TagType.Positive });
-
       const avgDurationMin = avg("match_duration_s") / 60;
-      if (avgDurationMin > THRESHOLDS.longMatchDurationMin)
-        tags.push({ label: "⏳ Long Games", type: TagType.Neutral });
-      if (avgDurationMin < THRESHOLDS.shortMatchDurationMin)
-        tags.push({ label: "🏃 Speedrunner", type: TagType.Positive });
-
-      if (recentWinCount >= 5)
-        tags.push({ label: "🏅 On a Winstreak", type: TagType.Positive });
-      if (recentLossCount >= 5)
-        tags.push({ label: "😓 Red carpet", type: TagType.Negative });
-      if (recentWinCount >= 3 && recentKdaAvg > 4)
-        tags.push({ label: "☀️ Peaking", type: TagType.Positive });
-      if (recentLossCount >= 3 && recentKdaAvg < 2)
-        tags.push({ label: "🧊 Ice Cold", type: TagType.Negative });
-
-      const isClimbing = recentKdas.every(
-        (kda, i, arr) => i === 0 || kda >= arr[i - 1]
-      );
-      const isSlumping = recentKdas.every(
-        (kda, i, arr) => i === 0 || kda <= arr[i - 1]
-      );
-      if (isClimbing && new Set(recentKdas).size > 1)
-        tags.push({ label: "📈 Climbing", type: TagType.Positive });
-      if (isSlumping && new Set(recentKdas).size > 1)
-        tags.push({ label: "🌀 Slumping", type: TagType.Negative });
-
-      if (tags.length === 0)
-        tags.push({ label: "🎲 Wildcard", type: TagType.Neutral });
 
       let bestMatchIndex = 0;
       let worstMatchIndex = 0;
@@ -280,7 +192,17 @@ export default class Performance extends Command {
         .setFooter({ text: `Player ID: ${steamProfile.accountId}` })
         .setTimestamp();
 
-      await interaction.editReply({ embeds: [embed] });
+      const showTagsButton = new ButtonBuilder()
+        .setLabel("Show Tag Descriptions")
+        .setStyle(ButtonStyle.Primary)
+        .setCustomId("show_performance_tags")
+        .setEmoji("🏷️");
+
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        showTagsButton
+      );
+
+      await interaction.editReply({ embeds: [embed], components: [row] });
     } catch (error) {
       logger.error({
         error,
