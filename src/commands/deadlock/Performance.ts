@@ -1,5 +1,8 @@
 import {
+  ActionRowBuilder,
   ApplicationCommandOptionType,
+  ButtonBuilder,
+  ButtonStyle,
   ChatInputCommandInteraction,
   EmbedBuilder,
   PermissionsBitField,
@@ -126,7 +129,7 @@ export default class Performance extends Command {
 
       const mostPlayed = [...heroCounts.entries()].sort((a, b) => b[1] - a[1]);
       const mostPlayedCount = mostPlayed[0][1];
-      const flex = heroCounts.size >= 5;
+      const flex = heroCounts.size >= 10;
       const oneTrick = mostPlayedCount / matches.length > 0.6;
 
       const recentResults = matches.slice(0, 5);
@@ -280,7 +283,17 @@ export default class Performance extends Command {
         .setFooter({ text: `Player ID: ${steamProfile.accountId}` })
         .setTimestamp();
 
-      await interaction.editReply({ embeds: [embed] });
+      const showTagsButton = new ButtonBuilder()
+        .setLabel("Show Tag Descriptions")
+        .setStyle(ButtonStyle.Primary)
+        .setCustomId("show_performance_tags")
+        .setEmoji("🏷️");
+
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        showTagsButton
+      );
+
+      await interaction.editReply({ embeds: [embed], components: [row] });
     } catch (error) {
       logger.error({
         error,
