@@ -43,6 +43,12 @@ export default class Performance extends Command {
           required: true,
           type: ApplicationCommandOptionType.String,
         },
+        {
+          name: "private",
+          description: "Only show result to you",
+          required: false,
+          type: ApplicationCommandOptionType.Boolean,
+        },
       ],
     });
   }
@@ -52,9 +58,10 @@ export default class Performance extends Command {
     t: TFunction<"translation", undefined>
   ) {
     const player = interaction.options.getString("player");
+    const ephemeral = interaction.options.getBoolean("private", false);
     const matchHistoryLimit = 100;
 
-    await interaction.deferReply();
+    await interaction.deferReply({flags: ephemeral ? ["Ephemeral"] : []});
 
     try {
       let steamId = player;
