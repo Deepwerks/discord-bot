@@ -70,6 +70,12 @@ export default class Top extends Command {
             },
           ],
         },
+        {
+          name: "private",
+          description: "Only show result to you",
+          required: false,
+          type: ApplicationCommandOptionType.Boolean,
+        },
       ],
     });
   }
@@ -80,11 +86,12 @@ export default class Top extends Command {
   ) {
     const player = interaction.options.getString("player", true);
     let sortBy = interaction.options.getString("sort_by", false);
+    const ephemeral = interaction.options.getBoolean("private", false);
 
     if (!sortBy) sortBy = "kda";
 
     try {
-      await interaction.deferReply();
+      await interaction.deferReply({ flags: ephemeral ? ["Ephemeral"] : [] });
       let _steamId = player;
 
       if (player === "me") {

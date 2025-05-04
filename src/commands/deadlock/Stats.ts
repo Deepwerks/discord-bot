@@ -1,5 +1,6 @@
 import {
   ApplicationCommandOptionType,
+  AutocompleteInteraction,
   ChatInputCommandInteraction,
   EmbedBuilder,
   PermissionsBitField,
@@ -9,7 +10,12 @@ import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
 import CommandError from "../../base/errors/CommandError";
-import { logger, useDeadlockClient, useStatlockerClient } from "../..";
+import {
+  logger,
+  useAssetsClient,
+  useDeadlockClient,
+  useStatlockerClient,
+} from "../..";
 import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
 import { findHeroByName } from "../../services/utils/findHeroByName";
 
@@ -37,6 +43,13 @@ export default class Stats extends Command {
           description: "If given, returns the player's stats on the given hero",
           required: false,
           type: ApplicationCommandOptionType.String,
+          autocomplete: true,
+        },
+        {
+          name: "private",
+          description: "Only show result to you",
+          required: false,
+          type: ApplicationCommandOptionType.Boolean,
         },
       ],
     });
@@ -47,6 +60,7 @@ export default class Stats extends Command {
     t: TFunction<"translation", undefined>
   ) {
     const player = interaction.options.getString("player");
+    const ephemeral = interaction.options.getBoolean("private", false);
 
     const HeroSpecificStats: Record<string, string[]> = {
       "Grey Talon": ["max_guided_owl_stacks", "max_spirit_snare_stacks"],
@@ -55,7 +69,7 @@ export default class Stats extends Command {
     };
 
     try {
-      await interaction.deferReply();
+      await interaction.deferReply({ flags: ephemeral ? ["Ephemeral"] : [] });
       let _steamId = player;
 
       if (player === "me") {
@@ -171,6 +185,31 @@ export default class Stats extends Command {
         });
       }
     }
+  }
+
+  async AutoComplete(interaction: AutocompleteInteraction) {
+    // Check if the focused option is the hero_name option
+    const focusedOption = interaction.options.getFocused(true);
+    if (focusedOption.name !== "hero_name") return;
+    const focusedValue = focusedOption.value.toLowerCase();
+
+    // Get all hero names from the cache
+    const heroNames = useAssetsClient.HeroService.getCachedHeroes().map(
+      (h) => h.name
+    );
+
+    // Filter the hero names based on the focused value
+    let suggestions = heroNames
+      .filter((h) => h.toLowerCase().includes(focusedValue))
+      .sort((a, b) => {
+        const aIndex = a.toLowerCase().indexOf(focusedValue);
+        const bIndex = b.toLowerCase().indexOf(focusedValue);
+        return aIndex - bIndex;
+      })
+      .map((h) => ({ name: h, value: h }))
+      .slice(0, 25);
+
+    await interaction.respond(suggestions);
   }
 }
 
