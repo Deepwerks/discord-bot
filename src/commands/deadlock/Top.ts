@@ -91,7 +91,7 @@ export default class Top extends Command {
     if (!sortBy) sortBy = "kda";
 
     try {
-      await interaction.deferReply({flags: ephemeral ? ["Ephemeral"] : []});
+      await interaction.deferReply({ flags: ephemeral ? ["Ephemeral"] : [] });
       let _steamId = player;
 
       if (player === "me") {

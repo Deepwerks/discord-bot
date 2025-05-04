@@ -77,7 +77,7 @@ export default class Match extends Command {
 
     const startTime = performance.now();
 
-    await interaction.deferReply({flags: ephemeral ? ["Ephemeral"] : []});
+    await interaction.deferReply({ flags: ephemeral ? ["Ephemeral"] : [] });
 
     try {
       let _matchId: string = id;

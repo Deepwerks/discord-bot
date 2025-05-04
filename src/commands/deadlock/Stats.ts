@@ -10,7 +10,12 @@ import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
 import CommandError from "../../base/errors/CommandError";
-import { logger, useAssetsClient, useDeadlockClient, useStatlockerClient } from "../..";
+import {
+  logger,
+  useAssetsClient,
+  useDeadlockClient,
+  useStatlockerClient,
+} from "../..";
 import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
 import { findHeroByName } from "../../services/utils/findHeroByName";
 
@@ -64,7 +69,7 @@ export default class Stats extends Command {
     };
 
     try {
-      await interaction.deferReply({flags: ephemeral ? ["Ephemeral"] : []});
+      await interaction.deferReply({ flags: ephemeral ? ["Ephemeral"] : [] });
       let _steamId = player;
 
       if (player === "me") {
@@ -189,12 +194,20 @@ export default class Stats extends Command {
     const focusedValue = focusedOption.value.toLowerCase();
 
     // Get all hero names from the cache
-    const heroNames = useAssetsClient.HeroService.getCachedHeroes().map((h) => h.name);
+    const heroNames = useAssetsClient.HeroService.getCachedHeroes().map(
+      (h) => h.name
+    );
 
     // Filter the hero names based on the focused value
-    const suggestions = heroNames
+    let suggestions = heroNames
       .filter((h) => h.toLowerCase().includes(focusedValue))
-      .map((h) => ({name: h, value: h}));
+      .sort((a, b) => {
+        const aIndex = a.toLowerCase().indexOf(focusedValue);
+        const bIndex = b.toLowerCase().indexOf(focusedValue);
+        return aIndex - bIndex;
+      })
+      .map((h) => ({ name: h, value: h }))
+      .slice(0, 25);
 
     await interaction.respond(suggestions);
   }

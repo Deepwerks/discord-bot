@@ -61,7 +61,7 @@ export default class Performance extends Command {
     const ephemeral = interaction.options.getBoolean("private", false);
     const matchHistoryLimit = 100;
 
-    await interaction.deferReply({flags: ephemeral ? ["Ephemeral"] : []});
+    await interaction.deferReply({ flags: ephemeral ? ["Ephemeral"] : [] });
 
     try {
       let steamId = player;
