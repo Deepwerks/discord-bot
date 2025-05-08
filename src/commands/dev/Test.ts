@@ -3,6 +3,7 @@ import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
+import ForumScraper from "../../services/scrapers/ForumScraper";
 
 export default class Test extends Command {
   constructor(client: CustomClient) {
@@ -23,9 +24,16 @@ export default class Test extends Command {
     interaction: ChatInputCommandInteraction,
     t: TFunction<"translation", undefined>
   ) {
-    await interaction.reply({
-      content: t("commands.test.ran"),
-      flags: ["Ephemeral"],
-    });
+    try {
+      await interaction.reply({
+        content: t("commands.test.ran"),
+        flags: ["Ephemeral"],
+      });
+    } catch (error) {
+      await interaction.reply({
+        content: "Failed",
+        flags: ["Ephemeral"],
+      });
+    }
   }
 }
