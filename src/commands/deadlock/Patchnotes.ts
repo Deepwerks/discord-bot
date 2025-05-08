@@ -11,28 +11,9 @@ import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
 import CommandError from "../../base/errors/CommandError";
-import { logger } from "../..";
+import { logger, useDeadlockClient } from "../..";
 import PatchnoteSchema from "../../base/schemas/PatchnoteSchema";
-
-function countLeafProps(obj: any): number {
-  if (typeof obj !== "object" || obj === null) return 0;
-
-  let count = 0;
-
-  for (const key in obj) {
-    if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
-
-    const value = obj[key];
-
-    if (typeof value === "object" && value !== null) {
-      count += countLeafProps(value);
-    } else {
-      count += 1;
-    }
-  }
-
-  return count;
-}
+import ForumScraper from "../../services/scrapers/ForumScraper";
 
 export default class Random extends Command {
   constructor(client: CustomClient) {
@@ -56,7 +37,8 @@ export default class Random extends Command {
     await interaction.deferReply();
 
     try {
-      const lastStoredPatch = await PatchnoteSchema.findOne(
+      const patches = await useDeadlockClient.PatchService.GetPatches();
+      let lastStoredPatch = await PatchnoteSchema.findOne(
         {},
         {},
         { sort: { date: -1 } }
@@ -64,6 +46,27 @@ export default class Random extends Command {
 
       if (!lastStoredPatch) {
         throw new CommandError("No patch found");
+      }
+
+      const newPatches = patches.filter((patch) => {
+        return new Date(patch.pub_date) > lastStoredPatch!.date;
+      });
+
+      if (newPatches.length > 0) {
+        const scraper = new ForumScraper();
+
+        await scraper.scrapeMany(newPatches);
+        logger.info(`Inserted ${newPatches.length} new patches.`);
+
+        lastStoredPatch = await PatchnoteSchema.findOne(
+          {},
+          {},
+          { sort: { date: -1 } }
+        ).lean();
+
+        if (!lastStoredPatch) {
+          throw new CommandError("No patch found");
+        }
       }
 
       const linkButton = new ButtonBuilder()
@@ -121,4 +124,24 @@ export default class Random extends Command {
       }
     }
   }
+}
+
+function countLeafProps(obj: any): number {
+  if (typeof obj !== "object" || obj === null) return 0;
+
+  let count = 0;
+
+  for (const key in obj) {
+    if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+
+    const value = obj[key];
+
+    if (typeof value === "object" && value !== null) {
+      count += countLeafProps(value);
+    } else {
+      count += 1;
+    }
+  }
+
+  return count;
 }
