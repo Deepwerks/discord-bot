@@ -51,9 +51,9 @@ export default class CustomCache<T extends {}> {
   }
 }
 
-export const steamProfileCache = new CustomCache<ICachedSteamProfile>(6 * 3600);
+export const steamProfileCache = new CustomCache<ICachedSteamProfile>(60 * 30);
 export const statlockerProfileCache = new CustomCache<IStatlockerProfile>(
-  6 * 3600
+  60 * 30
 );
 export const deadlockAssetsHeroCache = new CustomCache<ICachedDeadlockHero>(0);
 export const deadlockAssetsDefaultCache = new CustomCache<DeadlockRank[]>(0);
