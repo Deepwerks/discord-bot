@@ -15,7 +15,7 @@ import { logger, useDeadlockClient } from "../..";
 import PatchnoteSchema from "../../base/schemas/PatchnoteSchema";
 import ForumScraper from "../../services/scrapers/ForumScraper";
 
-export default class Random extends Command {
+export default class Patchnotes extends Command {
   constructor(client: CustomClient) {
     super(client, {
       name: "patchnotes",
