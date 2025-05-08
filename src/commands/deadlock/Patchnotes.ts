@@ -44,10 +44,6 @@ export default class Patchnotes extends Command {
         { sort: { date: -1 } }
       ).lean();
 
-      if (!lastStoredPatch) {
-        throw new CommandError("No patch found");
-      }
-
       const newPatches = patches.filter((patch) => {
         return new Date(patch.pub_date) > lastStoredPatch!.date;
       });
@@ -72,7 +68,7 @@ export default class Patchnotes extends Command {
       const linkButton = new ButtonBuilder()
         .setLabel("Read More")
         .setStyle(ButtonStyle.Link)
-        .setURL(lastStoredPatch.url)
+        .setURL(lastStoredPatch!.url)
         .setEmoji("📰");
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -83,10 +79,10 @@ export default class Patchnotes extends Command {
         embeds: [
           new EmbedBuilder()
             .setColor("#00BFFF")
-            .setTitle(`🛠️ Patch Notes - ${lastStoredPatch.title}`)
+            .setTitle(`🛠️ Patch Notes - ${lastStoredPatch!.title}`)
             .setDescription(
               `
-                ${lastStoredPatch.changes
+                ${lastStoredPatch!.changes
                   .map((change) => {
                     return `\`${change.category.padEnd(20)} ${countLeafProps(
                       change.changes
@@ -96,7 +92,7 @@ export default class Patchnotes extends Command {
                 `
             )
             .setFooter({
-              text: `Posted: ${lastStoredPatch.date.toLocaleDateString()}`,
+              text: `Posted: ${lastStoredPatch!.date.toLocaleDateString()}`,
             }),
         ],
         components: [row],
