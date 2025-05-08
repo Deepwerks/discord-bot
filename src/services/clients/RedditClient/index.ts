@@ -6,6 +6,7 @@ import config from "../../../config";
 
 export default class RedditClient extends BaseClient {
   token: string | undefined;
+  tokenExpiry: number | undefined;
   userAgent: string = `discord:${config.discord_client_id}:v1.6.0 (by /u/Mexter-)`;
 
   constructor(options: IBaseApiOptions) {
@@ -21,6 +22,8 @@ export default class RedditClient extends BaseClient {
 
   async GetDeadlockMemeEmbed(): Promise<EmbedBuilder | null> {
     try {
+      await this.ensureValidToken();
+
       const token = this.token;
 
       if (!token) {
@@ -91,6 +94,15 @@ export default class RedditClient extends BaseClient {
     }
 
     const data = await res.json();
+
+    this.tokenExpiry = Date.now() + data.expires_in * 1000;
     return data.access_token;
+  }
+
+  private async ensureValidToken(): Promise<void> {
+    if (!this.token || !this.tokenExpiry || Date.now() >= this.tokenExpiry) {
+      logger.info("Refreshing Reddit access token...");
+      this.token = await this.getRedditAccessToken();
+    }
   }
 }
