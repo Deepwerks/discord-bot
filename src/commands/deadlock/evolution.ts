@@ -36,7 +36,7 @@ export default class Evolution extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 3,
-      dev: true,
+      dev: false,
       options: [
         {
           name: "search",

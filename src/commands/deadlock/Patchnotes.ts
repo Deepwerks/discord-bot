@@ -25,7 +25,7 @@ export default class Patchnotes extends Command {
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 3,
-      dev: true,
+      dev: false,
       options: [],
     });
   }
