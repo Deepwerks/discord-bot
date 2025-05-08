@@ -13,6 +13,9 @@ import {
 } from "./services/cache";
 import { logtailLogger } from "./services/logger";
 import RedditClient from "./services/clients/RedditClient";
+import { JobScheduler } from "./services/scheduler";
+import CheckDeadlockPatches from "./services/scheduler/jobs/CheckDeadlockPatches";
+import MemoryCheck from "./services/scheduler/jobs/MemoryCheck";
 
 const logger = logtailLogger;
 
@@ -39,6 +42,12 @@ const useRedditClient = new RedditClient({});
 
 new CustomClient().Init();
 
+const scheduler = new JobScheduler()
+  .addJob("CheckDeadlockPatches", "0 0 3 * * *", CheckDeadlockPatches)
+  .addJob("CheckDeadlockPatchesAfternoon", "0 0 15 * * *", CheckDeadlockPatches)
+  .addJob("MemoryCheck", "* * * * *", MemoryCheck);
+scheduler.startJobs();
+
 export {
   useSteamClient,
   useDeadlockClient,
@@ -55,27 +64,3 @@ process.on("uncaughtException", (err) => {
 process.on("unhandledRejection", (reason, promise) => {
   logger.error("Unhandled Rejection at:", promise, "reason:", reason);
 });
-
-setInterval(() => {
-  const MAX_MEMORY_MB = 512;
-
-  const used = process.memoryUsage().rss;
-  const mem = used / 1024 / 1024;
-
-  const usage = process.memoryUsage();
-
-  logger.debug(`[MEMORY] RSS: ${(usage.rss / 1024 / 1024).toFixed(2)} MB`, {
-    memory: usage.rss / 1024 / 1024,
-  });
-
-  if (mem > MAX_MEMORY_MB * 0.8) {
-    logger.warn(
-      `[MEMORY] High memory usage: flushing cache (>${MAX_MEMORY_MB * 0.8})...`
-    );
-
-    steamProfileCache.clear();
-    statlockerProfileCache.clear();
-    deadlockAssetsHeroCache.clear();
-    deadlockAssetsDefaultCache.clear();
-  }
-}, 60_000);
