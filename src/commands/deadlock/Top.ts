@@ -89,9 +89,9 @@ export default class Top extends Command {
     const ephemeral = interaction.options.getBoolean("private", false);
 
     if (!sortBy) sortBy = "kda";
+    await interaction.deferReply({ flags: ephemeral ? ["Ephemeral"] : [] });
 
     try {
-      await interaction.deferReply({ flags: ephemeral ? ["Ephemeral"] : [] });
       let _steamId = player;
 
       if (player === "me") {
@@ -144,7 +144,7 @@ export default class Top extends Command {
         sortBy
       );
 
-      interaction.editReply({
+      await interaction.editReply({
         embeds,
       });
     } catch (error) {
