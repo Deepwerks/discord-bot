@@ -1,55 +1,51 @@
-import NodeCache from "node-cache";
+import { LRUCache } from "lru-cache";
 import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
 import ICachedDeadlockHero from "../../base/interfaces/ICachedDeadlockHero";
 import DeadlockRank from "../clients/DeadlockAssetsClient/DefaultService/entities/DeadlockRank";
 import IStatlockerProfile from "../clients/StatlockerClient/StatlockerProfileService/interfaces/IStatlockerProfile";
 import { Collection } from "discord.js";
 
-export default class CustomCache<T> {
-  private cache: NodeCache;
+export default class CustomCache<T extends {}> {
+  private cache: LRUCache<string | number, T>;
 
   constructor(ttlSeconds: number = 60) {
-    this.cache = new NodeCache({
-      stdTTL: ttlSeconds,
-      checkperiod: ttlSeconds * 0.2,
+    this.cache = new LRUCache<string | number, T>({
+      max: 1000, // adjust based on expected size
+      ttl: ttlSeconds * 1000, // lru-cache expects milliseconds
     });
   }
 
   set(key: string | number, value: T, ttl?: number): void {
-    if (ttl) this.cache.set(key, value, ttl);
-    else this.cache.set(key, value, ttl!);
+    this.cache.set(key, value, { ttl: ttl ? ttl * 1000 : undefined });
   }
 
   get(key: string | number | null): T | null {
     if (!key) return null;
-    const cached = this.cache.get(key);
-
-    if (cached) return cached as T;
-    return null;
+    return this.cache.get(key) ?? null;
   }
 
   delete(key: string): void {
-    this.cache.del(key);
+    this.cache.delete(key);
   }
 
   clear(): void {
-    this.cache.flushAll();
+    this.cache.clear();
   }
 
   show(): void {
-    console.log("Cache tartalma: ", this.cache.keys());
+    console.log("Cache tartalma: ", [...this.cache.keys()]);
   }
 
   getAll(): Collection<string, T> {
-    const keys = this.cache.keys();
     const allRecords: Collection<string, T> = new Collection();
 
-    keys.forEach((key) => {
-      const value = this.cache.get(key);
-      if (value !== undefined) {
-        allRecords.set(key, value as T);
+    for (const [key, value] of this.cache.entries()) {
+      if (typeof key === "string") {
+        allRecords.set(key, value);
+      } else {
+        allRecords.set(String(key), value);
       }
-    });
+    }
 
     return allRecords;
   }

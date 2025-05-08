@@ -37,6 +37,7 @@
     "glob": "^11.0.1",
     "i18next": "^25.0.0",
     "i18next-fs-backend": "^2.6.0",
+    "lru-cache": "^11.1.0",
     "mongoose": "^8.13.2",
     "node-cache": "^5.1.2",
     "winston": "^3.17.0",
