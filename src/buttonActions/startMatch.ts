@@ -2,6 +2,7 @@ import {ButtonInteraction, TextChannel, ThreadAutoArchiveDuration, ChannelType} 
 import ButtonAction from "../base/classes/ButtonAction";
 import CustomClient from "../base/classes/CustomClient";
 import {logger, useDeadlockClient} from "..";
+import dayjs from "dayjs";
 
 export default class StartMatchButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -78,7 +79,8 @@ export default class StartMatchButtonAction extends ButtonAction {
       }
 
       // Create a private thread for the match
-      const threadName = `Match-${interaction.user.username}-${customMatch.party_id}`;
+      const time_string = dayjs().format("HH:mm");
+      const threadName = `Match-${interaction.user.username}-${time_string}`;
 
       // Create the thread in the channel where the command was used
       const channel = interaction.channel as TextChannel;
@@ -112,13 +114,7 @@ export default class StartMatchButtonAction extends ButtonAction {
 
       // Send welcome message in the thread
       await thread.send({
-        content: `# Welcome to the match!\n\nPlayers: ${currentPlayers.join(', ')}\n\nParty Code: ${customMatch.party_code}\n\nGood luck and have fun!`
-      });
-
-      // Reply to the interaction
-      await interaction.reply({
-        content: `Match started! Check the private thread: ${thread}`,
-        flags: ["Ephemeral"],
+        content: `# Welcome to the Match!\n\nPlayers: ${currentPlayers.join(', ')}\n\nParty Code: \`${customMatch.party_code}\`\n\nGood luck and have fun!`
       });
 
       // Delete Create Lobby Panel
