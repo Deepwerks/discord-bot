@@ -1,4 +1,4 @@
-import {ButtonInteraction, TextChannel, ThreadAutoArchiveDuration, ChannelType} from "discord.js";
+import {ButtonInteraction, TextChannel, ThreadAutoArchiveDuration, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle} from "discord.js";
 import ButtonAction from "../base/classes/ButtonAction";
 import CustomClient from "../base/classes/CustomClient";
 import {logger, useDeadlockClient} from "..";
@@ -112,9 +112,20 @@ export default class StartMatchButtonAction extends ButtonAction {
         }
       }
 
-      // Send welcome message in the thread
+      // Create a "Finish" button
+      const finishButton = new ButtonBuilder()
+        .setCustomId("finish_match")
+        .setLabel("Finish")
+        .setStyle(ButtonStyle.Primary);
+
+      // Add the button to an action row
+      const row = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(finishButton);
+
+      // Send welcome message in the thread with the button
       await thread.send({
-        content: `# Welcome to the Match!\n\nPlayers: ${currentPlayers.join(', ')}\n\nParty Code: \`${customMatch.party_code}\`\n\nGood luck and have fun!`
+        content: `# Welcome to the Match!\n\nPlayers: ${currentPlayers.join(', ')}\n\nParty ID: \`${customMatch.party_id}\`Party Code: \`${customMatch.party_code}\`\n\nGood luck and have fun!`,
+        components: [row],
       });
 
       // Delete Create Lobby Panel

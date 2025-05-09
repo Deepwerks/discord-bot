@@ -24,8 +24,16 @@ export default class DeadlockMatchService implements IDeadlockMatchService {
     return new DeadlockMatch(response.match_info);
   }
 
+  async GetMatchIdFromPartyId(partyId: string): Promise<string> {
+    logger.info("[API CALL] Fetching a deadlock match id from party id...");
+    return await this.client.request<{match_id: string}>(
+      "GET",
+      `/v1/matches/custom/${partyId}/match-id`
+    ).then((m) => m.match_id);
+  }
+
   async CreateCustomMatch(): Promise<DeadlockCustomMatch> {
-    logger.info("[API CALL] Fetching a deadlock match...");
+    logger.info("[API CALL] Creating a custom deadlock match...");
     return await this.client.request<DeadlockCustomMatch>(
       "POST",
       `/v1/matches/custom/create`
