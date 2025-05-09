@@ -121,6 +121,9 @@ export default class StartMatchButtonAction extends ButtonAction {
         flags: ["Ephemeral"],
       });
 
+      // Delete Create Lobby Panel
+      await message.delete();
+
     } catch (error) {
       logger.error(error);
       if (interaction.deferred) {
