@@ -12,6 +12,7 @@ import { logger, useDeadlockClient, useStatlockerClient } from "..";
 import { generateMatchImage } from "../services/utils/generateMatchImage";
 import i18next from "../services/i18n";
 import GuildConfig from "../base/schemas/GuildConfigSchema";
+import { lobbyStore } from "../services/stores/LobbyStore";
 
 export default class FinishMatchButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -25,6 +26,7 @@ export default class FinishMatchButtonAction extends ButtonAction {
   async Execute(interaction: ButtonInteraction) {
     try {
       await interaction.deferReply();
+      const [_, creatorId] = interaction.customId.split(":");
 
       const guildLang = await GuildConfig.findOne({
         guildId: interaction.guildId!,
@@ -35,8 +37,8 @@ export default class FinishMatchButtonAction extends ButtonAction {
 
       try {
         // Get match data from Deadlock API
-        const partyId =
-          interaction.message.content.match(/Party ID: `(\d+)`/)?.[1];
+        const partyId = lobbyStore.getPartyId(creatorId);
+
         if (!partyId) {
           throw new Error("Failed to find party ID in message content");
         }
@@ -87,14 +89,7 @@ export default class FinishMatchButtonAction extends ButtonAction {
           .setURL(`https://statlocker.gg/match/${match.match_id}`)
           .setEmoji("1367520315244023868");
 
-        const showPlayersButton = new ButtonBuilder()
-          .setLabel("Show Players")
-          .setStyle(ButtonStyle.Primary)
-          .setCustomId("show_players:" + match.match_id)
-          .setEmoji("👥");
-
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          showPlayersButton,
           linkButton
         );
 

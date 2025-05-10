@@ -9,6 +9,7 @@ import CustomClient from "../base/classes/CustomClient";
 import Modal from "../base/classes/CustomModal";
 import { logger } from "..";
 import CommandError from "../base/errors/CommandError";
+import { lobbyStore } from "../services/stores/LobbyStore";
 
 export default class CreateLobby extends Modal {
   constructor(client: CustomClient) {
@@ -23,13 +24,12 @@ export default class CreateLobby extends Modal {
       const maxPlayers =
         interaction.fields.getTextInputValue("max_players_input");
       const maxPlayersNum = parseInt(maxPlayers);
-      if (isNaN(maxPlayersNum) || maxPlayersNum < 0) {
+      if (isNaN(maxPlayersNum) || maxPlayersNum <= 0) {
         throw new CommandError("Max players must be a positive number");
       }
 
-      const players = [`<@${interaction.user.id}>`];
+      const lobbyId = interaction.user.id;
 
-      // Create embed with lobby settings
       const embed = new EmbedBuilder()
         .setColor(0x00bcd4)
         .setTitle("🎮 New Lobby Created")
@@ -45,28 +45,29 @@ export default class CreateLobby extends Modal {
           },
           {
             name: `Players (1/${maxPlayers})`,
-            value: players.join("\n"),
+            value: `<@${interaction.user.id}>`,
             inline: false,
           }
         )
         .setFooter({ text: "Join the lobby by clicking the button below" })
         .setTimestamp();
+
       const experimentalWarningEmbed = new EmbedBuilder()
         .setColor("Yellow")
         .setDescription(
-          "⚠️ This feature is currently in early development and may change or break unexpectedly. \nWe’d love your input — please share any thoughts or issues using the /feedback command!"
+          "⚠️ This feature is in early development. Please share feedback using /feedback!"
         );
 
-      // Create join button
       const joinButton = new ButtonBuilder()
-        .setCustomId(`join_party:${interaction.user.id}:${maxPlayers}`)
+        .setCustomId(
+          `join_party:${interaction.user.id}:${maxPlayersNum}:${lobbyId}`
+        )
         .setLabel("Join Party")
         .setStyle(ButtonStyle.Primary)
         .setEmoji("👥");
 
-      // Create start match button (only the party initiator can use it)
       const startMatchButton = new ButtonBuilder()
-        .setCustomId(`start_match:${interaction.user.id}:${maxPlayers}`)
+        .setCustomId(`start_match:${interaction.user.id}:${maxPlayersNum}`)
         .setLabel("Start Match")
         .setStyle(ButtonStyle.Success)
         .setEmoji("🎮");
@@ -76,15 +77,23 @@ export default class CreateLobby extends Modal {
         startMatchButton
       );
 
-      await interaction.reply({
+      const replyMessage = await interaction.reply({
         embeds: [embed, experimentalWarningEmbed],
         components: [row],
+      });
+
+      lobbyStore.createLobby(lobbyId, {
+        name: `${interaction.user.displayName}'s lobby`,
+        creatorId: interaction.user.id,
+        maxPlayers: maxPlayersNum,
+        players: new Set([interaction.user.id]),
+        messageId: replyMessage.id,
       });
     } catch (error: any) {
       logger.error(error);
       await interaction.reply({
         content: `❌ Error creating lobby: ${error.message || "Unknown error"}`,
-        flags: ["Ephemeral"],
+        ephemeral: true,
       });
     }
   }
