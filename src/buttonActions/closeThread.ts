@@ -1,20 +1,8 @@
-import {
-  ButtonInteraction,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  EmbedBuilder,
-  AttachmentBuilder,
-  ThreadChannel,
-} from "discord.js";
+import { ButtonInteraction, ThreadChannel } from "discord.js";
 import ButtonAction from "../base/classes/ButtonAction";
 import CustomClient from "../base/classes/CustomClient";
-import { logger, useDeadlockClient, useStatlockerClient } from "..";
-import { generateMatchImage } from "../services/utils/generateMatchImage";
-import i18next from "../services/i18n";
-import GuildConfig from "../base/schemas/GuildConfigSchema";
-import CommandError from "../base/errors/CommandError";
-
+import { logger } from "..";
+import { lobbyStore } from "../services/stores/LobbyStore";
 export default class CloseThreadButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
     super(client, {
@@ -42,7 +30,12 @@ export default class CloseThreadButtonAction extends ButtonAction {
       if (channel?.isThread()) {
         const thread = channel as ThreadChannel;
 
+        await thread.send({ content: "Archiving thread..." });
+
+        lobbyStore.removeLobby(creatorId);
+
         await thread.setArchived(true, "Closed by the private lobby creator.");
+        return;
       } else {
         await interaction.reply({
           content: "Failed to archive thread.",
