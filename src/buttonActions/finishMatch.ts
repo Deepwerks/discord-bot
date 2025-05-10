@@ -38,7 +38,7 @@ export default class FinishMatchButtonAction extends ButtonAction {
       try {
         // Get match data from Deadlock API
         const partyId = lobbyStore.getPartyId(creatorId);
-        console.log(partyId);
+
         if (!partyId) {
           throw new Error("Failed to find party ID in message content");
         }

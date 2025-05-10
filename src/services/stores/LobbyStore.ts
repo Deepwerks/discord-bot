@@ -45,6 +45,7 @@ class LobbyStore {
     if (!lobby) return false;
 
     lobby.partyId = partId;
+    return true;
   }
 
   getPartyId(lobbyId: string) {

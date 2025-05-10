@@ -136,6 +136,7 @@ export default class StartMatchButtonAction extends ButtonAction {
           try {
             const match =
               await useDeadlockClient.MatchService.CreateCustomMatch();
+
             lobbyStore.setPartId(creatorId, String(match.party_id));
 
             // Create a "Finish" button
@@ -177,7 +178,6 @@ export default class StartMatchButtonAction extends ButtonAction {
       });
 
       await interaction.message.delete();
-      lobbyStore.removeLobby(creatorId);
     } catch (error) {
       logger.error(error);
       if (interaction.deferred) {
