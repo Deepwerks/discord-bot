@@ -80,6 +80,7 @@ export default class StartMatchButtonAction extends ButtonAction {
           await new Promise((resolve) => setTimeout(resolve, 100));
         }
       }
+      const closingTime = dayjs().add(15, "minute").unix();
 
       if (!customMatch) {
         await interaction.reply({
@@ -131,8 +132,15 @@ export default class StartMatchButtonAction extends ButtonAction {
         .setLabel("Finish")
         .setStyle(ButtonStyle.Primary);
 
+      // Create a "Finish" button
+      const closeThread = new ButtonBuilder()
+        .setCustomId(`close_thread:${thread.id}:${creatorId}`)
+        .setLabel("Close Thread")
+        .setStyle(ButtonStyle.Danger);
+
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        finishButton
+        finishButton,
+        closeThread
       );
 
       // Send welcome message in the thread with the button
@@ -145,8 +153,22 @@ export default class StartMatchButtonAction extends ButtonAction {
         components: [row],
       });
 
+      const lobbyMessage = await thread.send({
+        content: `The custom lobby will close <t:${closingTime}:R>`,
+      });
+
       // Delete Create Lobby Panel
       await message.delete();
+
+      setTimeout(async () => {
+        try {
+          await lobbyMessage.edit({
+            content: `❌ The custom lobby has closed.`,
+          });
+        } catch (error) {
+          logger.error("Failed to update lobby close message:", error);
+        }
+      }, 15 * 60 * 1000);
     } catch (error) {
       logger.error(error);
       if (interaction.deferred) {
