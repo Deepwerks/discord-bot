@@ -31,6 +31,9 @@ export default class Invite extends Command {
         PermissionsBitField.Flags.AttachFiles,
         PermissionsBitField.Flags.ReadMessageHistory,
         PermissionsBitField.Flags.UseApplicationCommands,
+        PermissionsBitField.Flags.ManageThreads,
+        PermissionsBitField.Flags.CreatePrivateThreads,
+        PermissionsBitField.Flags.SendMessagesInThreads,
       ],
     });
 
