@@ -1,7 +1,8 @@
-import {ButtonInteraction, EmbedBuilder} from "discord.js";
+import { ButtonInteraction, EmbedBuilder } from "discord.js";
 import ButtonAction from "../base/classes/ButtonAction";
 import CustomClient from "../base/classes/CustomClient";
-import {logger} from "..";
+import { logger } from "..";
+import { lobbyStore } from "../services/stores/LobbyStore";
 
 export default class JoinPartyButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -14,33 +15,30 @@ export default class JoinPartyButtonAction extends ButtonAction {
 
   async Execute(interaction: ButtonInteraction) {
     try {
-      // Parse the custom ID to get creator ID and settings
-      const [action, creatorId, maxPlayers] = interaction.customId.split(":");
-      const maxPlayersNum = parseInt(maxPlayers || "10");
-
-      // Get the original message
-      const message = interaction.message;
-      const embed = message.embeds[0];
-
-      if (!embed) {
-        throw new Error("Could not find the original message embed");
+      const parts = interaction.customId.split(":");
+      if (parts.length < 4) {
+        await interaction.reply({
+          content: "Invalid button ID format.",
+          flags: ["Ephemeral"],
+        });
+        return;
       }
 
-      // Create a new embed builder from the original embed
-      const newEmbed = EmbedBuilder.from(embed);
+      const [_, creatorId, maxPlayersRaw, lobbyId] = parts;
+      const lobby = lobbyStore.getLobby(lobbyId);
 
-      // Extract current players from the embed
-      const playersField = embed.fields.find(field => field.name.startsWith("Players"));
-      if (!playersField) {
-        throw new Error("Could not find players field in the embed");
+      if (!lobby) {
+        await interaction.reply({
+          content: "❌ Lobby not found.",
+          flags: ["Ephemeral"],
+        });
+        return;
       }
 
-      // Parse the current players list
-      const currentPlayers = playersField.value.split('\n');
+      const userId = interaction.user.id;
 
-      // Check if the user is already in the party
-      const userMention = `<@${interaction.user.id}>`;
-      if (currentPlayers.includes(userMention)) {
+      // Already in lobby?
+      if (lobby.players.has(userId)) {
         await interaction.reply({
           content: "You are already in this party!",
           flags: ["Ephemeral"],
@@ -48,55 +46,49 @@ export default class JoinPartyButtonAction extends ButtonAction {
         return;
       }
 
-      // Check if the lobby is full
-      if (currentPlayers.length >= maxPlayersNum) {
+      // Lobby full?
+      if (lobby.players.size >= lobby.maxPlayers) {
         await interaction.reply({
-          content: `This lobby is full (${currentPlayers.length}/${maxPlayersNum} players)`,
+          content: `This lobby is full (${lobby.players.size}/${lobby.maxPlayers} players)`,
           flags: ["Ephemeral"],
         });
         return;
       }
 
-      // Add the new player
-      currentPlayers.push(userMention);
+      // Join lobby
+      lobbyStore.addPlayer(lobbyId, userId);
 
-      // Update the players field in the embed
-      const playerCount = currentPlayers.length;
-      const playerFieldIndex = embed.fields.findIndex(field => field.name.startsWith("Players"));
+      // Build updated embed
+      const embed = new EmbedBuilder()
+        .setTitle(lobby.name)
+        .addFields([
+          {
+            name: `Players (${lobby.players.size}/${lobby.maxPlayers})`,
+            value: Array.from(lobby.players)
+              .map((id) => `<@${id}>`)
+              .join("\n"),
+            inline: false,
+          },
+        ])
+        .setColor(0x00ae86);
 
-      if (playerFieldIndex !== -1) {
-        const updatedFields = [...embed.fields];
-        updatedFields[playerFieldIndex] = {
-          name: `Players (${playerCount}/${maxPlayersNum})`,
-          value: currentPlayers.join('\n'),
-          inline: false
-        };
+      // Update message
+      await interaction.message.edit({ embeds: [embed] });
 
-        // Update the embed with the new fields
-        newEmbed.setFields(updatedFields);
-
-        // Update the original message
-        await message.edit({embeds: [newEmbed]});
-
-        // Send confirmation to the user
-        if (interaction.deferred) {
-          await interaction.editReply({
-            content: "You've joined the party!",
-          });
-        } else {
-          await interaction.reply({
-            content: "You've joined the party!",
-            flags: ["Ephemeral"],
-          });
-        }
+      // Send ephemeral confirmation
+      if (interaction.replied || interaction.deferred) {
+        await interaction.editReply({ content: "You've joined the party!" });
       } else {
-        throw new Error("Failed to update players list");
+        await interaction.reply({
+          content: "You've joined the party!",
+          flags: ["Ephemeral"],
+        });
       }
     } catch (error) {
       logger.error(error);
-      if (interaction.deferred) {
+      if (interaction.replied || interaction.deferred) {
         await interaction.editReply({
-          content: "❌ Failed to join the party. Please try again later.",
+          content: "❌ Failed to join the party.",
         });
       } else {
         await interaction.reply({

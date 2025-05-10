@@ -6,11 +6,13 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  ComponentType,
 } from "discord.js";
 import ButtonAction from "../base/classes/ButtonAction";
 import CustomClient from "../base/classes/CustomClient";
 import { logger, useDeadlockClient } from "..";
 import dayjs from "dayjs";
+import { lobbyStore } from "../services/stores/LobbyStore";
 
 export default class StartMatchButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -23,10 +25,8 @@ export default class StartMatchButtonAction extends ButtonAction {
 
   async Execute(interaction: ButtonInteraction) {
     try {
-      // Parse the custom ID to get creator ID and settings
-      const [action, creatorId, maxPlayers] = interaction.customId.split(":");
+      const [_, creatorId] = interaction.customId.split(":");
 
-      // Check if the user is the party initiator
       if (interaction.user.id !== creatorId) {
         await interaction.reply({
           content: "Only the party initiator can start the match!",
@@ -35,27 +35,17 @@ export default class StartMatchButtonAction extends ButtonAction {
         return;
       }
 
-      // Get the original message
-      const message = interaction.message;
-      const embed = message.embeds[0];
-
-      if (!embed) {
-        throw new Error("Could not find the original message embed");
+      const lobby = lobbyStore.getLobby(creatorId);
+      if (!lobby) {
+        await interaction.reply({
+          content: "Lobby not found or expired.",
+          flags: ["Ephemeral"],
+        });
+        return;
       }
 
-      // Extract current players from the embed
-      const playersField = embed.fields.find((field) =>
-        field.name.startsWith("Players")
-      );
-      if (!playersField) {
-        throw new Error("Could not find players field in the embed");
-      }
-
-      // Parse the current players list
-      const currentPlayers = playersField.value.split("\n");
-
-      // Check if there are enough players (at least 1)
-      if (currentPlayers.length < 1) {
+      const playerIds = lobby.players;
+      if (playerIds.size < 1) {
         await interaction.reply({
           content: "You need at least one player to start a match!",
           flags: ["Ephemeral"],
@@ -63,124 +53,160 @@ export default class StartMatchButtonAction extends ButtonAction {
         return;
       }
 
-      // Create deadlock custom match
-      let retries = 2;
-      let customMatch;
-      while (retries > 0) {
-        try {
-          customMatch =
-            await useDeadlockClient.MatchService.CreateCustomMatch();
-          break;
-        } catch (error) {
-          logger.error("Failed to create custom match:", error);
-          retries--;
-          if (retries === 0) {
-            throw new Error("Failed to create custom match after 5 retries");
-          }
-          await new Promise((resolve) => setTimeout(resolve, 100));
-        }
-      }
-      const closingTime = dayjs().add(15, "minute").unix();
+      const timeStr = dayjs().format("HH:mm");
 
-      if (!customMatch) {
-        await interaction.reply({
-          content: "❌ Failed to create custom match. Please try again later.",
-          flags: ["Ephemeral"],
-        });
-        return;
-      }
+      const expirationTs = Math.floor(Date.now() / 1000) + 60;
+      const relativeTs = `<t:${expirationTs}:R>`;
 
-      // Create a private thread for the match
-      const time_string = dayjs().format("HH:mm");
-      const threadName = `Match-${interaction.user.username}-${time_string}`;
-
-      // Create the thread in the channel where the command was used
       const channel = interaction.channel as TextChannel;
       const thread = await channel.threads.create({
-        name: threadName,
+        name: `Match-${interaction.user.username}-${timeStr}`,
         autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
-        reason: "Match thread for players",
         type: ChannelType.PrivateThread,
+        reason: "Ready check for match",
       });
 
-      if (!thread) {
-        throw new Error("Failed to create thread");
-      }
-
-      // Add all players to the thread
-      // Extract user IDs from mentions like <@123456789>
-      const playerIds = currentPlayers
-        .map((player) => {
-          const match = player.match(/<@(\d+)>/);
-          return match ? match[1] : null;
-        })
-        .filter((id) => id !== null);
-
-      // Add each player to the thread
-      for (const playerId of playerIds) {
+      for (const id of playerIds) {
         try {
-          await thread.members.add(playerId as string);
-        } catch (error) {
-          logger.error(`Failed to add player ${playerId} to thread: ${error}`);
-          // Continue with other players even if one fails
+          await thread.members.add(id);
+        } catch (err) {
+          logger.warn(`Failed to add player ${id}:`, err);
         }
       }
 
-      // Create a "Finish" button
-      const finishButton = new ButtonBuilder()
-        .setCustomId("finish_match")
-        .setLabel("Finish")
-        .setStyle(ButtonStyle.Primary);
-
-      // Create a "Finish" button
-      const closeThread = new ButtonBuilder()
-        .setCustomId(`close_thread:${thread.id}:${creatorId}`)
-        .setLabel("Close Thread")
-        .setStyle(ButtonStyle.Danger);
+      const readyButton = new ButtonBuilder()
+        .setCustomId("ready_up")
+        .setLabel("✅ I'm Ready")
+        .setStyle(ButtonStyle.Success);
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        finishButton,
-        closeThread
+        readyButton
       );
 
-      // Send welcome message in the thread with the button
-      await thread.send({
-        content: `# Welcome to the Match!\n\nPlayers: ${currentPlayers.join(
-          ", "
-        )}\n\nParty ID: \`${customMatch.party_id}\`Party Code: \`${
-          customMatch.party_code
-        }\`\n\nGood luck and have fun!`,
+      const readySet = new Set<string>();
+      const statusMessage = await thread.send({
+        content: buildReadyMessage(Array.from(playerIds), readySet, relativeTs),
         components: [row],
       });
 
-      const lobbyMessage = await thread.send({
-        content: `The custom lobby will close <t:${closingTime}:R>`,
+      const collector = thread.createMessageComponentCollector({
+        componentType: ComponentType.Button,
+        time: 60 * 1000,
       });
 
-      // Delete Create Lobby Panel
-      await message.delete();
-
-      setTimeout(async () => {
-        try {
-          await lobbyMessage.edit({
-            content: `❌ The custom lobby has closed.`,
+      collector.on("collect", async (btnInteraction) => {
+        if (!playerIds.has(btnInteraction.user.id)) {
+          await btnInteraction.reply({
+            content: "You're not a player in this match.",
+            flags: ["Ephemeral"],
           });
-        } catch (error) {
-          logger.error("Failed to update lobby close message:", error);
+          return;
         }
-      }, 15 * 60 * 1000);
+
+        if (readySet.has(btnInteraction.user.id)) {
+          await btnInteraction.reply({
+            content: "You're already marked as ready.",
+            flags: ["Ephemeral"],
+          });
+          return;
+        }
+
+        readySet.add(btnInteraction.user.id);
+        await btnInteraction.reply({
+          content: "You are marked as ready! ✅",
+          flags: ["Ephemeral"],
+        });
+
+        await statusMessage.edit({
+          content: buildReadyMessage(
+            Array.from(playerIds),
+            readySet,
+            relativeTs
+          ),
+          components: [row],
+        });
+
+        if (readySet.size === playerIds.size) {
+          collector.stop("all_ready");
+        }
+      });
+
+      collector.on("end", async (_collected, reason) => {
+        if (reason === "all_ready") {
+          try {
+            const match =
+              await useDeadlockClient.MatchService.CreateCustomMatch();
+            lobbyStore.setPartId(creatorId, String(match.party_id));
+
+            // Create a "Finish" button
+            const finishButton = new ButtonBuilder()
+              .setCustomId(`finish_match:${creatorId}`)
+              .setLabel("Finish")
+              .setStyle(ButtonStyle.Primary);
+
+            // Create a "Finish" button
+            const closeThread = new ButtonBuilder()
+              .setCustomId(`close_thread:${thread.id}:${creatorId}`)
+              .setLabel("Close Thread")
+              .setStyle(ButtonStyle.Danger);
+
+            const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+              finishButton,
+              closeThread
+            );
+
+            await statusMessage.edit({
+              content: `✅ All players are ready!\n\n**Party ID:** \`${match.party_id}\`\n**Party Code:** \`${match.party_code}\`\nGLHF!`,
+              components: [row],
+            });
+          } catch (err) {
+            logger.error("Match creation failed:", err);
+            await thread.send(
+              "❌ Failed to create match after all players were ready. Start a new lobby!"
+            );
+            await thread.setArchived(true);
+            lobbyStore.removeLobby(creatorId);
+          }
+        } else {
+          await thread.send(
+            "❌ Not all players were ready in time. Archiving thread..."
+          );
+          await thread.setArchived(true);
+          lobbyStore.removeLobby(creatorId);
+        }
+      });
+
+      await interaction.message.delete();
+      lobbyStore.removeLobby(creatorId);
     } catch (error) {
       logger.error(error);
       if (interaction.deferred) {
         await interaction.editReply({
-          content: "❌ Failed to start the match. Please try again later.",
+          content: "❌ Failed to start the match.",
         });
       } else {
         await interaction.reply({
-          content: "❌ Failed to start the match. Please try again later.",
+          content: "❌ Failed to start the match.",
           flags: ["Ephemeral"],
         });
       }
     }
   }
+}
+
+function buildReadyMessage(
+  playerIds: string[],
+  readySet: Set<string>,
+  relativeTs: string
+): string {
+  const readyList = playerIds
+    .filter((id) => readySet.has(id))
+    .map((id) => `<@${id}>`);
+  const notReadyList = playerIds
+    .filter((id) => !readySet.has(id))
+    .map((id) => `<@${id}>`);
+
+  return `# ✅ Ready Check\nClick the button below to mark yourself as ready. Check in will close ${relativeTs}.\n\n**Ready:** ${
+    readyList.join(", ") || "None"
+  }\n**Not Ready:** ${notReadyList.join(", ") || "None"}`;
 }
