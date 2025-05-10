@@ -33,7 +33,11 @@ export default class Ready extends Event {
       const globalCommands: any = await rest.put(
         Routes.applicationCommands(cliendId),
         {
-          body: this.GetJson(this.client.commands.filter((cmd) => !cmd.dev)),
+          body: this.GetJson(
+            this.client.commands.filter(
+              (cmd) => !cmd.dev && cmd.limitedServers === undefined
+            )
+          ),
         }
       );
 
@@ -55,6 +59,40 @@ export default class Ready extends Event {
     logger.info(
       `Successfully loaded ${devCommands.length} developer application commands!`
     );
+
+    const limitedCommandsMap = new Map<string, Command[]>();
+
+    this.client.commands.forEach((cmd) => {
+      if (!cmd.limitedServers) return;
+
+      for (const guildId of cmd.limitedServers) {
+        if (!limitedCommandsMap.has(guildId)) {
+          limitedCommandsMap.set(guildId, []);
+        }
+        limitedCommandsMap.get(guildId)?.push(cmd);
+      }
+    });
+
+    for (const [guildId, commands] of limitedCommandsMap.entries()) {
+      try {
+        const registered: any = await rest.put(
+          Routes.applicationGuildCommands(cliendId, guildId),
+          {
+            body: this.GetJson(
+              new Collection(commands.map((cmd) => [cmd.name, cmd]))
+            ),
+          }
+        );
+
+        logger.info(
+          `✅ Registered ${registered.length} limited commands for guild ${guildId}`
+        );
+      } catch (err) {
+        logger.error(
+          `❌ Failed to register commands for guild ${guildId}: ${err}`
+        );
+      }
+    }
   }
 
   private GetJson(commands: Collection<string, Command>): object[] {
