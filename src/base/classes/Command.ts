@@ -18,6 +18,7 @@ export default class Command implements ICommand {
   dm_permission: boolean;
   cooldown: number;
   dev: boolean;
+  limitedServers?: string[];
 
   constructor(client: CustomClient, options: ICommandOptions) {
     this.client = client;
@@ -29,6 +30,7 @@ export default class Command implements ICommand {
     this.dm_permission = options.dm_permission;
     this.cooldown = options.cooldown;
     this.dev = options.dev;
+    this.limitedServers = options.limitedServers;
   }
 
   async Execute(

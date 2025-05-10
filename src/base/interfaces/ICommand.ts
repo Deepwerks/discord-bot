@@ -16,6 +16,7 @@ export default interface ICommand {
   dm_permission: boolean;
   cooldown: number;
   dev: boolean;
+  limitedServers?: string[];
 
   Execute(
     interaction: ChatInputCommandInteraction,

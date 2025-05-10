@@ -44,6 +44,19 @@ export default class Patchnotes extends Command {
         { sort: { date: -1 } }
       ).lean();
 
+      if (!lastStoredPatch) {
+        const scraper = new ForumScraper();
+        await scraper.scrapeMany(patches);
+
+        logger.info(`Inserted ${patches.length} patches as the first batch.`);
+
+        lastStoredPatch = await PatchnoteSchema.findOne(
+          {},
+          {},
+          { sort: { date: -1 } }
+        ).lean();
+      }
+
       const newPatches = patches.filter((patch) => {
         return new Date(patch.pub_date) > lastStoredPatch!.date;
       });

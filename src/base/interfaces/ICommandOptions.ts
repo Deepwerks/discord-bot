@@ -9,4 +9,5 @@ export default interface ICommandOptions {
   dm_permission: boolean;
   cooldown: number;
   dev: boolean;
+  limitedServers?: string[];
 }

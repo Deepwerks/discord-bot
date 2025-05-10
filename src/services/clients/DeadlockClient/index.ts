@@ -16,6 +16,7 @@ export class DeadlockClient extends BaseClient implements IDeadlockClient {
 
   constructor(options: IBaseApiOptions) {
     super(options);
+    this.client.defaults.headers.common["X-Api-Key"] = options.apiKey;
     this.MatchService = new DeadlockMatchService(this);
     this.PlayerService = new DeadlockPlayerService(this);
     this.PatchService = new DeadlockPatchService(this);
