@@ -75,8 +75,8 @@ export default class RedditClient extends BaseClient {
   }
 
   private async getRedditAccessToken(): Promise<string> {
-    const clientId = process.env.REDDIT_CLIENT_ID!;
-    const clientSecret = process.env.REDDIT_CLIENT_SECRET!;
+    const clientId = config.reddit_client_id;
+    const clientSecret = config.reddit_client_secret;
     const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 
     const res = await fetch("https://www.reddit.com/api/v1/access_token", {
