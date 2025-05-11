@@ -34,6 +34,7 @@ switch (running_env) {
       reddit_client_secret: process.env.REDDIT_CLIENT_SECRET!,
       logtail_endpoint: process.env.LOGTAIL_ENDPOINT!,
       logtail_source_token: process.env.LOGTAIL_SOURCE_TOKEN!,
+      secret: process.env.SECRET!,
     };
     break;
   case "development":
@@ -58,6 +59,7 @@ switch (running_env) {
       reddit_client_secret: process.env.REDDIT_CLIENT_SECRET!,
       logtail_endpoint: process.env.LOGTAIL_ENDPOINT!,
       logtail_source_token: process.env.LOGTAIL_SOURCE_TOKEN!,
+      secret: process.env.SECRET!,
     };
     break;
   case "test":
@@ -80,6 +82,7 @@ switch (running_env) {
       reddit_client_secret: "",
       logtail_endpoint: "",
       logtail_source_token: "",
+      secret: "",
     };
     break;
 

@@ -4,6 +4,7 @@ interface IStoredPlayerSchema {
   steamId: string;
   steamIdType: "steamID3" | "steamID" | "steamID64";
   discordId: string;
+  authenticated?: boolean;
 }
 
 export default model<IStoredPlayerSchema>(
@@ -16,6 +17,10 @@ export default model<IStoredPlayerSchema>(
         type: String,
         required: true,
         enum: ["steamID3", "steamID", "steamID64"],
+      },
+      authenticated: {
+        type: Boolean,
+        default: false,
       },
     },
     {

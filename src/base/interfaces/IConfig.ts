@@ -27,4 +27,6 @@ export default interface IConfig {
 
   deadlock_assistant_url: string;
   port: number;
+
+  secret: string;
 }

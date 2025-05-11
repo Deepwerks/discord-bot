@@ -74,8 +74,8 @@ export default class Match extends Command {
         ? "player_id"
         : interaction.options.getString("type") ?? "match_id";
     const ephemeral = interaction.options.getBoolean("private", false);
-
     const startTime = performance.now();
+    let steamAuthNeeded: boolean = false;
 
     await interaction.deferReply({ flags: ephemeral ? ["Ephemeral"] : [] });
 
@@ -91,6 +91,9 @@ export default class Match extends Command {
 
           if (!storedPlayer)
             throw new CommandError(t("errors.steam_not_yet_stored"));
+          steamAuthNeeded =
+            storedPlayer.authenticated === undefined ||
+            storedPlayer.authenticated === false;
 
           steamID64 = storedPlayer.steamId;
         } else {
@@ -179,6 +182,23 @@ export default class Match extends Command {
         files: [attachment],
         components: [row],
       });
+
+      if (steamAuthNeeded) {
+        const embed = new EmbedBuilder()
+          .setColor(0xffa500)
+          .setTitle("⚠️ Steam Authentication Required")
+          .setDescription(
+            "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\n" +
+              "This method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, " +
+              "please re-link your account using the `/store` command.\n\n" +
+              "Thank you for your understanding!"
+          );
+
+        await interaction.followUp({
+          embeds: [embed],
+          ephemeral: true,
+        });
+      }
     } catch (err) {
       logger.error("Match command failed", err);
 

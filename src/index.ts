@@ -5,12 +5,6 @@ import config from "./config";
 import { DeadlockAssetsClient } from "./services/clients/DeadlockAssetsClient";
 import Bottleneck from "bottleneck";
 import StatlockerClient from "./services/clients/StatlockerClient";
-import {
-  deadlockAssetsDefaultCache,
-  deadlockAssetsHeroCache,
-  statlockerProfileCache,
-  steamProfileCache,
-} from "./services/cache";
 import { logtailLogger } from "./services/logger";
 import RedditClient from "./services/clients/RedditClient";
 import { JobScheduler } from "./services/scheduler";

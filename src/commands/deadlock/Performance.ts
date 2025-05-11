@@ -60,6 +60,7 @@ export default class Performance extends Command {
     const player = interaction.options.getString("player");
     const ephemeral = interaction.options.getBoolean("private", false);
     const matchHistoryLimit = 100;
+    let steamAuthNeeded: boolean = false;
 
     await interaction.deferReply({ flags: ephemeral ? ["Ephemeral"] : [] });
 
@@ -72,6 +73,10 @@ export default class Performance extends Command {
         });
         if (!storedPlayer)
           throw new CommandError(t("errors.steam_not_yet_stored"));
+        steamAuthNeeded =
+          storedPlayer.authenticated === undefined ||
+          storedPlayer.authenticated === false;
+
         steamId = storedPlayer.steamId;
       }
 
@@ -210,6 +215,23 @@ export default class Performance extends Command {
       );
 
       await interaction.editReply({ embeds: [embed], components: [row] });
+
+      if (steamAuthNeeded) {
+        const embed = new EmbedBuilder()
+          .setColor(0xffa500)
+          .setTitle("⚠️ Steam Authentication Required")
+          .setDescription(
+            "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\n" +
+              "This method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, " +
+              "please re-link your account using the `/store` command.\n\n" +
+              "Thank you for your understanding!"
+          );
+
+        await interaction.followUp({
+          embeds: [embed],
+          ephemeral: true,
+        });
+      }
     } catch (error) {
       logger.error({
         error,
