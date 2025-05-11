@@ -29,6 +29,12 @@ switch (running_env) {
       deadlock_api_url: process.env.DEADLOCK_API_URL!,
       deadlock_assets_api_url: process.env.DEADLOCK_ASSETS_API_URL!,
       statlocker_api_url: process.env.STATLOCKER_API_URL!,
+      deadlock_assistant_url: process.env.DEADLOCKASSISTANT_URL!,
+      reddit_client_id: process.env.REDDIT_CLIENT_ID!,
+      reddit_client_secret: process.env.REDDIT_CLIENT_SECRET!,
+      logtail_endpoint: process.env.LOGTAIL_ENDPOINT!,
+      logtail_source_token: process.env.LOGTAIL_SOURCE_TOKEN!,
+      secret: process.env.SECRET!,
     };
     break;
   case "development":
@@ -48,23 +54,35 @@ switch (running_env) {
       deadlock_api_url: process.env.DEADLOCK_API_URL!,
       deadlock_assets_api_url: process.env.DEADLOCK_ASSETS_API_URL!,
       statlocker_api_url: process.env.STATLOCKER_API_URL!,
+      deadlock_assistant_url: process.env.DEADLOCKASSISTANT_URL!,
+      reddit_client_id: process.env.REDDIT_CLIENT_ID!,
+      reddit_client_secret: process.env.REDDIT_CLIENT_SECRET!,
+      logtail_endpoint: process.env.LOGTAIL_ENDPOINT!,
+      logtail_source_token: process.env.LOGTAIL_SOURCE_TOKEN!,
+      secret: process.env.SECRET!,
     };
     break;
   case "test":
     config = {
       running_env,
-      discord_bot_token: "nokedli",
-      discord_client_id: "123",
-      mongodb_url: "mongodb:aaa",
-      dev_guild_id: "12345",
-      developer_user_ids: ["23423"],
+      discord_bot_token: "",
+      discord_client_id: "",
+      mongodb_url: "",
+      dev_guild_id: "",
+      developer_user_ids: [""],
       port: 9000,
-      steam_api_key: "awd",
-      steam_api_url: "steam",
-      deadlock_api_key: "wasd",
-      deadlock_api_url: "deadlock",
-      deadlock_assets_api_url: "assets",
-      statlocker_api_url: "statlocker",
+      steam_api_key: "",
+      steam_api_url: "",
+      deadlock_api_key: "",
+      deadlock_api_url: "",
+      deadlock_assets_api_url: "",
+      statlocker_api_url: "",
+      deadlock_assistant_url: "",
+      reddit_client_id: "",
+      reddit_client_secret: "",
+      logtail_endpoint: "",
+      logtail_source_token: "",
+      secret: "",
     };
     break;
 

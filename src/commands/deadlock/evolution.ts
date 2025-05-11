@@ -3,7 +3,6 @@ import {
   ChatInputCommandInteraction,
   PermissionsBitField,
   EmbedBuilder,
-  InteractionReplyOptions,
   InteractionEditReplyOptions,
 } from "discord.js";
 import Command from "../../base/classes/Command";
