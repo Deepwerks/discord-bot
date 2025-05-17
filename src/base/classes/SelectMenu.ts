@@ -7,7 +7,7 @@ import { TFunction } from "i18next";
 import ISelectMenu from "../interfaces/ISelectMenu";
 import ISelectMenuOptions from "../interfaces/ISelectMenuOptions";
 
-export default class SelectMenu implements ISelectMenu {
+export default abstract class SelectMenu implements ISelectMenu {
   client: CustomClient;
   customId: string;
   description: string;
@@ -20,9 +20,12 @@ export default class SelectMenu implements ISelectMenu {
     this.cooldown = options.cooldown;
   }
 
-  async Execute(
+  abstract Execute(
     interaction: StringSelectMenuInteraction,
     t: TFunction<"translation", undefined>
-  ) {}
-  AutoComplete(interaction: AutocompleteInteraction): void {}
+  ): Promise<void>;
+
+  AutoComplete(_interaction: AutocompleteInteraction): Promise<void> | void {
+    /* default no-op – can be overridden */
+  }
 }

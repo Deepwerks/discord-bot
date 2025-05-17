@@ -8,7 +8,7 @@ import CustomClient from "./CustomClient";
 import ICommandOptions from "../interfaces/ICommandOptions";
 import { TFunction } from "i18next";
 
-export default class Command implements ICommand {
+export default abstract class Command implements ICommand {
   client: CustomClient;
   name: string;
   description: string;
@@ -33,9 +33,12 @@ export default class Command implements ICommand {
     this.limitedServers = options.limitedServers;
   }
 
-  async Execute(
+  abstract Execute(
     interaction: ChatInputCommandInteraction,
     t: TFunction<"translation", undefined>
-  ) {}
-  AutoComplete(interaction: AutocompleteInteraction): void {}
+  ): Promise<void>;
+
+  AutoComplete(interaction: AutocompleteInteraction): void {
+    /* default no-op – can be overridden */
+  }
 }

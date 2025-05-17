@@ -11,6 +11,7 @@ import i18next from "../../services/i18n";
 import GuildConfig from "../../base/schemas/GuildConfigSchema";
 import logInteraction from "../../services/logger/logInteraction";
 import { InteractionType } from "../../base/schemas/UserInteractionSchema";
+import CommandError from "../../base/errors/CommandError";
 
 export default class ButtonHandler extends Event {
   constructor(client: CustomClient) {
@@ -82,19 +83,23 @@ export default class ButtonHandler extends Event {
         interaction.guildId
       );
       return await buttonActionHandler.Execute(interaction, t);
-    } catch (err) {
-      logger.error("ButtonAction execution error", err);
+    } catch (error) {
+      logger.error({
+        error,
+        user: interaction.user.id,
+        interaction: this.name,
+      });
+
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError ? error.message : "Button action failed"
+        );
 
       if (interaction.deferred || interaction.replied) {
-        return interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setColor("Red")
-              .setDescription(
-                t("errors.generic_error") || "An unexpected error occurred."
-              ),
-          ],
-        });
+        await interaction.editReply({ embeds: [errorEmbed] });
+      } else {
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
       }
     }
   }

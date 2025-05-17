@@ -4,7 +4,7 @@ import { TFunction } from "i18next";
 import IButtonAction from "../interfaces/IButtonAction";
 import IButtonActionOptions from "../interfaces/IButtonActionOptions";
 
-export default class ButtonAction implements IButtonAction {
+export default abstract class ButtonAction implements IButtonAction {
   client: CustomClient;
   customId: string;
   description: string;
@@ -17,9 +17,12 @@ export default class ButtonAction implements IButtonAction {
     this.cooldown = options.cooldown;
   }
 
-  async Execute(
+  abstract Execute(
     interaction: ButtonInteraction,
     t: TFunction<"translation", undefined>
-  ) {}
-  AutoComplete(interaction: AutocompleteInteraction): void {}
+  ): Promise<void>;
+
+  AutoComplete(interaction: AutocompleteInteraction): void {
+    /* default no-op – can be overridden */
+  }
 }

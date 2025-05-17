@@ -29,14 +29,19 @@ export default class GetMatchDetails extends SelectMenu {
     try {
       const matchId = interaction.values[0];
 
+      if (!interaction.values.length) {
+        throw new CommandError("No value selected");
+      }
+
       await interaction.deferReply({ ephemeral: true });
 
-      const { match, imageBuffer } = await handleMatchRequest({
+      const { matchData, imageBuffer } = await handleMatchRequest({
         id: matchId,
         type: "match_id",
         userId: interaction.user.id,
         t,
       });
+      const match = matchData.match;
 
       const linkButton = new ButtonBuilder()
         .setLabel("View on Statlocker")

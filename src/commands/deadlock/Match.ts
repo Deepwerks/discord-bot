@@ -5,7 +5,6 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ChatInputCommandInteraction,
-  ComponentType,
   EmbedBuilder,
   PermissionsBitField,
 } from "discord.js";
@@ -13,11 +12,8 @@ import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
 import Category from "../../base/enums/Category";
 import { TFunction } from "i18next";
-import { generateMatchImage } from "../../services/utils/generateMatchImage";
-import { logger, useDeadlockClient, useStatlockerClient } from "../..";
-import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
+import { logger } from "../..";
 import CommandError from "../../base/errors/CommandError";
-import { resolveToSteamID64 } from "../../services/utils/resolveToSteamID64";
 import { handleMatchRequest } from "../../services/common/handleMatchRequest";
 
 export default class Match extends Command {
@@ -80,12 +76,14 @@ export default class Match extends Command {
     await interaction.deferReply({ flags: ephemeral ? ["Ephemeral"] : [] });
 
     try {
-      const { match, imageBuffer, steamAuthNeeded } = await handleMatchRequest({
-        id,
-        type,
-        userId: interaction.user.id,
-        t,
-      });
+      const { matchData, imageBuffer, steamAuthNeeded } =
+        await handleMatchRequest({
+          id,
+          type,
+          userId: interaction.user.id,
+          t,
+        });
+      const match = matchData.match;
 
       const linkButton = new ButtonBuilder()
         .setLabel("View on Statlocker")

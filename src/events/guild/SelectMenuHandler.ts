@@ -11,6 +11,7 @@ import i18next from "../../services/i18n";
 import GuildConfig from "../../base/schemas/GuildConfigSchema";
 import logInteraction from "../../services/logger/logInteraction";
 import { InteractionType } from "../../base/schemas/UserInteractionSchema";
+import CommandError from "../../base/errors/CommandError";
 
 export default class SelectMenuHandler extends Event {
   constructor(client: CustomClient) {
@@ -35,13 +36,8 @@ export default class SelectMenuHandler extends Event {
       const selectMenuHandler = this.client.selectMenus.get(action);
 
       if (!selectMenuHandler) {
-        return (
-          //@ts-ignore
-          interaction.reply({
-            content: t("warnings.no_button_action"),
-            flags: ["Ephemeral"],
-          }) && this.client.buttons.delete(action)
-        );
+        this.client.selectMenus.delete(action);
+        throw new CommandError("No button found");
       }
 
       const { cooldowns } = this.client;
@@ -77,24 +73,30 @@ export default class SelectMenuHandler extends Event {
 
       logInteraction(
         selectMenuHandler.customId,
-        InteractionType.Button,
+        InteractionType.SelectMenu,
         interaction.user.id,
         interaction.guildId
       );
       return await selectMenuHandler.Execute(interaction, t);
-    } catch (err) {
-      logger.error("SelectMenuInteraction execution error", err);
+    } catch (error) {
+      logger.error({
+        error,
+        user: interaction.user.id,
+        interaction: this.name,
+      });
+
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : t("errors.generic_error")
+        );
 
       if (interaction.deferred || interaction.replied) {
-        return interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setColor("Red")
-              .setDescription(
-                t("errors.generic_error") || "An unexpected error occurred."
-              ),
-          ],
-        });
+        await interaction.editReply({ embeds: [errorEmbed] });
+      } else {
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
       }
     }
   }

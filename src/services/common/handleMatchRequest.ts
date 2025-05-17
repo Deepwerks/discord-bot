@@ -3,7 +3,10 @@ import { useDeadlockClient, useStatlockerClient } from "../..";
 import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
 import CommandError from "../../base/errors/CommandError";
 import { resolveToSteamID64 } from "../../services/utils/resolveToSteamID64";
-import { generateMatchImage } from "../utils/generateMatchImage";
+import {
+  generateMatchImage,
+  IGenerateMatchImageOptions,
+} from "../utils/generateMatchImage";
 
 export async function handleMatchRequest({
   id,
@@ -16,7 +19,7 @@ export async function handleMatchRequest({
   userId: string;
   t: TFunction<"translation", undefined>;
 }): Promise<{
-  match: any;
+  matchData: IGenerateMatchImageOptions;
   imageBuffer: Buffer;
   steamAuthNeeded: boolean;
 }> {
@@ -69,26 +72,28 @@ export async function handleMatchRequest({
     statlockerProfileMap.set(profile.accountId, profile.name);
   }
 
-  const match = {
-    match_id: deadlockMatch.match_id,
-    duration_s: deadlockMatch.duration_s,
-    start_date: deadlockMatch.start_date.format("D MMMM, YYYY"),
-    average_badge_team0: deadlockMatch.average_badge_team0,
-    average_badge_team1: deadlockMatch.average_badge_team1,
-    start_time: deadlockMatch.start_time,
-    match_outcome: deadlockMatch.match_outcome,
-    winning_team: deadlockMatch.winning_team,
-    team_0_players: deadlockMatch.team_0_players.map((p) => ({
-      ...p,
-      name: statlockerProfileMap.get(p.account_id)!,
-    })),
-    team_1_players: deadlockMatch.team_1_players.map((p) => ({
-      ...p,
-      name: statlockerProfileMap.get(p.account_id)!,
-    })),
+  const matchData = {
+    match: {
+      match_id: deadlockMatch.match_id,
+      duration_s: deadlockMatch.duration_s,
+      start_date: deadlockMatch.start_date.format("D MMMM, YYYY"),
+      average_badge_team0: deadlockMatch.average_badge_team0,
+      average_badge_team1: deadlockMatch.average_badge_team1,
+      start_time: deadlockMatch.start_time,
+      match_outcome: deadlockMatch.match_outcome,
+      winning_team: deadlockMatch.winning_team,
+      team_0_players: deadlockMatch.team_0_players.map((p) => ({
+        ...p,
+        name: statlockerProfileMap.get(p.account_id) ?? "Unknown",
+      })),
+      team_1_players: deadlockMatch.team_1_players.map((p) => ({
+        ...p,
+        name: statlockerProfileMap.get(p.account_id) ?? "Unknown",
+      })),
+    },
   };
 
-  const imageBuffer = await generateMatchImage({ match });
+  const imageBuffer = await generateMatchImage(matchData);
 
-  return { match, imageBuffer, steamAuthNeeded };
+  return { matchData, imageBuffer, steamAuthNeeded };
 }
