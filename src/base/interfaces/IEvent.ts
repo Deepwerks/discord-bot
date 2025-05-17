@@ -6,4 +6,6 @@ export default interface IEvent {
   name: Events;
   description: string;
   once: boolean;
+
+  Execute(...args: any): void;
 }

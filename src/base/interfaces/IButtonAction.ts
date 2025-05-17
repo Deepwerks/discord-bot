@@ -11,6 +11,6 @@ export default interface IButtonAction {
   Execute(
     interaction: ButtonInteraction,
     t: TFunction<"translation", undefined>
-  ): void;
+  ): Promise<void>;
   AutoComplete(interaction: AutocompleteInteraction): void;
 }

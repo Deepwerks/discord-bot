@@ -14,6 +14,6 @@ export default interface ISelectMenu {
   Execute(
     interaction: StringSelectMenuInteraction,
     t: TFunction<"translation", undefined>
-  ): void;
+  ): Promise<void>;
   AutoComplete(interaction: AutocompleteInteraction): void;
 }
