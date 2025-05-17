@@ -33,7 +33,7 @@ export default class GetMatchDetails extends SelectMenu {
         throw new CommandError("No value selected");
       }
 
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply({ flags: ["Ephemeral"] });
 
       const { matchData, imageBuffer } = await handleMatchRequest({
         id: matchId,
@@ -92,7 +92,7 @@ export default class GetMatchDetails extends SelectMenu {
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [errorEmbed], flags: ["Ephemeral"] });
       }
     }
   }
