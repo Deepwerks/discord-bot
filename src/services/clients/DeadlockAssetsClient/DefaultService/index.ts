@@ -48,7 +48,7 @@ export default class DefaultAssetsService implements IDefaultAssetsService {
   }
 
   async GetRanks() {
-    logger.info("[API CALL] Fetching a deadlock ranks...");
+    logger.info("[API CALL] Fetching deadlock ranks...");
     const response = await this.client.request<DeadlockRank[]>(
       "GET",
       `/v2/ranks`

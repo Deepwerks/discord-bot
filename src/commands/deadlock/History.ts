@@ -1,9 +1,14 @@
 import {
+  ActionRowBuilder,
   ApplicationCommandOptionType,
+  ButtonBuilder,
+  ButtonStyle,
   ChatInputCommandInteraction,
   EmbedBuilder,
   escapeMarkdown,
   PermissionsBitField,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
 } from "discord.js";
 import Command from "../../base/classes/Command";
 import CustomClient from "../../base/classes/CustomClient";
@@ -136,20 +141,42 @@ export default class History extends Command {
         "Detailed      ".padEnd(15);
 
       const response = `\`\`\`diff
-${escapeMarkdown(steamProfile.name)}'s last ${matches.length} matches:
+${escapeMarkdown(steamProfile.name)}'s (${steamProfile.accountId}) last ${
+        matches.length
+      } matches:
 
 ${header}
 ${matchesString.join("\n")}
       \`\`\``;
 
+      const linkButton = new ButtonBuilder()
+        .setLabel("View on Statlocker")
+        .setStyle(ButtonStyle.Link)
+        .setURL(`https://statlocker.gg/profile/${steamProfile.accountId}`)
+        .setEmoji("1367520315244023868");
+
+      const selectMatchButton = new StringSelectMenuBuilder()
+        .setCustomId(`get_match_details`)
+        .setPlaceholder("Match Details")
+        .addOptions(
+          matches.map((match) => {
+            return new StringSelectMenuOptionBuilder()
+              .setLabel(String(match.match_id))
+              .setValue(String(match.match_id));
+          })
+        );
+
+      const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        linkButton
+      );
+      const interactiveRow =
+        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+          selectMatchButton
+        );
+
       await interaction.reply({
         content: response,
-        embeds: [
-          new EmbedBuilder()
-            .setColor("Blue")
-            .setTimestamp()
-            .setFooter({ text: `PlayerID: ${steamProfile.accountId}` }),
-        ],
+        components: [buttonRow, interactiveRow],
         flags: ephemeral ? ["Ephemeral"] : [],
       });
 
