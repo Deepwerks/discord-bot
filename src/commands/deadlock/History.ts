@@ -97,13 +97,20 @@ export default class History extends Command {
       );
 
       const limit = pLimit(10);
+      const uniqueHeroIds = [...new Set(matches.map((m) => m.hero_id))];
+
+      const heroEntries = await Promise.all(
+        uniqueHeroIds.map(async (id) => {
+          const hero = await useAssetsClient.HeroService.GetHeroCached(id);
+          return [id, hero?.name ?? "Unknown"];
+        })
+      );
+      const heroMap = Object.fromEntries(heroEntries);
 
       const matchesString: string[] = await Promise.all(
         matches.map((match) =>
           limit(async () => {
-            const heroName = (await useAssetsClient.HeroService.GetHeroCached(
-              match.hero_id
-            ))!.name;
+            const heroName = heroMap[match.hero_id];
             const champion = heroName.padEnd(15);
             const time = getFormattedMatchTime(match.match_duration_s).padEnd(
               9
@@ -160,8 +167,13 @@ ${matchesString.join("\n")}
         .setPlaceholder("Match Details")
         .addOptions(
           matches.map((match) => {
+            const heroName = heroMap[match.hero_id];
+            const win =
+              match.match_result === match.player_team ? "Win" : "Loss";
+
             return new StringSelectMenuOptionBuilder()
-              .setLabel(String(match.match_id))
+              .setLabel(`${heroName} — ${win}`)
+              .setDescription(String(match.match_id))
               .setValue(String(match.match_id));
           })
         );
