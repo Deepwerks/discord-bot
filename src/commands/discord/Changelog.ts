@@ -22,7 +22,7 @@ export default class Changelog extends Command {
       dm_permission: true,
       cooldown: 30,
       options: [],
-      dev: false,
+      dev: true,
     });
   }
 
@@ -77,22 +77,24 @@ export default class Changelog extends Command {
 
       await interaction.editReply({ content: message });
     } catch (error) {
-      logger.error(error);
+      logger.error({
+        error,
+        user: interaction.user.id,
+        command: this.name,
+      });
 
-      if (error instanceof CommandError) {
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder().setColor("Red").setDescription(error.message),
-          ],
-        });
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : t("errors.generic_error")
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setColor("Red")
-              .setDescription(t("errors.generic_error")),
-          ],
-        });
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
       }
     }
   }

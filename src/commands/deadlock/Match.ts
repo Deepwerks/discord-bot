@@ -199,23 +199,25 @@ export default class Match extends Command {
           ephemeral: true,
         });
       }
-    } catch (err) {
-      logger.error("Match command failed", err);
+    } catch (error) {
+      logger.error({
+        error,
+        user: interaction.user.id,
+        command: this.name,
+      });
 
-      if (err instanceof CommandError) {
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder().setColor("Red").setDescription(err.message),
-          ],
-        });
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : t("errors.generic_error")
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setColor("Red")
-              .setDescription(t("commands.match.fetch_failed")),
-          ],
-        });
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
       }
     }
   }

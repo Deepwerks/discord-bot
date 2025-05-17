@@ -82,7 +82,7 @@ export default class Evolution extends Command {
       logger.error({
         error,
         user: interaction.user.id,
-        command: "evolution",
+        command: this.name,
       });
 
       const errorEmbed = new EmbedBuilder()
@@ -96,7 +96,7 @@ export default class Evolution extends Command {
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.reply({ embeds: [errorEmbed], flags: ["Ephemeral"] });
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
       }
     }
   }

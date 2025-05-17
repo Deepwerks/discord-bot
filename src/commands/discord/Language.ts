@@ -72,19 +72,26 @@ export default class Language extends Command {
         ],
         flags: ["Ephemeral"],
       });
-    } catch (error: any) {
-      logger.error(error);
-
-      await interaction.reply({
-        embeds: [
-          new EmbedBuilder().setColor("Red").setDescription(
-            t("commands.language.set_fail", {
-              error: error.message ?? "database error",
-            })
-          ),
-        ],
-        flags: ["Ephemeral"],
+    } catch (error) {
+      logger.error({
+        error,
+        user: interaction.user.id,
+        command: this.name,
       });
+
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : t("errors.generic_error")
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
+      } else {
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+      }
     }
   }
 }
