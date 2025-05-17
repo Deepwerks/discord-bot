@@ -1,8 +1,8 @@
 import {
-  ButtonInteraction,
   Collection,
   EmbedBuilder,
   Events,
+  StringSelectMenuInteraction,
 } from "discord.js";
 import CustomClient from "../../base/classes/CustomClient";
 import Event from "../../base/classes/Event";
@@ -13,19 +13,19 @@ import logInteraction from "../../services/logger/logInteraction";
 import { InteractionType } from "../../base/schemas/UserInteractionSchema";
 import CommandError from "../../base/errors/CommandError";
 
-export default class ButtonHandler extends Event {
+export default class SelectMenuHandler extends Event {
   constructor(client: CustomClient) {
     super(client, {
       name: Events.InteractionCreate,
-      description: "Button handler event",
+      description: "SelectMenu handler event",
       once: false,
     });
   }
 
-  async Execute(interaction: ButtonInteraction) {
-    if (!interaction.isButton()) return;
+  async Execute(interaction: StringSelectMenuInteraction) {
+    if (!interaction.isStringSelectMenu()) return;
+
     const [action] = interaction.customId.split(":");
-    if (action === "ready_up") return;
 
     const guildLang = await GuildConfig.findOne({
       guildId: interaction.guildId!,
@@ -33,25 +33,20 @@ export default class ButtonHandler extends Event {
     const t = i18next.getFixedT(guildLang?.lang!);
 
     try {
-      const buttonActionHandler = this.client.buttons.get(action);
+      const selectMenuHandler = this.client.selectMenus.get(action);
 
-      if (!buttonActionHandler) {
-        return (
-          //@ts-ignore
-          interaction.reply({
-            content: t("warnings.no_button_action"),
-            flags: ["Ephemeral"],
-          }) && this.client.buttons.delete(action)
-        );
+      if (!selectMenuHandler) {
+        this.client.selectMenus.delete(action);
+        throw new CommandError("No button found");
       }
 
       const { cooldowns } = this.client;
-      if (!cooldowns.has(buttonActionHandler.customId))
-        cooldowns.set(buttonActionHandler.customId, new Collection());
+      if (!cooldowns.has(selectMenuHandler.customId))
+        cooldowns.set(selectMenuHandler.customId, new Collection());
 
       const now = Date.now();
-      const timestamps = cooldowns.get(buttonActionHandler.customId)!;
-      const cooldownAmount = (buttonActionHandler.cooldown || 3) * 1000;
+      const timestamps = cooldowns.get(selectMenuHandler.customId)!;
+      const cooldownAmount = (selectMenuHandler.cooldown || 3) * 1000;
 
       if (
         timestamps.has(interaction.user.id) &&
@@ -77,12 +72,12 @@ export default class ButtonHandler extends Event {
       setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
 
       logInteraction(
-        buttonActionHandler.customId,
-        InteractionType.Button,
+        selectMenuHandler.customId,
+        InteractionType.SelectMenu,
         interaction.user.id,
         interaction.guildId
       );
-      return await buttonActionHandler.Execute(interaction, t);
+      return await selectMenuHandler.Execute(interaction, t);
     } catch (error) {
       logger.error({
         error,
@@ -93,7 +88,9 @@ export default class ButtonHandler extends Event {
       const errorEmbed = new EmbedBuilder()
         .setColor("Red")
         .setDescription(
-          error instanceof CommandError ? error.message : "Button action failed"
+          error instanceof CommandError
+            ? error.message
+            : t("errors.generic_error")
         );
 
       if (interaction.deferred || interaction.replied) {

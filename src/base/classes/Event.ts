@@ -3,7 +3,7 @@ import IEvent from "../interfaces/IEvent";
 import CustomClient from "./CustomClient";
 import IEventOptions from "../interfaces/IEventOptions";
 
-export default class Event implements IEvent {
+export default abstract class Event implements IEvent {
   client: CustomClient;
   name: Events;
   description: string;
@@ -16,5 +16,5 @@ export default class Event implements IEvent {
     this.once = options.once;
   }
 
-  Execute(...args: any): void {}
+  abstract Execute(...args: any): void;
 }

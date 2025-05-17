@@ -8,6 +8,7 @@ import SubCommand from "./SubCommand";
 import Modal from "./CustomModal";
 import { logger } from "../..";
 import ButtonAction from "./ButtonAction";
+import SelectMenu from "./SelectMenu";
 
 export default class Handler implements IHandler {
   client: CustomClient;
@@ -107,6 +108,25 @@ export default class Handler implements IHandler {
       }
 
       this.client.modals.set(modal.customId, modal);
+      return delete require.cache[require.resolve(file)];
+    });
+  }
+
+  async LoadSelectMenus() {
+    const files = (await glob("build/selectMenus/**/*.js")).map(
+      (filePath: string) => path.resolve(filePath)
+    );
+
+    files.map(async (file: string) => {
+      const SelectMenuClass = (await import(file)).default;
+      const selectMenu: SelectMenu = new SelectMenuClass(this.client);
+
+      if (!selectMenu.customId || typeof selectMenu.Execute !== "function") {
+        logger.warn(`${file.split("/").pop()} is missing customId or Execute.`);
+        return delete require.cache[require.resolve(file)];
+      }
+
+      this.client.selectMenus.set(selectMenu.customId, selectMenu);
       return delete require.cache[require.resolve(file)];
     });
   }

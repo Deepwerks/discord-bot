@@ -9,5 +9,5 @@ export default interface ISubCommand {
   Execute(
     interaction: ChatInputCommandInteraction,
     t: TFunction<"translation", undefined>
-  ): void;
+  ): Promise<void>;
 }

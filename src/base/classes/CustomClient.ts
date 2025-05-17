@@ -11,6 +11,7 @@ import WebService from "../../services/web";
 import ModalHandler from "../interfaces/IModalHandler";
 import { logger, useAssetsClient, useRedditClient } from "../..";
 import ButtonAction from "./ButtonAction";
+import SelectMenu from "./SelectMenu";
 
 export default class CustomClient extends Client implements ICustomClient {
   config: IConfig;
@@ -19,6 +20,7 @@ export default class CustomClient extends Client implements ICustomClient {
   subCommands: Collection<string, SubCommand>;
   buttons: Collection<string, ButtonAction>;
   modals: Collection<string, ModalHandler>;
+  selectMenus: Collection<string, SelectMenu>;
   cooldowns: Collection<string, Collection<string, number>>;
   developmentMode: boolean;
 
@@ -33,6 +35,7 @@ export default class CustomClient extends Client implements ICustomClient {
     this.subCommands = new Collection();
     this.buttons = new Collection();
     this.modals = new Collection();
+    this.selectMenus = new Collection();
     this.cooldowns = new Collection();
     this.developmentMode = this.config.running_env === "development";
   }
@@ -64,5 +67,6 @@ export default class CustomClient extends Client implements ICustomClient {
     this.handler.LoadModals();
     this.handler.LoadCommands();
     this.handler.LoadButtonActions();
+    this.handler.LoadSelectMenus();
   }
 }

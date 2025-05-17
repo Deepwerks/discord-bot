@@ -6,4 +6,5 @@ export default interface IHandler {
   LoadCommands(): void;
   LoadButtonActions(): void;
   LoadModals(): void;
+  LoadSelectMenus(): void;
 }
