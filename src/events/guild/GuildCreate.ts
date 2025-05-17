@@ -18,19 +18,38 @@ export default class GuildCreate extends Event {
       if (!(await GuildConfig.exists({ guildId: guild.id }))) {
         await GuildConfig.create({ guildId: guild.id });
       }
+
+      const owner = await guild.fetchOwner();
+      const mexter = await this.client.users.fetch(
+        this.client.config.developer_user_ids[0]
+      );
+
+      await owner
+        .send({
+          embeds: [
+            new EmbedBuilder()
+              .setColor("Green")
+              .setTitle(
+                `${this.client.user?.displayName} has been added to Your server`
+              )
+              .setDescription(
+                `Hi there! 👋\nThanks for adding **${this.client.user?.displayName}** to your server! We are excited to be part of your community!\n\nIf you’re planning to actively use the bot, we **strongly recommend** joining our [Support Server](https://discord.gg/C968DEVs6j) to stay informed about **updates, planned features**, and any **potential downtime**.\n\nWe're here to help if you run into issues or have suggestions. Thanks again, see you in the Cursed Apple!`
+              )
+              .setAuthor({
+                name: mexter.displayName,
+                iconURL: mexter.displayAvatarURL(),
+              }),
+          ],
+        })
+        .catch((err) => logger.warn(err));
+
+      logger.info(`${this.client.user?.tag} has been added to a new Guild!`, {
+        guildId: guild.id,
+        guildName: guild.name,
+        guildOwnerId: guild.ownerId,
+      });
     } catch (error) {
       logger.error(error);
     }
-
-    const owner = await guild.fetchOwner();
-    owner
-      .send({
-        embeds: [
-          new EmbedBuilder()
-            .setColor("Green")
-            .setDescription("Hey! Thanks for adding me to your server! 😁"),
-        ],
-      })
-      .catch((err) => logger.warn(err));
   }
 }

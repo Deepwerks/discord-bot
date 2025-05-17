@@ -16,6 +16,11 @@ export default class GuildDelete extends Event {
   async Execute(guild: Guild) {
     try {
       await GuildConfig.deleteOne({ guildId: guild.id });
+      logger.info(`${this.client.user?.tag} has been removed from a Guild.`, {
+        guildId: guild.id,
+        guildName: guild.name,
+        guildOwnerId: guild.ownerId,
+      });
     } catch (error) {
       logger.error(error);
     }
