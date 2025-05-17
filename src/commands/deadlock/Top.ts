@@ -2,6 +2,7 @@ import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   EmbedBuilder,
+  escapeMarkdown,
   PermissionsBitField,
 } from "discord.js";
 import Command from "../../base/classes/Command";
@@ -207,7 +208,9 @@ async function createHeroStatsEmbeds(
 
     if (i === 0) {
       embed.setTitle(
-        `Hero Stats for **${playerName}** sorted by **${sort_by}**`
+        `Hero Stats for **${escapeMarkdown(
+          playerName
+        )}** sorted by **${sort_by}**`
       );
     }
     if (i + chunkSize >= stats.length) {

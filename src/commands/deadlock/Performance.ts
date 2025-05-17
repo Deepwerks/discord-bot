@@ -5,6 +5,7 @@ import {
   ButtonStyle,
   ChatInputCommandInteraction,
   EmbedBuilder,
+  escapeMarkdown,
   PermissionsBitField,
 } from "discord.js";
 import Command from "../../base/classes/Command";
@@ -144,9 +145,11 @@ export default class Performance extends Command {
         .setColor("#2f3136")
         .setTitle(`📊 Player Performance Summary`)
         .setDescription(
-          `Recent match performance for **${
+          `Recent match performance for [${escapeMarkdown(
             steamProfile.name || "Player"
-          }** (last ${matches.length} matches)`
+          )}](https://statlocker.gg/profile/${steamProfile.accountId}) (last ${
+            matches.length
+          } matches)`
         )
         .setThumbnail(steamProfile.avatarUrl)
         .addFields(
