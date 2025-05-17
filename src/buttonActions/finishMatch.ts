@@ -33,7 +33,7 @@ export default class FinishMatchButtonAction extends ButtonAction {
       const partyId = lobbyStore.getPartyId(creatorId);
 
       if (!partyId) {
-        throw new Error("Failed to find party ID in message content");
+        throw new CommandError("Failed to find party ID in message content");
       }
 
       const matchId =
