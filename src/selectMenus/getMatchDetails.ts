@@ -18,7 +18,7 @@ export default class GetMatchDetails extends SelectMenu {
     super(client, {
       customId: "get_match_details",
       description: "Get match details",
-      cooldown: 30,
+      cooldown: 15,
     });
   }
 
