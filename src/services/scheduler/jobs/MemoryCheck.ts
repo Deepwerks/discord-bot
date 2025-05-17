@@ -1,10 +1,5 @@
 import { logger } from "../../..";
-import {
-  steamProfileCache,
-  statlockerProfileCache,
-  deadlockAssetsHeroCache,
-  deadlockAssetsDefaultCache,
-} from "../../cache";
+import { steamProfileCache, statlockerProfileCache } from "../../cache";
 
 export default () => {
   const MAX_MEMORY_MB = 4000;
