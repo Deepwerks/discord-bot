@@ -44,7 +44,7 @@ export default class CloseThreadButtonAction extends ButtonAction {
       logger.error({
         error,
         user: interaction.user.id,
-        buttonAction: this.customId,
+        interaction: this.customId,
       });
 
       const errorEmbed = new EmbedBuilder()

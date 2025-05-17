@@ -3,6 +3,7 @@ import ButtonAction from "../base/classes/ButtonAction";
 import CustomClient from "../base/classes/CustomClient";
 import { logger } from "..";
 import { lobbyStore } from "../services/stores/LobbyStore";
+import CommandError from "../base/errors/CommandError";
 
 export default class JoinPartyButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -17,42 +18,28 @@ export default class JoinPartyButtonAction extends ButtonAction {
     try {
       const parts = interaction.customId.split(":");
       if (parts.length < 4) {
-        await interaction.reply({
-          content: "Invalid button ID format.",
-          flags: ["Ephemeral"],
-        });
-        return;
+        throw new CommandError("Unexpected error: Invalid button ID format.");
       }
 
       const [_, creatorId, maxPlayersRaw, lobbyId] = parts;
       const lobby = lobbyStore.getLobby(lobbyId);
 
       if (!lobby) {
-        await interaction.reply({
-          content: "❌ Lobby not found.",
-          flags: ["Ephemeral"],
-        });
-        return;
+        throw new CommandError("❌ Lobby not found.");
       }
 
       const userId = interaction.user.id;
 
       // Already in lobby?
       if (lobby.players.has(userId)) {
-        await interaction.reply({
-          content: "You are already in this party!",
-          flags: ["Ephemeral"],
-        });
-        return;
+        throw new CommandError("You are already in this party!");
       }
 
       // Lobby full?
       if (lobby.players.size >= lobby.maxPlayers) {
-        await interaction.reply({
-          content: `This lobby is full (${lobby.players.size}/${lobby.maxPlayers} players)`,
-          flags: ["Ephemeral"],
-        });
-        return;
+        throw new CommandError(
+          `This lobby is full (${lobby.players.size}/${lobby.maxPlayers} players)`
+        );
       }
 
       // Join lobby
@@ -85,16 +72,24 @@ export default class JoinPartyButtonAction extends ButtonAction {
         });
       }
     } catch (error) {
-      logger.error(error);
-      if (interaction.replied || interaction.deferred) {
-        await interaction.editReply({
-          content: "❌ Failed to join the party.",
-        });
+      logger.error({
+        error,
+        user: interaction.user.id,
+        interaction: this.customId,
+      });
+
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : "❌ Failed to join the party. Please try again later!"
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.reply({
-          content: "❌ Failed to join the party. Please try again later.",
-          flags: ["Ephemeral"],
-        });
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
       }
     }
   }
