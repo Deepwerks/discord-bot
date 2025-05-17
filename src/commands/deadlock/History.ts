@@ -111,27 +111,25 @@ export default class History extends Command {
         matches.map((match) =>
           limit(async () => {
             const heroName = heroMap[match.hero_id];
-            const champion = heroName.padEnd(15);
+
+            const champion = heroName.slice(0, 14).padEnd(15);
             const time = getFormattedMatchTime(match.match_duration_s).padEnd(
               9
             );
-            const rank = (
-              await useAssetsClient.DefaultService.GetRankName(
-                mmrMatches.find((m) => m.match_id === match.match_id)?.rank
-              )
-            ).padEnd(15);
-            const matchId = match.match_id.toString().padEnd(13);
-            const kdaValue = (
-              (match.player_kills + match.player_assists) /
-              Math.max(1, match.player_deaths)
-            ).toFixed(2);
-            const kda = kdaValue.padEnd(6);
-            const detailed =
+            const mmr = mmrMatches.find(
+              (m) => m.match_id === match.match_id
+            )?.rank;
+            const rank = (await useAssetsClient.DefaultService.GetRankName(mmr))
+              ?.slice(0, 12)
+              .padEnd(13);
+            const kda =
               `(${match.player_kills}/${match.player_deaths}/${match.player_assists})`.padEnd(
-                15
+                13
               );
+            const matchId = match.match_id.toString().padEnd(13);
+            const date = match.start_date.format("D MMM YYYY").padEnd(12);
 
-            const line = `${champion}${time}${rank}${matchId}${kda}${detailed}`;
+            const line = `${champion}${time}${rank}${kda}${matchId}${date}`;
 
             const prefix = match.match_result === match.player_team ? "+" : "-";
             return `${prefix}${line}`;
@@ -140,12 +138,12 @@ export default class History extends Command {
       );
 
       const header =
-        "Character       ".padEnd(15) +
-        "Time     ".padEnd(9) +
-        "Rank       ".padEnd(15) +
-        "Match ID     ".padEnd(13) +
-        "KDA   ".padEnd(6) +
-        "Detailed      ".padEnd(15);
+        "Character".padEnd(16) +
+        "Time".padEnd(9) +
+        "Rank".padEnd(13) +
+        "KDA".padEnd(13) +
+        "Match ID".padEnd(13) +
+        "Date".padEnd(12);
 
       const response = `\`\`\`diff
 ${escapeMarkdown(steamProfile.name)}'s (${steamProfile.accountId}) last ${
@@ -173,7 +171,11 @@ ${matchesString.join("\n")}
 
             return new StringSelectMenuOptionBuilder()
               .setLabel(`${heroName} — ${win}`)
-              .setDescription(String(match.match_id))
+              .setDescription(
+                `${String(match.match_id)} (${match.start_date.format(
+                  "D MMMM, YYYY"
+                )})`
+              )
               .setValue(String(match.match_id));
           })
         );
