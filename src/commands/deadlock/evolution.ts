@@ -34,7 +34,7 @@ export default class Evolution extends Command {
       default_member_permissions:
         PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
-      cooldown: 3,
+      cooldown: 2,
       dev: false,
       options: [
         {
@@ -71,7 +71,7 @@ export default class Evolution extends Command {
         page: 0,
         perPage: 1,
         generateEmbed: (entry: PatchChange, page: number, total: number) =>
-          createEmbedPage(entry, page, total),
+          createEmbedPage(entry, page, total, search),
       };
 
       const paginatedResponse = createPaginationSession(sessionId, context);
@@ -105,12 +105,12 @@ export default class Evolution extends Command {
 function createEmbedPage(
   result: PatchChange,
   index: number,
-  total: number
+  total: number,
+  search: string
 ): EmbedBuilder {
   return new EmbedBuilder()
-    .setTitle(result.patchTitle)
-    .setURL(result.url)
-    .setDescription(`**Category:** ${result.category}`)
+    .setTitle(`Previous changes referencing "${search}"`)
+    .setDescription(`[${result.patchTitle}](${result.url})`)
     .addFields({
       name: "Changes",
       value:
