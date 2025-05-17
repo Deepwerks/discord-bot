@@ -1,13 +1,8 @@
 import { logger } from "../../..";
-import {
-  steamProfileCache,
-  statlockerProfileCache,
-  deadlockAssetsHeroCache,
-  deadlockAssetsDefaultCache,
-} from "../../cache";
+import { steamProfileCache, statlockerProfileCache } from "../../cache";
 
 export default () => {
-  const MAX_MEMORY_MB = 512;
+  const MAX_MEMORY_MB = 4000;
 
   const used = process.memoryUsage().rss;
   const mem = used / 1024 / 1024;
@@ -25,7 +20,5 @@ export default () => {
 
     steamProfileCache.clear();
     statlockerProfileCache.clear();
-    deadlockAssetsHeroCache.clear();
-    deadlockAssetsDefaultCache.clear();
   }
 };

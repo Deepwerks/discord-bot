@@ -28,12 +28,13 @@ export default class GetMatchDetails extends SelectMenu {
   ) {
     try {
       const matchId = interaction.values[0];
+      const startTime = performance.now();
 
       if (!interaction.values.length) {
         throw new CommandError("No value selected");
       }
 
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply({ flags: ["Ephemeral"] });
 
       const { matchData, imageBuffer } = await handleMatchRequest({
         id: matchId,
@@ -64,12 +65,15 @@ export default class GetMatchDetails extends SelectMenu {
         name: "match.png",
       });
 
+      const endTime = performance.now();
+      const duration = (endTime - startTime).toFixed(2);
+
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setColor("Blue")
             .setTimestamp()
-            .setFooter({ text: `Match ID: ${match.match_id}` }),
+            .setFooter({ text: `Generated in ${duration}ms` }),
         ],
         files: [attachment],
         components: [row],
@@ -92,7 +96,7 @@ export default class GetMatchDetails extends SelectMenu {
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [errorEmbed], flags: ["Ephemeral"] });
       }
     }
   }
