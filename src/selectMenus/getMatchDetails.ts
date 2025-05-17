@@ -28,6 +28,7 @@ export default class GetMatchDetails extends SelectMenu {
   ) {
     try {
       const matchId = interaction.values[0];
+      const startTime = performance.now();
 
       if (!interaction.values.length) {
         throw new CommandError("No value selected");
@@ -64,12 +65,15 @@ export default class GetMatchDetails extends SelectMenu {
         name: "match.png",
       });
 
+      const endTime = performance.now();
+      const duration = (endTime - startTime).toFixed(2);
+
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setColor("Blue")
             .setTimestamp()
-            .setFooter({ text: `Match ID: ${match.match_id}` }),
+            .setFooter({ text: `Generated in ${duration}ms` }),
         ],
         files: [attachment],
         components: [row],
