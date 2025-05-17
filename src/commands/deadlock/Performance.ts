@@ -144,9 +144,11 @@ export default class Performance extends Command {
         .setColor("#2f3136")
         .setTitle(`📊 Player Performance Summary`)
         .setDescription(
-          `Recent match performance for **${
+          `Recent match performance for [${
             steamProfile.name || "Player"
-          }** (last ${matches.length} matches)`
+          }](https://statlocker.gg/profile/${steamProfile.accountId}) (last ${
+            matches.length
+          } matches)`
         )
         .setThumbnail(steamProfile.avatarUrl)
         .addFields(
