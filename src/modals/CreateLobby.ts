@@ -89,12 +89,26 @@ export default class CreateLobby extends Modal {
         players: new Set([interaction.user.id]),
         messageId: replyMessage.id,
       });
-    } catch (error: any) {
-      logger.error(error);
-      await interaction.reply({
-        content: `❌ Error creating lobby: ${error.message || "Unknown error"}`,
-        ephemeral: true,
+    } catch (error) {
+      logger.error({
+        error,
+        user: interaction.user.id,
+        interaction: this.customId,
       });
+
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : "❌ Failed to create lobby."
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
+      } else {
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+      }
     }
   }
 }
