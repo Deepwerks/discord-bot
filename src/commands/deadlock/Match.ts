@@ -203,7 +203,7 @@ export default class Match extends Command {
       logger.error({
         error,
         user: interaction.user.id,
-        command: this.name,
+        interaction: this.name,
       });
 
       const errorEmbed = new EmbedBuilder()

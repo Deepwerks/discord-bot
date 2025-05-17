@@ -1,8 +1,9 @@
-import { ButtonInteraction, ThreadChannel } from "discord.js";
+import { ButtonInteraction, EmbedBuilder, ThreadChannel } from "discord.js";
 import ButtonAction from "../base/classes/ButtonAction";
 import CustomClient from "../base/classes/CustomClient";
 import { logger } from "..";
 import { lobbyStore } from "../services/stores/LobbyStore";
+import CommandError from "../base/errors/CommandError";
 export default class CloseThreadButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
     super(client, {
@@ -17,12 +18,9 @@ export default class CloseThreadButtonAction extends ButtonAction {
       const [action, threadId, creatorId] = interaction.customId.split(":");
 
       if (interaction.user.id !== creatorId) {
-        await interaction.reply({
-          content: "Only the party initiator can close this thread!",
-          flags: ["Ephemeral"],
-        });
-
-        return;
+        throw new CommandError(
+          "Only the party initiator can close this thread!"
+        );
       }
 
       const channel = await this.client.channels.fetch(threadId);
@@ -43,16 +41,24 @@ export default class CloseThreadButtonAction extends ButtonAction {
         });
       }
     } catch (error) {
-      logger.error(error);
-      if (interaction.deferred) {
-        await interaction.editReply({
-          content: "❌ Failed to close thread. Please try again later.",
-        });
+      logger.error({
+        error,
+        user: interaction.user.id,
+        buttonAction: this.customId,
+      });
+
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : "Failed to close thread."
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.editReply({
-          content:
-            "❌ Failed to process the finish match action. Please try again later.",
-        });
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
       }
     }
   }

@@ -71,9 +71,8 @@ export default class Random extends Command {
       logger.error({
         error,
         user: interaction.user.id,
-        command: this.name,
+        interaction: this.name,
       });
-
       const errorEmbed = new EmbedBuilder()
         .setColor("Red")
         .setDescription(
