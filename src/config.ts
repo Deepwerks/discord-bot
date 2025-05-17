@@ -21,7 +21,7 @@ switch (running_env) {
       discord_client_id: process.env.DISCORD_CLIENT_ID!,
       mongodb_url: process.env.MONGODB_URL!,
       dev_guild_id: process.env.DEV_GUILD_ID!,
-      developer_user_ids: ["282548643142172672"],
+      developer_user_ids: ["282548643142172672"], //leave the first record for the lead dev
       port: Number(process.env.PORT!),
       steam_api_key: process.env.STEAM_API_KEY!,
       steam_api_url: process.env.STEAM_API_URL!,

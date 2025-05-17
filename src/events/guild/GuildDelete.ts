@@ -19,7 +19,7 @@ export default class GuildDelete extends Event {
       logger.info(`${this.client.user?.tag} has been removed from a Guild.`, {
         guildId: guild.id,
         guildName: guild.name,
-        ownerId: guild.ownerId,
+        guildOwnerId: guild.ownerId,
       });
     } catch (error) {
       logger.error(error);

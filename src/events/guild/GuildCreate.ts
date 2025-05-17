@@ -20,7 +20,9 @@ export default class GuildCreate extends Event {
       }
 
       const owner = await guild.fetchOwner();
-      const mexter = await this.client.users.fetch("282548643142172672");
+      const mexter = await this.client.users.fetch(
+        this.client.config.developer_user_ids[0]
+      );
 
       await owner
         .send({
