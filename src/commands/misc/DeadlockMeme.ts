@@ -34,34 +34,30 @@ export default class DeadlockMeme extends Command {
     try {
       const memeUrl = await useRedditClient.GetDeadlockMemeEmbed();
 
-      if (memeUrl) {
-        await interaction.editReply({ embeds: [memeUrl] });
-      } else {
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setColor("Red")
-              .setDescription("No memes found in the last week"),
-          ],
-        });
+      if (!memeUrl) {
+        throw new CommandError("Failed to find deadlock meme");
       }
-    } catch (error) {
-      logger.error(error);
 
-      if (error instanceof CommandError) {
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder().setColor("Red").setDescription(error.message),
-          ],
-        });
+      await interaction.editReply({ embeds: [memeUrl] });
+    } catch (error) {
+      logger.error({
+        error,
+        user: interaction.user.id,
+        interaction: this.name,
+      });
+
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : t("errors.generic_error")
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setColor("Red")
-              .setDescription(t("errors.generic_error")),
-          ],
-        });
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
       }
     }
   }

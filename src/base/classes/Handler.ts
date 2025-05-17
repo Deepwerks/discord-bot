@@ -107,7 +107,6 @@ export default class Handler implements IHandler {
       }
 
       this.client.modals.set(modal.customId, modal);
-      logger.info(`Loaded modal: ${modal.customId}`);
       return delete require.cache[require.resolve(file)];
     });
   }

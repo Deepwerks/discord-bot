@@ -3,9 +3,9 @@ import ButtonAction from "../base/classes/ButtonAction";
 import CustomClient from "../base/classes/CustomClient";
 import { logger } from "..";
 import PerformanceTagService from "../services/calculators/PerformanceTagService";
+import CommandError from "../base/errors/CommandError";
 
 export default class ShowPerformanceTagsButtonAction extends ButtonAction {
-  tags = PerformanceTagService.getAllTagDescriptions();
   constructor(client: CustomClient) {
     super(client, {
       customId: "show_performance_tags",
@@ -16,13 +16,15 @@ export default class ShowPerformanceTagsButtonAction extends ButtonAction {
 
   async Execute(interaction: ButtonInteraction) {
     try {
+      const tags = PerformanceTagService.getAllTagDescriptions();
+
       await interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setColor("Grey")
             .setTitle("Performance Tags")
             .setDescription(
-              this.tags
+              tags
                 .map(
                   (tag) =>
                     `\`${tag.name}\`\n ${tag.description}\n${tag.criteria}`
@@ -33,12 +35,26 @@ export default class ShowPerformanceTagsButtonAction extends ButtonAction {
         ],
         flags: ["Ephemeral"],
       });
-    } catch (err) {
-      logger.error(err);
-      await interaction.reply({
-        content: "❌ Failed to list tags.",
-        flags: ["Ephemeral"],
+    } catch (error) {
+      logger.error({
+        error,
+        user: interaction.user.id,
+        interaction: this.customId,
       });
+
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : "❌ Failed to load tags."
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
+      } else {
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+      }
     }
   }
 }

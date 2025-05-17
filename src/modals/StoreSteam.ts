@@ -61,18 +61,25 @@ export default class StoreSteam extends Modal {
         flags: ["Ephemeral"],
       });
     } catch (error) {
-      logger.error(error);
-
-      await interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor("Red")
-            .setDescription(
-              "❌ Couldn't resolve a valid SteamID3 from that input."
-            ),
-        ],
-        flags: ["Ephemeral"],
+      logger.error({
+        error,
+        user: interaction.user.id,
+        interaction: this.customId,
       });
+
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : "Failed to store steamID"
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
+      } else {
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+      }
     }
   }
 }

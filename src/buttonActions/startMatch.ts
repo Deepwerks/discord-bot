@@ -7,12 +7,14 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
+  EmbedBuilder,
 } from "discord.js";
 import ButtonAction from "../base/classes/ButtonAction";
 import CustomClient from "../base/classes/CustomClient";
 import { logger, useDeadlockClient } from "..";
 import dayjs from "dayjs";
 import { lobbyStore } from "../services/stores/LobbyStore";
+import CommandError from "../base/errors/CommandError";
 
 export default class StartMatchButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -28,29 +30,19 @@ export default class StartMatchButtonAction extends ButtonAction {
       const [_, creatorId] = interaction.customId.split(":");
 
       if (interaction.user.id !== creatorId) {
-        await interaction.reply({
-          content: "Only the party initiator can start the match!",
-          flags: ["Ephemeral"],
-        });
-        return;
+        throw new CommandError("Only the party initiator can start the match!");
       }
 
       const lobby = lobbyStore.getLobby(creatorId);
       if (!lobby) {
-        await interaction.reply({
-          content: "Lobby not found or expired.",
-          flags: ["Ephemeral"],
-        });
-        return;
+        throw new CommandError("Lobby not found or expired.");
       }
 
       const playerIds = lobby.players;
       if (playerIds.size < 1) {
-        await interaction.reply({
-          content: "You need at least one player to start a match!",
-          flags: ["Ephemeral"],
-        });
-        return;
+        throw new CommandError(
+          "You need at least one player to start a match!"
+        );
       }
 
       const timeStr = dayjs().format("HH:mm");
@@ -96,19 +88,11 @@ export default class StartMatchButtonAction extends ButtonAction {
 
       collector.on("collect", async (btnInteraction) => {
         if (!playerIds.has(btnInteraction.user.id)) {
-          await btnInteraction.reply({
-            content: "You're not a player in this match.",
-            flags: ["Ephemeral"],
-          });
-          return;
+          throw new CommandError("You're not a player in this match.");
         }
 
         if (readySet.has(btnInteraction.user.id)) {
-          await btnInteraction.reply({
-            content: "You're already marked as ready.",
-            flags: ["Ephemeral"],
-          });
-          return;
+          throw new CommandError("You're already marked as ready.");
         }
 
         readySet.add(btnInteraction.user.id);
@@ -179,16 +163,24 @@ export default class StartMatchButtonAction extends ButtonAction {
 
       await interaction.message.delete();
     } catch (error) {
-      logger.error(error);
-      if (interaction.deferred) {
-        await interaction.editReply({
-          content: "❌ Failed to start the match.",
-        });
+      logger.error({
+        error,
+        user: interaction.user.id,
+        interaction: this.customId,
+      });
+
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : "❌ Failed to start match"
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.reply({
-          content: "❌ Failed to start the match.",
-          flags: ["Ephemeral"],
-        });
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
       }
     }
   }

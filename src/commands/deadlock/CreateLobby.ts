@@ -20,7 +20,7 @@ export default class CreateLobby extends Command {
       category: Category.Deadlock,
       default_member_permissions:
         PermissionsBitField.Flags.UseApplicationCommands,
-      dm_permission: true,
+      dm_permission: false,
       cooldown: 10,
       dev: false,
       limitedServers: [

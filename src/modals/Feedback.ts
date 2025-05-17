@@ -51,16 +51,25 @@ export default class Feedback extends Modal {
         flags: ["Ephemeral"],
       });
     } catch (error) {
-      logger.error(error);
-
-      await interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor("Red")
-            .setDescription(t("errors.generic_error")),
-        ],
-        flags: ["Ephemeral"],
+      logger.error({
+        error,
+        user: interaction.user.id,
+        interaction: this.customId,
       });
+
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : t("errors.generic_error")
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
+      } else {
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+      }
     }
   }
 }

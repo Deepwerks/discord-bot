@@ -1,7 +1,8 @@
-import { ButtonInteraction } from "discord.js";
+import { ButtonInteraction, EmbedBuilder } from "discord.js";
 import ButtonAction from "../base/classes/ButtonAction";
 import CustomClient from "../base/classes/CustomClient";
 import { logger, useAssetsClient, useDeadlockClient } from "..";
+import CommandError from "../base/errors/CommandError";
 
 export default class ShowMatchPlayersButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -39,12 +40,26 @@ export default class ShowMatchPlayersButtonAction extends ButtonAction {
         content: `**Player IDs for match \`${matchId}\`:**\n\`\`\`${playerIds}\`\`\``,
         flags: ["Ephemeral"],
       });
-    } catch (err) {
-      logger.error("Failed to fetch players for button interaction:", err);
-      await interaction.reply({
-        content: "❌ Failed to fetch player IDs for this match.",
-        flags: ["Ephemeral"],
+    } catch (error) {
+      logger.error({
+        error,
+        user: interaction.user.id,
+        interaction: this.customId,
       });
+
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : "❌ Failed to fetch players."
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
+      } else {
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+      }
     }
   }
 }

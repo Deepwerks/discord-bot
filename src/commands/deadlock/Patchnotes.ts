@@ -111,11 +111,10 @@ export default class Patchnotes extends Command {
         components: [row],
       });
     } catch (error) {
-      console.log(JSON.stringify(error, null, 2));
       logger.error({
         error,
         user: interaction.user.id,
-        command: "performance",
+        interaction: this.name,
       });
 
       const errorEmbed = new EmbedBuilder()

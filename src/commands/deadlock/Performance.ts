@@ -236,7 +236,7 @@ export default class Performance extends Command {
       logger.error({
         error,
         user: interaction.user.id,
-        command: "performance",
+        interaction: this.name,
       });
 
       const errorEmbed = new EmbedBuilder()
@@ -244,7 +244,7 @@ export default class Performance extends Command {
         .setDescription(
           error instanceof CommandError
             ? error.message
-            : t("commands.match.fetch_failed")
+            : t("errors.generic_error")
         );
 
       if (interaction.deferred || interaction.replied) {

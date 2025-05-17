@@ -169,24 +169,24 @@ ${matchesString.join("\n")}
         });
       }
     } catch (error) {
-      logger.error(error);
+      logger.error({
+        error,
+        user: interaction.user.id,
+        interaction: this.name,
+      });
 
-      if (error instanceof CommandError) {
-        await interaction.reply({
-          embeds: [
-            new EmbedBuilder().setColor("Red").setDescription(error.message),
-          ],
-          flags: ["Ephemeral"],
-        });
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : t("errors.generic_error")
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setColor("Red")
-              .setDescription(t("commands.match.fetch_failed")),
-          ],
-          flags: ["Ephemeral"],
-        });
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
       }
     }
   }

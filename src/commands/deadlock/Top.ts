@@ -169,22 +169,24 @@ export default class Top extends Command {
         });
       }
     } catch (error) {
-      logger.error(error);
+      logger.error({
+        error,
+        user: interaction.user.id,
+        interaction: this.name,
+      });
 
-      if (error instanceof CommandError) {
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder().setColor("Red").setDescription(error.message),
-          ],
-        });
+      const errorEmbed = new EmbedBuilder()
+        .setColor("Red")
+        .setDescription(
+          error instanceof CommandError
+            ? error.message
+            : t("errors.generic_error")
+        );
+
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setColor("Red")
-              .setDescription(t("errors.generic_error")),
-          ],
-        });
+        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
       }
     }
   }
