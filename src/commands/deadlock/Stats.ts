@@ -3,6 +3,7 @@ import {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
   EmbedBuilder,
+  escapeMarkdown,
   PermissionsBitField,
 } from "discord.js";
 import Command from "../../base/classes/Command";
@@ -160,7 +161,7 @@ export default class Stats extends Command {
         .setThumbnail(
           heroName ? hero!.images.minimap_image : steamProfile.avatarUrl
         )
-        .setTitle(`${steamProfile.name}'s stats`)
+        .setTitle(`${escapeMarkdown(steamProfile.name)}'s stats`)
         .setURL(`https://statlocker.gg/profile/${steamProfile.accountId}`)
         .setDescription(description)
         .setTimestamp()

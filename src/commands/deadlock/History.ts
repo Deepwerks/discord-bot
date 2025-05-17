@@ -2,6 +2,7 @@ import {
   ApplicationCommandOptionType,
   ChatInputCommandInteraction,
   EmbedBuilder,
+  escapeMarkdown,
   PermissionsBitField,
 } from "discord.js";
 import Command from "../../base/classes/Command";
@@ -135,7 +136,7 @@ export default class History extends Command {
         "Detailed      ".padEnd(15);
 
       const response = `\`\`\`diff
-${steamProfile.name}'s last ${matches.length} matches:
+${escapeMarkdown(steamProfile.name)}'s last ${matches.length} matches:
 
 ${header}
 ${matchesString.join("\n")}
