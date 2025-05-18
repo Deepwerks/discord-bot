@@ -1,4 +1,4 @@
-export type DeadlockRegions =
+export type DeadlockRegion =
   | "Europe"
   | "Asia"
   | "NAmerica"

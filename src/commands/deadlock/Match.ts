@@ -15,6 +15,7 @@ import { TFunction } from "i18next";
 import { logger } from "../..";
 import CommandError from "../../base/errors/CommandError";
 import { handleMatchRequest } from "../../services/common/handleMatchRequest";
+import { deadlockAssetsDefaultCache } from "../../services/cache";
 
 export default class Match extends Command {
   constructor(client: CustomClient) {
