@@ -1,4 +1,5 @@
 import { logger } from "../../../..";
+import { DeadlockRegions } from "../../../../base/types/DeadlockRegions";
 import BaseClient from "../../BaseClient";
 import DeadlockLeaderboardEntry from "./entities/DeadlockLeaderboardEntry";
 
@@ -10,6 +11,7 @@ export default class DeadlockLeaderboardService {
   }
 
   async GetLeaderboard(
+    region: DeadlockRegions,
     accounts_ids?: number[]
   ): Promise<DeadlockLeaderboardEntry[]> {
     logger.info("[API CALL] Fetching leaderboard...");
@@ -17,7 +19,7 @@ export default class DeadlockLeaderboardService {
     const response = await this.client.request<{
       entries: DeadlockLeaderboardEntry[];
     }>("GET", "/v1/leaderboard/", undefined, {
-      region: "Europe",
+      region,
       accounts_ids,
     });
 
