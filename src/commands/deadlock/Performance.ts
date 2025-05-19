@@ -91,10 +91,11 @@ export default class Performance extends Command {
         matchHistoryLimit
       );
       if (matches.length === 0) {
-        await interaction.editReply(
-          `❌ No matches found for player ID ${steamProfile.accountId}.`
+        throw new CommandError(
+          t("commands.performance.no_matches_found", {
+            id: steamProfile.accountId,
+          })
         );
-        return;
       }
 
       const performanceService = new PerformanceTagService(matches);
@@ -143,25 +144,29 @@ export default class Performance extends Command {
 
       const embed = new EmbedBuilder()
         .setColor("#2f3136")
-        .setTitle(`📊 Player Performance Summary`)
+        .setTitle(t("commands.performance.title"))
         .setDescription(
-          `Recent match performance for [${escapeMarkdown(
-            steamProfile.name || "Player"
-          )}](https://statlocker.gg/profile/${steamProfile.accountId}) (last ${
-            matches.length
-          } matches)`
+          t("commands.performance.description", {
+            name: escapeMarkdown(steamProfile.name || "Player"),
+            id: steamProfile.accountId,
+            count: matches.length,
+          })
         )
         .setThumbnail(steamProfile.avatarUrl)
         .addFields(
-          { name: "🏷️ Tags", value: formatTags(tags), inline: false },
+          {
+            name: t("commands.performance.tags_label"),
+            value: formatTags(tags),
+            inline: false,
+          },
           { name: "\u200b", value: "\u200b", inline: false },
           {
-            name: "🏆 Win Rate",
+            name: t("commands.performance.win_rate"),
             value: `${winRate.toFixed(1)}%`,
             inline: true,
           },
           {
-            name: "⚔️ Avg K/D/A",
+            name: t("commands.performance.avg_kda"),
             value: `${avgKills.toFixed(1)} / ${avgDeaths.toFixed(
               1
             )} / ${avgAssists.toFixed(1)}`,
@@ -169,37 +174,41 @@ export default class Performance extends Command {
           },
           { name: "\u200b", value: "\u200b", inline: false },
           {
-            name: "💰 Avg Net Worth",
+            name: t("commands.performance.avg_net_worth"),
             value: `${Math.round(avg("net_worth"))}`,
             inline: true,
           },
           {
-            name: "🕒 Avg Match Duration",
+            name: t("commands.performance.avg_match_duration"),
             value: `${durationMin}m ${durationSec}s`,
             inline: true,
           },
           { name: "\u200b", value: "\u200b", inline: false },
           {
-            name: "🧟 Best KDA Match",
+            name: t("commands.performance.best_kda"),
             value: `${bestMatch.player_kills} / ${bestMatch.player_deaths} / ${
               bestMatch.player_assists
             }\nMatch ID: ${bestMatch.match_id}\n${
               bestMatchIndex === 0
-                ? "Latest Match"
-                : `${bestMatchIndex + 1} matches ago`
+                ? t("commands.performance.latest_match")
+                : t("commands.performance.matches_ago", {
+                    count: bestMatchIndex + 1,
+                  })
             }`,
             inline: true,
           },
           {
-            name: "💀 Worst KDA Match",
+            name: t("commands.performance.worst_kda"),
             value: `${worstMatch.player_kills} / ${
               worstMatch.player_deaths
             } / ${worstMatch.player_assists}\nMatch ID: ${
               worstMatch.match_id
             }\n${
               worstMatchIndex === 0
-                ? "Latest Match"
-                : `${worstMatchIndex + 1} matches ago`
+                ? t("commands.performance.latest_match")
+                : t("commands.performance.matches_ago", {
+                    count: worstMatchIndex + 1,
+                  })
             }`,
             inline: true,
           }
@@ -208,7 +217,7 @@ export default class Performance extends Command {
         .setTimestamp();
 
       const showTagsButton = new ButtonBuilder()
-        .setLabel("Show Tag Descriptions")
+        .setLabel(t("commands.performance.show_tag_descriptions"))
         .setStyle(ButtonStyle.Primary)
         .setCustomId("show_performance_tags")
         .setEmoji("🏷️");
@@ -222,12 +231,9 @@ export default class Performance extends Command {
       if (steamAuthNeeded) {
         const embed = new EmbedBuilder()
           .setColor(0xffa500)
-          .setTitle("⚠️ Steam Authentication Required")
+          .setTitle(t("commands.performance.steam_auth_required_title"))
           .setDescription(
-            "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\n" +
-              "This method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, " +
-              "please re-link your account using the `/store` command.\n\n" +
-              "Thank you for your understanding!"
+            t("commands.performance.steam_auth_required_description")
           );
 
         await interaction.followUp({

@@ -155,14 +155,14 @@ ${matchesString.join("\n")}
       \`\`\``;
 
       const linkButton = new ButtonBuilder()
-        .setLabel("View on Statlocker")
+        .setLabel(t("commands.history.view_on_statlocker"))
         .setStyle(ButtonStyle.Link)
         .setURL(`https://statlocker.gg/profile/${steamProfile.accountId}`)
         .setEmoji("1367520315244023868");
 
       const selectMatchButton = new StringSelectMenuBuilder()
         .setCustomId(`get_match_details`)
-        .setPlaceholder("Match Details")
+        .setPlaceholder(t("commands.history.match_details_placeholder"))
         .addOptions(
           matches.map((match) => {
             const heroName = heroMap[match.hero_id];
@@ -197,12 +197,9 @@ ${matchesString.join("\n")}
       if (steamAuthNeeded) {
         const embed = new EmbedBuilder()
           .setColor(0xffa500)
-          .setTitle("⚠️ Steam Authentication Required")
+          .setTitle(t("commands.history.steam_auth_required_title"))
           .setDescription(
-            "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\n" +
-              "This method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, " +
-              "please re-link your account using the `/store` command.\n\n" +
-              "Thank you for your understanding!"
+            t("commands.history.steam_auth_required_description")
           );
 
         await interaction.followUp({

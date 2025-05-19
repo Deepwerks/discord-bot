@@ -10,6 +10,7 @@ import CustomClient from "../base/classes/CustomClient";
 import { paginationStore } from "../services/stores/PaginationStore";
 import CommandError from "../base/errors/CommandError";
 import { logger } from "..";
+import { TFunction } from "i18next";
 
 export default class PaginationButtonPressed extends ButtonAction {
   constructor(client: CustomClient) {
@@ -20,13 +21,16 @@ export default class PaginationButtonPressed extends ButtonAction {
     });
   }
 
-  async Execute(interaction: ButtonInteraction) {
+  async Execute(
+    interaction: ButtonInteraction,
+    t: TFunction<"translation", undefined>
+  ) {
     try {
       const [_, direction, sessionId] = interaction.customId.split(":");
 
       const session = paginationStore.get(sessionId);
       if (!session || session.userId !== interaction.user.id) {
-        throw new CommandError("This session has expired or isn't yours.");
+        throw new CommandError(t("buttons.pagination.session_invalid"));
       }
 
       const totalPages = session.data.length;
@@ -45,13 +49,13 @@ export default class PaginationButtonPressed extends ButtonAction {
 
       const backButton = new ButtonBuilder()
         .setCustomId(`pagination:back:${sessionId}`)
-        .setLabel("◀ Back")
+        .setLabel(t("buttons.pagination.back"))
         .setStyle(ButtonStyle.Primary)
         .setDisabled(session.page === 0);
 
       const nextButton = new ButtonBuilder()
         .setCustomId(`pagination:next:${sessionId}`)
-        .setLabel("Next ▶")
+        .setLabel(t("buttons.pagination.next"))
         .setStyle(ButtonStyle.Primary)
         .setDisabled(session.page >= totalPages - 1);
 
@@ -76,7 +80,7 @@ export default class PaginationButtonPressed extends ButtonAction {
         .setDescription(
           error instanceof CommandError
             ? error.message
-            : "❌ Failed to load next page."
+            : t("buttons.pagination.error_generic")
         );
 
       if (interaction.deferred || interaction.replied) {

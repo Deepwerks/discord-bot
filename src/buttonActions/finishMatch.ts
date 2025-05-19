@@ -12,6 +12,7 @@ import { logger, useDeadlockClient, useStatlockerClient } from "..";
 import { generateMatchImage } from "../services/utils/generateMatchImage";
 import { lobbyStore } from "../services/stores/LobbyStore";
 import CommandError from "../base/errors/CommandError";
+import { TFunction } from "i18next";
 
 export default class FinishMatchButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -22,7 +23,10 @@ export default class FinishMatchButtonAction extends ButtonAction {
     });
   }
 
-  async Execute(interaction: ButtonInteraction) {
+  async Execute(
+    interaction: ButtonInteraction,
+    t: TFunction<"translation", undefined>
+  ) {
     try {
       await interaction.deferReply();
       const [_, creatorId] = interaction.customId.split(":");
@@ -33,7 +37,7 @@ export default class FinishMatchButtonAction extends ButtonAction {
       const partyId = lobbyStore.getPartyId(creatorId);
 
       if (!partyId) {
-        throw new CommandError("Failed to find party ID in message content");
+        throw new CommandError(t("buttons.finish_match.no_party_id"));
       }
 
       const matchId =
@@ -76,7 +80,7 @@ export default class FinishMatchButtonAction extends ButtonAction {
       };
 
       const linkButton = new ButtonBuilder()
-        .setLabel("View on Statlocker")
+        .setLabel(t("buttons.finish_match.statlocker_link"))
         .setStyle(ButtonStyle.Link)
         .setURL(`https://statlocker.gg/match/${match.match_id}`)
         .setEmoji("1367520315244023868");
@@ -99,7 +103,7 @@ export default class FinishMatchButtonAction extends ButtonAction {
             .setColor("Blue")
             .setTimestamp()
             .setFooter({
-              text: `Generated in ${duration}ms`,
+              text: t("buttons.finish_match.footer_duration", { duration }),
             }),
         ],
         files: [attachment],
@@ -117,7 +121,7 @@ export default class FinishMatchButtonAction extends ButtonAction {
         .setDescription(
           error instanceof CommandError
             ? error.message
-            : "❌ Failed to process the finish match action. Please try again later."
+            : t("buttons.finish_match.error_generic")
         );
 
       if (interaction.deferred || interaction.replied) {

@@ -4,6 +4,7 @@ import CustomClient from "../base/classes/CustomClient";
 import { logger } from "..";
 import { lobbyStore } from "../services/stores/LobbyStore";
 import CommandError from "../base/errors/CommandError";
+import { TFunction } from "i18next";
 export default class CloseThreadButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
     super(client, {
@@ -13,14 +14,15 @@ export default class CloseThreadButtonAction extends ButtonAction {
     });
   }
 
-  async Execute(interaction: ButtonInteraction) {
+  async Execute(
+    interaction: ButtonInteraction,
+    t: TFunction<"translation", undefined>
+  ) {
     try {
       const [action, threadId, creatorId] = interaction.customId.split(":");
 
       if (interaction.user.id !== creatorId) {
-        throw new CommandError(
-          "Only the party initiator can close this thread!"
-        );
+        throw new CommandError(t("buttons.close_thread.not_creator"));
       }
 
       const channel = await this.client.channels.fetch(threadId);
@@ -28,7 +30,7 @@ export default class CloseThreadButtonAction extends ButtonAction {
       if (channel?.isThread()) {
         const thread = channel as ThreadChannel;
 
-        await thread.send({ content: "Archiving thread..." });
+        await thread.send({ content: t("buttons.close_thread.archiving") });
 
         lobbyStore.removeLobby(creatorId);
 
@@ -36,7 +38,7 @@ export default class CloseThreadButtonAction extends ButtonAction {
         return;
       } else {
         await interaction.reply({
-          content: "Failed to archive thread.",
+          content: t("buttons.close_thread.archive_failed"),
           flags: ["Ephemeral"],
         });
       }
@@ -52,7 +54,7 @@ export default class CloseThreadButtonAction extends ButtonAction {
         .setDescription(
           error instanceof CommandError
             ? error.message
-            : "Failed to close thread."
+            : t("buttons.close_thread.error_generic")
         );
 
       if (interaction.deferred || interaction.replied) {

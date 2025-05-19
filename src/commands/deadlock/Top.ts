@@ -156,13 +156,8 @@ export default class Top extends Command {
       if (steamAuthNeeded) {
         const embed = new EmbedBuilder()
           .setColor(0xffa500)
-          .setTitle("⚠️ Steam Authentication Required")
-          .setDescription(
-            "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\n" +
-              "This method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, " +
-              "please re-link your account using the `/store` command.\n\n" +
-              "Thank you for your understanding!"
-          );
+          .setTitle(t("commands.top.steam_auth_required_title"))
+          .setDescription(t("commands.top.steam_auth_required_description"));
 
         await interaction.followUp({
           embeds: [embed],

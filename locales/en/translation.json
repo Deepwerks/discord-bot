@@ -12,14 +12,54 @@
       "fail": "Failed to emit event"
     },
     "history": {
-      "not_valid_steamid": "❌ Invalid Steam ID. Please provide either SteamID, SteamID3, or SteamID64."
+      "view_on_statlocker": "🔗 View on Statlocker",
+      "match_details_placeholder": "📊 Match Details",
+      "steam_auth_required_title": "⚠️ Steam Authentication Required",
+      "steam_auth_required_description": "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\nThis method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, please re-link your account using the `/store` command.\n\nThank you for your understanding!"
     },
     "match": {
-      "fail": "❌ Something went wrong...",
-      "fetch_failed": "Failed to fetch match details. The match ID might be invalid or the server is down."
+      "view_on_statlocker": "🔗 View on Statlocker",
+      "show_players": "👥 Show Players",
+      "steam_auth_required_title": "⚠️ Steam Authentication Required",
+      "steam_auth_required_description": "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\nThis method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, please re-link your account using the `/store` command.\n\nThank you for your understanding!",
+      "generated_in": "Generated in {{duration}}ms"
     },
     "store": {
-      "success": "You have successfully linked your Steam account: {{name}} ({{id}})"
+      "success": "You have successfully linked your Steam account: {{name}} ({{id}})",
+      "title": "🔗 Steam Account Authentication",
+      "description": "To enable the `me` shortcut in certain commands, we require you to authenticate your Steam account.\n\nWe only retain your **SteamID64**, which is used solely for account association within our system. No additional data is accessed or stored, and the authentication process does not grant us any control over your Steam account.\n\nFor more information, please review our [Privacy Policy](https://docs.google.com/document/d/1AwofbGUpWC0pmRcok1N99hja5_-lzzKOVWf0cmO1kb0/edit?usp=sharing).",
+      "button": "Link my steam accout"
+    },
+    "evolution": {
+      "no_results": "❌ No changes found for '{{search}}'.",
+      "embed_title": "📜 Past changes mentioning \"{{search}}\"",
+      "no_details": "*No specific details available.*",
+      "footer_page": "📄 Page {{current}} of {{total}}"
+    },
+    "performance": {
+      "title": "📊 Player Performance Summary",
+      "description": "Recent match performance for [{{name}}](https://statlocker.gg/profile/{{id}}) (last {{count}} matches)",
+      "tags_label": "🏷️ Tags",
+      "win_rate": "🏆 Win Rate",
+      "avg_kda": "⚔️ Avg K/D/A",
+      "avg_net_worth": "💰 Avg Net Worth",
+      "avg_match_duration": "🕒 Avg Match Duration",
+      "best_kda": "🧟 Best KDA Match",
+      "worst_kda": "💀 Worst KDA Match",
+      "latest_match": "Latest Match",
+      "matches_ago": "{{count}} matches ago",
+      "show_tag_descriptions": "Show Tag Descriptions",
+      "steam_auth_required_title": "⚠️ Steam Authentication Required",
+      "steam_auth_required_description": "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\nThis method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, please re-link your account using the `/store` command.\n\nThank you for your understanding!",
+      "no_matches_found": "❌ No matches found for player ID {{id}}."
+    },
+    "stats": {
+      "steam_auth_required_title": "⚠️ Steam Authentication Required",
+      "steam_auth_required_description": "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\nThis method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, please re-link your account using the `/store` command.\n\nThank you for your understanding!"
+    },
+    "top": {
+      "steam_auth_required_title": "⚠️ Steam Authentication Required",
+      "steam_auth_required_description": "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\nThis method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, please re-link your account using the `/store` command.\n\nThank you for your understanding!"
     }
   },
   "warnings": {
@@ -34,5 +74,57 @@
     "get_steam_id_type_failed": "❌ Could not detemine steam id type",
     "field_empty": "❌ The {{field}} field cannot be empty!",
     "steam_profile_not_found": "❌ Steam profile not found!"
+  },
+  "buttons": {
+    "close_thread": {
+      "not_creator": "❌ Only the player who started this lobby can close the thread.",
+      "archiving": "📁 Archiving this thread...",
+      "archive_failed": "❌ Couldn't archive this channel. Is it a thread?",
+      "error_generic": "❌ Something went wrong while closing the thread."
+    },
+    "finish_match": {
+      "no_party_id": "❌ Couldn't find an active lobby for this match.",
+      "statlocker_link": "🔎 View full match on Statlocker",
+      "footer_duration": "🧮 Stats generated in {{duration}}ms",
+      "error_generic": "❌ Something went wrong while processing the match. Please try again."
+    },
+    "join_party": {
+      "invalid_id": "❌ Internal error. Please try again later.",
+      "lobby_not_found": "❌ This lobby no longer exists or has expired.",
+      "already_joined": "⚠️ You're already part of this lobby.",
+      "lobby_full": "🚫 This lobby is full ({{current}}/{{max}} players).",
+      "success": "✅ You've successfully joined the lobby!",
+      "error_generic": "❌ Couldn't join the lobby. Please try again later.",
+      "list_players_title": "Players (({{current}}/{{max}})"
+    },
+    "pagination": {
+      "session_invalid": "❌ This pagination session is no longer valid or doesn't belong to you.",
+      "error_generic": "❌ Couldn't load this page. Please try again later.",
+      "next": "Next ▶",
+      "back": "◀ Back"
+    },
+    "show_players": {
+      "error_generic": "❌ Couldn't fetch players for this match. Try again later.",
+      "title": "**Player IDs for match `{{matchId}}`:**\n```{{playerIds}}```"
+    },
+    "show_performance_tags": {
+      "title": "📊 Performance Tags",
+      "disclaimer": "⚠️ These tags are **experimental** and may not fully reflect player skill. Logic is simplified and based on limited data.",
+      "error_generic": "❌ Couldn't load performance tags. Please try again later."
+    },
+    "start_match": {
+      "only_creator_can_start": "Only the party initiator can start the match!",
+      "lobby_not_found": "Lobby not found or expired.",
+      "not_enough_players": "You need at least one player to start a match!",
+      "not_a_player": "You're not a player in this match.",
+      "already_ready": "You're already marked as ready.",
+      "marked_ready": "You are marked as ready! ✅",
+      "all_ready": "✅ All players are ready!\n\n**Party ID:** `{{party_id}}`\n**Party Code:** `{{party_code}}`\nGLHF!",
+      "match_creation_failed": "❌ Failed to create match after all players were ready. Start a new lobby!",
+      "not_all_ready": "❌ Not all players were ready in time. Archiving thread...",
+      "start_failed": "❌ Failed to start match",
+      "ready_check": "# ✅ Ready Check\nClick the button below to mark yourself as ready. Check in will close {{relativeTs}}.\n\n**Ready:** {{readyList}}\n**Not Ready:** {{notReadyList}}",
+      "player_ready_label": "✅ I'm Ready"
+    }
   }
 }

@@ -15,6 +15,8 @@ import { logger, useDeadlockClient } from "..";
 import dayjs from "dayjs";
 import { lobbyStore } from "../services/stores/LobbyStore";
 import CommandError from "../base/errors/CommandError";
+import { TFunction } from "i18next";
+import i18n from "../services/i18n";
 
 export default class StartMatchButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -25,24 +27,25 @@ export default class StartMatchButtonAction extends ButtonAction {
     });
   }
 
-  async Execute(interaction: ButtonInteraction) {
+  async Execute(
+    interaction: ButtonInteraction,
+    t: TFunction<"translation", undefined>
+  ) {
     try {
       const [_, creatorId] = interaction.customId.split(":");
 
       if (interaction.user.id !== creatorId) {
-        throw new CommandError("Only the party initiator can start the match!");
+        throw new CommandError(t("buttons.start_match.only_creator_can_start"));
       }
 
       const lobby = lobbyStore.getLobby(creatorId);
       if (!lobby) {
-        throw new CommandError("Lobby not found or expired.");
+        throw new CommandError(t("buttons.start_match.lobby_not_found"));
       }
 
       const playerIds = lobby.players;
       if (playerIds.size < 1) {
-        throw new CommandError(
-          "You need at least one player to start a match!"
-        );
+        throw new CommandError(t("buttons.start_match.not_enough_players"));
       }
 
       const timeStr = dayjs().format("HH:mm");
@@ -68,7 +71,7 @@ export default class StartMatchButtonAction extends ButtonAction {
 
       const readyButton = new ButtonBuilder()
         .setCustomId("ready_up")
-        .setLabel("✅ I'm Ready")
+        .setLabel(t("buttons.start_match.player_ready_label"))
         .setStyle(ButtonStyle.Success);
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -77,7 +80,12 @@ export default class StartMatchButtonAction extends ButtonAction {
 
       const readySet = new Set<string>();
       const statusMessage = await thread.send({
-        content: buildReadyMessage(Array.from(playerIds), readySet, relativeTs),
+        content: buildReadyMessage(
+          t,
+          Array.from(playerIds),
+          readySet,
+          relativeTs
+        ),
         components: [row],
       });
 
@@ -88,21 +96,22 @@ export default class StartMatchButtonAction extends ButtonAction {
 
       collector.on("collect", async (btnInteraction) => {
         if (!playerIds.has(btnInteraction.user.id)) {
-          throw new CommandError("You're not a player in this match.");
+          throw new CommandError(t("buttons.start_match.not_a_player"));
         }
 
         if (readySet.has(btnInteraction.user.id)) {
-          throw new CommandError("You're already marked as ready.");
+          throw new CommandError(t("buttons.start_match.already_ready"));
         }
 
         readySet.add(btnInteraction.user.id);
         await btnInteraction.reply({
-          content: "You are marked as ready! ✅",
+          content: t("buttons.start_match.marked_ready"),
           flags: ["Ephemeral"],
         });
 
         await statusMessage.edit({
           content: buildReadyMessage(
+            t,
             Array.from(playerIds),
             readySet,
             relativeTs
@@ -141,21 +150,20 @@ export default class StartMatchButtonAction extends ButtonAction {
             );
 
             await statusMessage.edit({
-              content: `✅ All players are ready!\n\n**Party ID:** \`${match.party_id}\`\n**Party Code:** \`${match.party_code}\`\nGLHF!`,
+              content: t("buttons.start_match.all_ready", {
+                party_id: match.party_id,
+                party_code: match.party_code,
+              }),
               components: [row],
             });
           } catch (err) {
             logger.error("Match creation failed:", err);
-            await thread.send(
-              "❌ Failed to create match after all players were ready. Start a new lobby!"
-            );
+            await thread.send(t("buttons.start_match.match_creation_failed"));
             await thread.setArchived(true);
             lobbyStore.removeLobby(creatorId);
           }
         } else {
-          await thread.send(
-            "❌ Not all players were ready in time. Archiving thread..."
-          );
+          await thread.send(t("buttons.start_match.not_all_ready"));
           await thread.setArchived(true);
           lobbyStore.removeLobby(creatorId);
         }
@@ -174,7 +182,7 @@ export default class StartMatchButtonAction extends ButtonAction {
         .setDescription(
           error instanceof CommandError
             ? error.message
-            : "❌ Failed to start match"
+            : t("buttons.start_match.start_failed")
         );
 
       if (interaction.deferred || interaction.replied) {
@@ -187,18 +195,26 @@ export default class StartMatchButtonAction extends ButtonAction {
 }
 
 function buildReadyMessage(
+  t: ReturnType<typeof i18n.getFixedT>,
   playerIds: string[],
   readySet: Set<string>,
   relativeTs: string
 ): string {
-  const readyList = playerIds
-    .filter((id) => readySet.has(id))
-    .map((id) => `<@${id}>`);
-  const notReadyList = playerIds
-    .filter((id) => !readySet.has(id))
-    .map((id) => `<@${id}>`);
+  const readyList =
+    playerIds
+      .filter((id) => readySet.has(id))
+      .map((id) => `<@${id}>`)
+      .join(", ") || "None";
 
-  return `# ✅ Ready Check\nClick the button below to mark yourself as ready. Check in will close ${relativeTs}.\n\n**Ready:** ${
-    readyList.join(", ") || "None"
-  }\n**Not Ready:** ${notReadyList.join(", ") || "None"}`;
+  const notReadyList =
+    playerIds
+      .filter((id) => !readySet.has(id))
+      .map((id) => `<@${id}>`)
+      .join(", ") || "None";
+
+  return t("buttons.start_match.ready_check", {
+    relativeTs,
+    readyList,
+    notReadyList,
+  });
 }
