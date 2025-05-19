@@ -86,13 +86,13 @@ export default class Match extends Command {
       const match = matchData.match;
 
       const linkButton = new ButtonBuilder()
-        .setLabel("View on Statlocker")
+        .setLabel(t("commands.match.view_on_statlocker"))
         .setStyle(ButtonStyle.Link)
         .setURL(`https://statlocker.gg/match/${match.match_id}`)
         .setEmoji("1367520315244023868");
 
       const showPlayersButton = new ButtonBuilder()
-        .setLabel("Show Players")
+        .setLabel(t("commands.match.show_players"))
         .setStyle(ButtonStyle.Primary)
         .setCustomId("show_players:" + match.match_id)
         .setEmoji("👥");
@@ -114,7 +114,9 @@ export default class Match extends Command {
           new EmbedBuilder()
             .setColor("Blue")
             .setTimestamp()
-            .setFooter({ text: `Generated in ${duration}ms` }),
+            .setFooter({
+              text: t("commands.match.generated_in", { duration }),
+            }),
         ],
         files: [attachment],
         components: [row],
@@ -123,13 +125,8 @@ export default class Match extends Command {
       if (steamAuthNeeded) {
         const embed = new EmbedBuilder()
           .setColor(0xffa500)
-          .setTitle("⚠️ Steam Authentication Required")
-          .setDescription(
-            "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\n" +
-              "This method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, " +
-              "please re-link your account using the `/store` command.\n\n" +
-              "Thank you for your understanding!"
-          );
+          .setTitle(t("commands.match.steam_auth_required_title"))
+          .setDescription(t("commands.match.steam_auth_required_description"));
 
         await interaction.followUp({
           embeds: [embed],

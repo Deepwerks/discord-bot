@@ -40,7 +40,7 @@ export default class Store extends Command {
     }/auth/steam?token=${encodeURIComponent(token)}`;
 
     const linkButton = new ButtonBuilder()
-      .setLabel("Link my steam account")
+      .setLabel(t("commands.store.button"))
       .setStyle(ButtonStyle.Link)
       .setURL(url);
 
@@ -48,12 +48,8 @@ export default class Store extends Command {
 
     const embed = new EmbedBuilder()
       .setColor(0x1b2838)
-      .setTitle("🔗 Steam Account Authentication")
-      .setDescription(
-        "To enable the `me` shortcut in certain commands, we require you to authenticate your Steam account.\n\n" +
-          "We only retain your **SteamID64**, which is used solely for account association within our system. No additional data is accessed or stored, and the authentication process does not grant us any control over your Steam account.\n\n" +
-          "For more information, please review our [Privacy Policy](https://docs.google.com/document/d/1AwofbGUpWC0pmRcok1N99hja5_-lzzKOVWf0cmO1kb0/edit?usp=sharing)."
-      );
+      .setTitle(t("commands.store.title"))
+      .setDescription(t("commands.store.description"));
 
     await interaction.reply({
       embeds: [embed],

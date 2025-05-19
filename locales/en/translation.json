@@ -12,14 +12,54 @@
       "fail": "Failed to emit event"
     },
     "history": {
-      "not_valid_steamid": "❌ Invalid Steam ID. Please provide either SteamID, SteamID3, or SteamID64."
+      "view_on_statlocker": "🔗 View on Statlocker",
+      "match_details_placeholder": "📊 Match Details",
+      "steam_auth_required_title": "⚠️ Steam Authentication Required",
+      "steam_auth_required_description": "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\nThis method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, please re-link your account using the `/store` command.\n\nThank you for your understanding!"
     },
     "match": {
-      "fail": "❌ Something went wrong...",
-      "fetch_failed": "Failed to fetch match details. The match ID might be invalid or the server is down."
+      "view_on_statlocker": "🔗 View on Statlocker",
+      "show_players": "👥 Show Players",
+      "steam_auth_required_title": "⚠️ Steam Authentication Required",
+      "steam_auth_required_description": "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\nThis method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, please re-link your account using the `/store` command.\n\nThank you for your understanding!",
+      "generated_in": "Generated in {{duration}}ms"
     },
     "store": {
-      "success": "You have successfully linked your Steam account: {{name}} ({{id}})"
+      "success": "You have successfully linked your Steam account: {{name}} ({{id}})",
+      "title": "🔗 Steam Account Authentication",
+      "description": "To enable the `me` shortcut in certain commands, we require you to authenticate your Steam account.\n\nWe only retain your **SteamID64**, which is used solely for account association within our system. No additional data is accessed or stored, and the authentication process does not grant us any control over your Steam account.\n\nFor more information, please review our [Privacy Policy](https://docs.google.com/document/d/1AwofbGUpWC0pmRcok1N99hja5_-lzzKOVWf0cmO1kb0/edit?usp=sharing).",
+      "button": "Link my steam accout"
+    },
+    "evolution": {
+      "no_results": "❌ No changes found for '{{search}}'.",
+      "embed_title": "📜 Past changes mentioning \"{{search}}\"",
+      "no_details": "*No specific details available.*",
+      "footer_page": "📄 Page {{current}} of {{total}}"
+    },
+    "performance": {
+      "title": "📊 Player Performance Summary",
+      "description": "Recent match performance for [{{name}}](https://statlocker.gg/profile/{{id}}) (last {{count}} matches)",
+      "tags_label": "🏷️ Tags",
+      "win_rate": "🏆 Win Rate",
+      "avg_kda": "⚔️ Avg K/D/A",
+      "avg_net_worth": "💰 Avg Net Worth",
+      "avg_match_duration": "🕒 Avg Match Duration",
+      "best_kda": "🧟 Best KDA Match",
+      "worst_kda": "💀 Worst KDA Match",
+      "latest_match": "Latest Match",
+      "matches_ago": "{{count}} matches ago",
+      "show_tag_descriptions": "Show Tag Descriptions",
+      "steam_auth_required_title": "⚠️ Steam Authentication Required",
+      "steam_auth_required_description": "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\nThis method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, please re-link your account using the `/store` command.\n\nThank you for your understanding!",
+      "no_matches_found": "❌ No matches found for player ID {{id}}."
+    },
+    "stats": {
+      "steam_auth_required_title": "⚠️ Steam Authentication Required",
+      "steam_auth_required_description": "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\nThis method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, please re-link your account using the `/store` command.\n\nThank you for your understanding!"
+    },
+    "top": {
+      "steam_auth_required_title": "⚠️ Steam Authentication Required",
+      "steam_auth_required_description": "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\nThis method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, please re-link your account using the `/store` command.\n\nThank you for your understanding!"
     }
   },
   "warnings": {

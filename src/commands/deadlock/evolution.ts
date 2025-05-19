@@ -15,6 +15,7 @@ import PatchnoteSchema, {
   IPatchnote,
 } from "../../base/schemas/PatchnoteSchema";
 import { createPaginationSession } from "../../services/utils/createPagination";
+import i18n from "../../services/i18n";
 
 type PatchChange = {
   patchTitle: string;
@@ -59,7 +60,9 @@ export default class Evolution extends Command {
       const results = await findMentionsInPatchnotes(search);
 
       if (results.length === 0) {
-        await interaction.editReply(`No changes found for '${search}'.`);
+        await interaction.editReply(
+          t("commands.evolution.no_results", { search })
+        );
         return;
       }
 
@@ -71,7 +74,7 @@ export default class Evolution extends Command {
         page: 0,
         perPage: 1,
         generateEmbed: (entry: PatchChange, page: number, total: number) =>
-          createEmbedPage(entry, page, total, search),
+          createEmbedPage(t, entry, page, total, search),
       };
 
       const paginatedResponse = createPaginationSession(sessionId, context);
@@ -103,13 +106,14 @@ export default class Evolution extends Command {
 }
 
 function createEmbedPage(
+  t: ReturnType<typeof i18n.getFixedT>,
   result: PatchChange,
   index: number,
   total: number,
   search: string
 ): EmbedBuilder {
   return new EmbedBuilder()
-    .setTitle(`Previous changes referencing "${search}"`)
+    .setTitle(t("commands.evolution.embed_title", { search }))
     .setDescription(`[${result.patchTitle}](${result.url})`)
     .addFields({
       name: "Changes",
@@ -117,9 +121,11 @@ function createEmbedPage(
         result.matchedChanges
           .map((c) => `- ${c}`)
           .join("\n")
-          .slice(0, 1024) || "*No details*",
+          .slice(0, 1024) || t("commands.evolution.no_details"),
     })
-    .setFooter({ text: `Page ${index + 1} of ${total}` })
+    .setFooter({
+      text: t("commands.evolution.footer_page", { current: index + 1, total }),
+    })
     .setTimestamp(result.date)
     .setColor(0x2ecc71);
 }
