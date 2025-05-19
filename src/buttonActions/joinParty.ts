@@ -4,6 +4,7 @@ import CustomClient from "../base/classes/CustomClient";
 import { logger } from "..";
 import { lobbyStore } from "../services/stores/LobbyStore";
 import CommandError from "../base/errors/CommandError";
+import { TFunction } from "i18next";
 
 export default class JoinPartyButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -14,31 +15,37 @@ export default class JoinPartyButtonAction extends ButtonAction {
     });
   }
 
-  async Execute(interaction: ButtonInteraction) {
+  async Execute(
+    interaction: ButtonInteraction,
+    t: TFunction<"translation", undefined>
+  ) {
     try {
       const parts = interaction.customId.split(":");
       if (parts.length < 4) {
-        throw new CommandError("Unexpected error: Invalid button ID format.");
+        throw new CommandError(t("buttons.join_party.invalid_id"));
       }
 
       const [_, creatorId, maxPlayersRaw, lobbyId] = parts;
       const lobby = lobbyStore.getLobby(lobbyId);
 
       if (!lobby) {
-        throw new CommandError("❌ Lobby not found.");
+        throw new CommandError(t("buttons.join_party.lobby_not_found"));
       }
 
       const userId = interaction.user.id;
 
       // Already in lobby?
       if (lobby.players.has(userId)) {
-        throw new CommandError("You are already in this party!");
+        throw new CommandError(t("buttons.join_party.already_joined"));
       }
 
       // Lobby full?
       if (lobby.players.size >= lobby.maxPlayers) {
         throw new CommandError(
-          `This lobby is full (${lobby.players.size}/${lobby.maxPlayers} players)`
+          t("buttons.join_party.lobby_full", {
+            current: lobby.players.size,
+            max: lobby.maxPlayers,
+          })
         );
       }
 
@@ -50,7 +57,10 @@ export default class JoinPartyButtonAction extends ButtonAction {
         .setTitle(lobby.name)
         .addFields([
           {
-            name: `Players (${lobby.players.size}/${lobby.maxPlayers})`,
+            name: t("buttons.join_party.list_players_title", {
+              current: lobby.players.size,
+              max: lobby.maxPlayers,
+            }),
             value: Array.from(lobby.players)
               .map((id) => `<@${id}>`)
               .join("\n"),
@@ -64,10 +74,12 @@ export default class JoinPartyButtonAction extends ButtonAction {
 
       // Send ephemeral confirmation
       if (interaction.replied || interaction.deferred) {
-        await interaction.editReply({ content: "You've joined the party!" });
+        await interaction.editReply({
+          content: t("buttons.join_party.success"),
+        });
       } else {
         await interaction.reply({
-          content: "You've joined the party!",
+          content: t("buttons.join_party.success"),
           flags: ["Ephemeral"],
         });
       }
@@ -83,7 +95,7 @@ export default class JoinPartyButtonAction extends ButtonAction {
         .setDescription(
           error instanceof CommandError
             ? error.message
-            : "❌ Failed to join the party. Please try again later!"
+            : t("buttons.join_party.error_generic")
         );
 
       if (interaction.deferred || interaction.replied) {

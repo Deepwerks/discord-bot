@@ -3,6 +3,7 @@ import ButtonAction from "../base/classes/ButtonAction";
 import CustomClient from "../base/classes/CustomClient";
 import { logger, useAssetsClient, useDeadlockClient } from "..";
 import CommandError from "../base/errors/CommandError";
+import { TFunction } from "i18next";
 
 export default class ShowMatchPlayersButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -13,7 +14,10 @@ export default class ShowMatchPlayersButtonAction extends ButtonAction {
     });
   }
 
-  async Execute(interaction: ButtonInteraction) {
+  async Execute(
+    interaction: ButtonInteraction,
+    t: TFunction<"translation", undefined>
+  ) {
     const [action, matchId] = interaction.customId.split(":");
 
     try {
@@ -37,7 +41,10 @@ export default class ShowMatchPlayersButtonAction extends ButtonAction {
       const playerIds = (await Promise.all(playerPromises)).join("\n");
 
       await interaction.reply({
-        content: `**Player IDs for match \`${matchId}\`:**\n\`\`\`${playerIds}\`\`\``,
+        content: t("buttons.show_players.title", {
+          matchId: matchId,
+          playerIds: playerIds,
+        }),
         flags: ["Ephemeral"],
       });
     } catch (error) {
@@ -52,7 +59,7 @@ export default class ShowMatchPlayersButtonAction extends ButtonAction {
         .setDescription(
           error instanceof CommandError
             ? error.message
-            : "❌ Failed to fetch players."
+            : t("buttons.show_players.error_generic")
         );
 
       if (interaction.deferred || interaction.replied) {

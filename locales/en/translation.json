@@ -34,5 +34,57 @@
     "get_steam_id_type_failed": "❌ Could not detemine steam id type",
     "field_empty": "❌ The {{field}} field cannot be empty!",
     "steam_profile_not_found": "❌ Steam profile not found!"
+  },
+  "buttons": {
+    "close_thread": {
+      "not_creator": "❌ Only the player who started this lobby can close the thread.",
+      "archiving": "📁 Archiving this thread...",
+      "archive_failed": "❌ Couldn't archive this channel. Is it a thread?",
+      "error_generic": "❌ Something went wrong while closing the thread."
+    },
+    "finish_match": {
+      "no_party_id": "❌ Couldn't find an active lobby for this match.",
+      "statlocker_link": "🔎 View full match on Statlocker",
+      "footer_duration": "🧮 Stats generated in {{duration}}ms",
+      "error_generic": "❌ Something went wrong while processing the match. Please try again."
+    },
+    "join_party": {
+      "invalid_id": "❌ Internal error. Please try again later.",
+      "lobby_not_found": "❌ This lobby no longer exists or has expired.",
+      "already_joined": "⚠️ You're already part of this lobby.",
+      "lobby_full": "🚫 This lobby is full ({{current}}/{{max}} players).",
+      "success": "✅ You've successfully joined the lobby!",
+      "error_generic": "❌ Couldn't join the lobby. Please try again later.",
+      "list_players_title": "Players (({{current}}/{{max}})"
+    },
+    "pagination": {
+      "session_invalid": "❌ This pagination session is no longer valid or doesn't belong to you.",
+      "error_generic": "❌ Couldn't load this page. Please try again later.",
+      "next": "Next ▶",
+      "back": "◀ Back"
+    },
+    "show_players": {
+      "error_generic": "❌ Couldn't fetch players for this match. Try again later.",
+      "title": "**Player IDs for match `{{matchId}}`:**\n```{{playerIds}}```"
+    },
+    "show_performance_tags": {
+      "title": "📊 Performance Tags",
+      "disclaimer": "⚠️ These tags are **experimental** and may not fully reflect player skill. Logic is simplified and based on limited data.",
+      "error_generic": "❌ Couldn't load performance tags. Please try again later."
+    },
+    "start_match": {
+      "only_creator_can_start": "Only the party initiator can start the match!",
+      "lobby_not_found": "Lobby not found or expired.",
+      "not_enough_players": "You need at least one player to start a match!",
+      "not_a_player": "You're not a player in this match.",
+      "already_ready": "You're already marked as ready.",
+      "marked_ready": "You are marked as ready! ✅",
+      "all_ready": "✅ All players are ready!\n\n**Party ID:** `{{party_id}}`\n**Party Code:** `{{party_code}}`\nGLHF!",
+      "match_creation_failed": "❌ Failed to create match after all players were ready. Start a new lobby!",
+      "not_all_ready": "❌ Not all players were ready in time. Archiving thread...",
+      "start_failed": "❌ Failed to start match",
+      "ready_check": "# ✅ Ready Check\nClick the button below to mark yourself as ready. Check in will close {{relativeTs}}.\n\n**Ready:** {{readyList}}\n**Not Ready:** {{notReadyList}}",
+      "player_ready_label": "✅ I'm Ready"
+    }
   }
 }

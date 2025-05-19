@@ -4,6 +4,7 @@ import CustomClient from "../base/classes/CustomClient";
 import { logger } from "..";
 import PerformanceTagService from "../services/calculators/PerformanceTagService";
 import CommandError from "../base/errors/CommandError";
+import { TFunction } from "i18next";
 
 export default class ShowPerformanceTagsButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -14,23 +15,26 @@ export default class ShowPerformanceTagsButtonAction extends ButtonAction {
     });
   }
 
-  async Execute(interaction: ButtonInteraction) {
+  async Execute(
+    interaction: ButtonInteraction,
+    t: TFunction<"translation", undefined>
+  ) {
     try {
       const tags = PerformanceTagService.getAllTagDescriptions();
+
+      const formattedTags = tags
+        .map((tag) => `\`${tag.name}\`\n${tag.description}\n${tag.criteria}`)
+        .join("\n\n");
 
       await interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setColor("Grey")
-            .setTitle("Performance Tags")
+            .setTitle(t("buttons.show_performance_tags.title"))
             .setDescription(
-              tags
-                .map(
-                  (tag) =>
-                    `\`${tag.name}\`\n ${tag.description}\n${tag.criteria}`
-                )
-                .join("\n\n") +
-                "\n\n**⚠️ These performance tags are currently EXPERIMENTAL and may not accurately reflect your playstyle or skill. They are based on simplified logic and limited match data. Expect changes as we improve the system.**"
+              `${formattedTags}\n\n${t(
+                "buttons.show_performance_tags.disclaimer"
+              )}`
             ),
         ],
         flags: ["Ephemeral"],
@@ -47,7 +51,7 @@ export default class ShowPerformanceTagsButtonAction extends ButtonAction {
         .setDescription(
           error instanceof CommandError
             ? error.message
-            : "❌ Failed to load tags."
+            : t("buttons.show_performance_tags.error_generic")
         );
 
       if (interaction.deferred || interaction.replied) {
