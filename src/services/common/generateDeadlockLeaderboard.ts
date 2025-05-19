@@ -1,7 +1,6 @@
 import { Embed } from "discord.js";
-import { DeadlockRegion } from "../../base/types/DeadlockRegions";
+import { DeadlockRegion } from "../../base/types/DeadlockRegion";
 import { useAssetsClient, useDeadlockClient } from "../..";
-import { drawLeaderboardImage } from "../utils/generateLeaderboardImage";
 
 export async function generateDeadlockLeaderboard(
   region: DeadlockRegion,
@@ -23,5 +22,4 @@ export async function generateDeadlockLeaderboard(
   );
 
   const mappedLeaderboard = await promises;
-  return drawLeaderboardImage(mappedLeaderboard);
 }

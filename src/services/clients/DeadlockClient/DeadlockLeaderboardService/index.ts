@@ -1,5 +1,5 @@
 import { logger } from "../../../..";
-import { DeadlockRegion } from "../../../../base/types/DeadlockRegions";
+import { DeadlockRegion } from "../../../../base/types/DeadlockRegion";
 import BaseClient from "../../BaseClient";
 import DeadlockLeaderboardEntry from "./entities/DeadlockLeaderboardEntry";
 
