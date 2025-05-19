@@ -157,7 +157,7 @@ export default class Top extends Command {
         const embed = new EmbedBuilder()
           .setColor(0xffa500)
           .setTitle(t("commands.top.steam_auth_required_title"))
-          .setDescription(t("command.top.steam_auth_required_description"));
+          .setDescription(t("commands.top.steam_auth_required_description"));
 
         await interaction.followUp({
           embeds: [embed],
