@@ -1,0 +1,32 @@
+name: Generate CHANGELOG.md from workflows
+
+on:
+  push:
+    - main
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install conventional-changelog-cli globally
+        run: npm install -g conventional-changelog-cli
+
+      - name: Generate Root Changelog
+        run: |
+          conventional-changelog -p angular -i CHANGELOG.md -s -r 0
+
+      - name: Commit Root Changelog
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: Update CHANGELOG.md"
+          file_pattern: CHANGELOG.md
+
