@@ -2,7 +2,8 @@ name: Generate CHANGELOG.md from workflows
 
 on:
   push:
-    - main
+    branches:
+      - main
 
 jobs:
   changelog:
