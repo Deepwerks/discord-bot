@@ -10,3 +10,5 @@ dev.env
 data/config.json
 
 logs
+
+.idea
