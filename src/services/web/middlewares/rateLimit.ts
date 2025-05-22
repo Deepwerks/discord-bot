@@ -1,5 +1,6 @@
 import rateLimit from "express-rate-limit";
 import { logger } from "../../..";
+import RateLimitError from "../../../base/errors/RateLimitError";
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -12,9 +13,11 @@ const limiter = rateLimit({
       route: req.originalUrl,
     });
 
-    res
-      .status(429)
-      .send("Too many Steam auth attempts. Please wait a bit and try again.");
+    next(
+      new RateLimitError(
+        "Too many Steam auth attempts. Please wait a bit and try again."
+      )
+    );
   },
 });
 

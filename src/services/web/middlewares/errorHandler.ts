@@ -8,7 +8,11 @@ export default (
   res: Response,
   _next: NextFunction
 ) => {
-  const status = res.statusCode !== 200 ? res.statusCode : 500;
+  const status = hasStatus(err)
+    ? err.status
+    : res.statusCode !== 200
+    ? res.statusCode
+    : 500;
 
   if (config.running_env !== "production") {
     logger.error(`[${req.method}] ${req.originalUrl} →`, err);
@@ -31,3 +35,12 @@ export default (
     error: "Unexpected error",
   });
 };
+
+function hasStatus(err: unknown): err is { status: number } {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "status" in err &&
+    typeof (err as any).status === "number"
+  );
+}
