@@ -29,6 +29,12 @@ router.get("/auth/steam", limiter, async (req, res, next) => {
   });
 
   try {
+    logger.info("Requesting Steam redirect URL", {
+      discordId,
+      ip: req.ip,
+      route: "/auth/steam",
+    });
+
     const redirectUrl = await steam.getRedirectUrl();
     res.redirect(redirectUrl);
   } catch (err) {
@@ -40,6 +46,12 @@ router.get("/auth/steam/authenticate", limiter, async (req, res, next) => {
   try {
     const discordId = req.cookies?.discordId;
     if (!discordId) return next("Missing discord id in session");
+
+    logger.info("Authenticating with Steam", {
+      discordId,
+      ip: req.ip,
+      route: "/auth/steam/authenticate",
+    });
 
     const steamAccount = await steam.authenticate(req);
     const steamId64 = steamAccount.steamid;
@@ -65,7 +77,12 @@ router.get("/auth/steam/authenticate", limiter, async (req, res, next) => {
         "✅ Steam account linked! You're all set — this window can be closed."
       );
   } catch (error) {
-    logger.error(error);
+    logger.error("Steam authentication failed", {
+      error,
+      ip: req.ip,
+      route: "/auth/steam/authenticate",
+    });
+
     next(error);
   }
 });
