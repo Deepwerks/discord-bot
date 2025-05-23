@@ -46,12 +46,12 @@ export default class CustomClient extends Client implements ICustomClient {
         this.developmentMode ? "development" : "production"
       } mode...`
     );
-    await initI18n();
 
-    await useAssetsClient.HeroService.LoadAllHeroesToCache();
+    await initI18n();
     await useRedditClient.Init();
 
     this.LoadHandlers();
+    await this.LoadCache();
 
     this.login(this.config.discord_bot_token).catch((err) => logger.error(err));
 
@@ -68,5 +68,16 @@ export default class CustomClient extends Client implements ICustomClient {
     this.handler.LoadCommands();
     this.handler.LoadButtonActions();
     this.handler.LoadSelectMenus();
+  }
+
+  async LoadCache() {
+    try {
+      await Promise.all([
+        useAssetsClient.DefaultService.GetRanksCached(),
+        useAssetsClient.HeroService.LoadAllHeroesToCache(),
+      ]);
+    } catch (error) {
+      logger.error("Failed to load static deadlock data to cache...", error);
+    }
   }
 }
