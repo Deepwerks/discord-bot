@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export default class DeadlockRank {
   tier: number;
   name: string;

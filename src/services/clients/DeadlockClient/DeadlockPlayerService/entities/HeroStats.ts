@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export default class HeroStats {
   hero_id: number;
   matches_played: number;

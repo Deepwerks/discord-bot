@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { logger } from '../../../..';
 import BaseClient from '../../BaseClient';
 import DeadlockMatch from './entities/DeadlockMatch';

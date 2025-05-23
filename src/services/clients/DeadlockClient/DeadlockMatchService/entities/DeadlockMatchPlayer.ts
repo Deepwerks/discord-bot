@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export default class DeadlockMatchPlayer {
   account_id: number;
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export default class MMRHistoryRecord {
   match_id: number;
   player_score: number;

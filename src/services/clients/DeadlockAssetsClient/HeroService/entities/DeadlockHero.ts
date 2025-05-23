@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export default class DeadlockHero {
   id: number;
   class_name: string;

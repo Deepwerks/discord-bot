@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import DeadlockMatchPlayer from './DeadlockMatchPlayer';
 import dayjs from 'dayjs';
 
