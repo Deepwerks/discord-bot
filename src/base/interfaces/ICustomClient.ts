@@ -18,5 +18,5 @@ export default interface ICustomClient {
 
   Init(): void;
   LoadHandlers(): void;
-  LoadCache(): void;
+  LoadCache(): Promise<void>;
 }
