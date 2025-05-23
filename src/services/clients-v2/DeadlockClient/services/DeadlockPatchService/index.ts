@@ -1,15 +1,10 @@
 import { logger } from '../../../../..';
 import { hasMiscProperty } from '../../../../utils/guards';
-import BaseClient from '../../../base/classes/BaseClient';
 import BaseClientService from '../../../base/classes/BaseClientService';
 import DeadlockPatch from './entities/DeadlockPatch';
 import DeadlockPatchesSchema from './validators/DeadlockPatches.validator';
 
 export default class DeadlockPatchService extends BaseClientService {
-  constructor(client: BaseClient) {
-    super(client);
-  }
-
   async FetchPatches(limit?: number): Promise<DeadlockPatch[]> {
     try {
       logger.info('[API CALL] Fetching deadlock patches...');
@@ -18,7 +13,7 @@ export default class DeadlockPatchService extends BaseClientService {
         schema: DeadlockPatchesSchema,
       });
 
-      if (!limit) {
+      if (limit === undefined) {
         return response.map((r) => new DeadlockPatch(r));
       }
 

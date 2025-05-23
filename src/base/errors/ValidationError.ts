@@ -1,5 +1,5 @@
 export default class ValidationError extends Error {
-  status: number = 422;
+  readonly status: number = 422;
   misc?: unknown;
 
   constructor(message: string = 'Validation Error', misc?: object) {

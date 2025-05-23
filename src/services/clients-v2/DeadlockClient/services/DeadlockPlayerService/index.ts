@@ -1,6 +1,5 @@
 import { logger } from '../../../../..';
 import { hasMiscProperty } from '../../../../utils/guards';
-import BaseClient from '../../../base/classes/BaseClient';
 import BaseClientService from '../../../base/classes/BaseClientService';
 import { VariableRequestParams, VariableResponse } from './entities/CommandResponse';
 import DeadlockMatchHistoryRecord from './entities/DeadlockMatchHistoryRecord';
@@ -11,10 +10,6 @@ import DeadlockMMRHistorySchema from './validators/DeadlockMMRHistory.validator'
 import DeadlockPlayerHeroesStatsSchema from './validators/DeadlockPlayerHeroesStats.validator';
 
 export default class DeadlockPlayerService extends BaseClientService {
-  constructor(client: BaseClient) {
-    super(client);
-  }
-
   async FetchHeroStats(
     account_id: string,
     hero_id: number
@@ -77,9 +72,9 @@ export default class DeadlockPlayerService extends BaseClientService {
       });
 
       return response
-        .map((h) => new DeadlockMMRHistoryRecord(h))
         .reverse()
-        .slice(0, limit);
+        .slice(0, limit)
+        .map((h) => new DeadlockMMRHistoryRecord(h));
     } catch (error) {
       logger.error('Failed to fetch player mmr history', {
         account_id,
