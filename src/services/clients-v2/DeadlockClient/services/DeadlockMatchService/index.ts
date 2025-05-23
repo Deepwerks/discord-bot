@@ -54,7 +54,7 @@ export default class DeadlockMatchService extends BaseClientService {
     }
   }
 
-  async GetMatchIdFromPartyId(partyId: string): Promise<DeadlockMatchId | null> {
+  async FetchMatchIdFromPartyId(partyId: string): Promise<DeadlockMatchId | null> {
     try {
       logger.info('[API CALL] Fetching a deadlock match id from party id...');
 
