@@ -5,7 +5,7 @@ import DeadlockRank from '../clients/DeadlockAssetsClient/DefaultService/entitie
 import IStatlockerProfile from '../clients/StatlockerClient/StatlockerProfileService/interfaces/IStatlockerProfile';
 import { Collection } from 'discord.js';
 
-export default class CustomCache<T extends {}> {
+export default class CustomCache<T extends object> {
   private cache: LRUCache<string | number, T>;
 
   constructor(ttlSeconds: number = 60) {
@@ -30,10 +30,6 @@ export default class CustomCache<T extends {}> {
 
   clear(): void {
     this.cache.clear();
-  }
-
-  show(): void {
-    console.log('Cache tartalma: ', [...this.cache.keys()]);
   }
 
   getAll(): Collection<string, T> {

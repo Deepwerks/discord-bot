@@ -5,7 +5,7 @@ import { ZodSchema } from 'zod';
 import NotFoundError from '../../../../base/errors/NotFoundError';
 import { RequestMethod } from '../../../../base/types/RequestMethod';
 import IConfig from '../../../../base/interfaces/IConfig';
-import { logger } from '../../../..';
+import ValidationError from '../../../../base/errors/ValidationError';
 
 export interface IBaseApiOptions {
   baseURL?: string;
@@ -77,8 +77,7 @@ export default class BaseClient {
       if (schema) {
         const parsed = schema.safeParse(response.data);
         if (!parsed.success) {
-          logger.error('Validation error:', parsed.error.format());
-          throw new Error(`Response validation failed for ${url}`);
+          throw new ValidationError(`Response validation failed for ${url}`, parsed.error.format());
         }
 
         return parsed.data;
