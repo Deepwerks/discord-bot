@@ -1,9 +1,10 @@
-## [1.7.1](https://github.com/Deepwerks/discord-bot/compare/v1.7.4-release...v1.7.1) (2025-05-22)
+## [1.7.1](https://github.com/Deepwerks/discord-bot/compare/v1.7.4-release...v1.7.1) (2025-05-23)
 
 
 ### Bug Fixes
 
 * added logs to steamAuthRouter ([#170](https://github.com/Deepwerks/discord-bot/issues/170)) ([9dac94b](https://github.com/Deepwerks/discord-bot/commit/9dac94bb2e8c6da19b424f4326541a2fc6ea39df))
+* **cache:** on start discord client now loads static data to cache (d… ([#174](https://github.com/Deepwerks/discord-bot/issues/174)) ([74b791f](https://github.com/Deepwerks/discord-bot/commit/74b791fce874f7d8ffee854d7b5d795146533391))
 
 
 
