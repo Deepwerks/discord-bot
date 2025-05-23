@@ -6,6 +6,7 @@ import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
 import { logger } from '../..';
 import { DeadlockClient } from '../../services/clients-v2/DeadlockClient';
+import CommandError from '../../base/errors/CommandError';
 
 export default class Test extends Command {
   constructor(client: CustomClient) {
@@ -31,7 +32,9 @@ export default class Test extends Command {
         baseURL: this.client.config.deadlock_api_url,
       });
 
-      const match = await useDeadlockClientV2.MatchService.GetMatch('36017246');
+      const match = await useDeadlockClientV2.MatchService.GetMatch(36017246);
+
+      if (!match) throw new CommandError();
 
       await interaction.editReply({
         content: match.startDate.format(),
@@ -39,9 +42,8 @@ export default class Test extends Command {
     } catch (error) {
       logger.error(error);
 
-      await interaction.reply({
+      await interaction.editReply({
         content: 'Failed',
-        flags: ['Ephemeral'],
       });
     }
   }

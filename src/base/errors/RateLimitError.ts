@@ -3,5 +3,6 @@ export default class RateLimitError extends Error {
 
   constructor(message: string = 'Too many attempts. Please wait a bit and try again.') {
     super(message);
+    this.name = 'RateLimitError';
   }
 }
