@@ -1,7 +1,7 @@
-import winston from "winston";
-import { Logtail } from "@logtail/node";
-import { LogtailTransport } from "@logtail/winston";
-import config from "../../config";
+import winston from 'winston';
+import { Logtail } from '@logtail/node';
+import { LogtailTransport } from '@logtail/winston';
+import config from '../../config';
 
 const { combine, timestamp, printf, errors, colorize } = winston.format;
 
@@ -17,7 +17,7 @@ const transports: winston.transport[] = [
   new winston.transports.Console({
     format: combine(
       colorize(),
-      timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+      timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
       errors({ stack: true }),
       logFormat
     ),
@@ -27,12 +27,12 @@ const transports: winston.transport[] = [
 transports.push(new LogtailTransport(logtail));
 
 export const logtailLogger = winston.createLogger({
-  level: process.env.NODE_ENV === "development" ? "debug" : "info",
+  level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
   format: combine(errors({ stack: true })),
   transports,
   exitOnError: false,
   defaultMeta: {
-    service: "DeadlockAssistant",
+    service: 'DeadlockAssistant',
     environment: process.env.NODE_ENV,
     version: process.env.npm_package_version,
   },

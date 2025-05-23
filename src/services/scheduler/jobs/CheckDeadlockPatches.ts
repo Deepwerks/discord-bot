@@ -1,17 +1,13 @@
-import { logger, useDeadlockClient } from "../../..";
-import PatchnoteSchema from "../../../base/schemas/PatchnoteSchema";
-import ForumScraper from "../../scrapers/ForumScraper";
+import { logger, useDeadlockClient } from '../../..';
+import PatchnoteSchema from '../../../base/schemas/PatchnoteSchema';
+import ForumScraper from '../../scrapers/ForumScraper';
 
 export default async () => {
   try {
     const scraper = new ForumScraper();
 
     const patches = await useDeadlockClient.PatchService.GetPatches();
-    const lastStoredPatch = await PatchnoteSchema.findOne(
-      {},
-      {},
-      { sort: { date: -1 } }
-    );
+    const lastStoredPatch = await PatchnoteSchema.findOne({}, {}, { sort: { date: -1 } });
 
     if (!lastStoredPatch) {
       await scraper.scrapeMany(patches);
@@ -27,9 +23,9 @@ export default async () => {
       await scraper.scrapeMany(newPatches);
       logger.info(`Inserted ${newPatches.length} new patches.`);
     } else {
-      logger.info("No new patches to store.");
+      logger.info('No new patches to store.');
     }
   } catch (error) {
-    logger.error("Error fetching or storing patches:", error);
+    logger.error('Error fetching or storing patches:', error);
   }
 };

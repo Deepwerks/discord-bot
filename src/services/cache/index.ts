@@ -1,9 +1,9 @@
-import { LRUCache } from "lru-cache";
-import { ICachedSteamProfile } from "../../base/interfaces/ICachedSteamProfile";
-import ICachedDeadlockHero from "../../base/interfaces/ICachedDeadlockHero";
-import DeadlockRank from "../clients/DeadlockAssetsClient/DefaultService/entities/DeadlockRank";
-import IStatlockerProfile from "../clients/StatlockerClient/StatlockerProfileService/interfaces/IStatlockerProfile";
-import { Collection } from "discord.js";
+import { LRUCache } from 'lru-cache';
+import { ICachedSteamProfile } from '../../base/interfaces/ICachedSteamProfile';
+import ICachedDeadlockHero from '../../base/interfaces/ICachedDeadlockHero';
+import DeadlockRank from '../clients/DeadlockAssetsClient/DefaultService/entities/DeadlockRank';
+import IStatlockerProfile from '../clients/StatlockerClient/StatlockerProfileService/interfaces/IStatlockerProfile';
+import { Collection } from 'discord.js';
 
 export default class CustomCache<T extends {}> {
   private cache: LRUCache<string | number, T>;
@@ -33,14 +33,14 @@ export default class CustomCache<T extends {}> {
   }
 
   show(): void {
-    console.log("Cache tartalma: ", [...this.cache.keys()]);
+    console.log('Cache tartalma: ', [...this.cache.keys()]);
   }
 
   getAll(): Collection<string, T> {
     const allRecords: Collection<string, T> = new Collection();
 
     for (const [key, value] of this.cache.entries()) {
-      if (typeof key === "string") {
+      if (typeof key === 'string') {
         allRecords.set(key, value);
       } else {
         allRecords.set(String(key), value);
@@ -52,8 +52,6 @@ export default class CustomCache<T extends {}> {
 }
 
 export const steamProfileCache = new CustomCache<ICachedSteamProfile>(60 * 30);
-export const statlockerProfileCache = new CustomCache<IStatlockerProfile>(
-  60 * 30
-);
+export const statlockerProfileCache = new CustomCache<IStatlockerProfile>(60 * 30);
 export const deadlockAssetsHeroCache = new CustomCache<ICachedDeadlockHero>(0);
 export const deadlockAssetsDefaultCache = new CustomCache<DeadlockRank[]>(0);

@@ -1,4 +1,4 @@
-import { logger } from "../..";
+import { logger } from '../..';
 
 export function isValidSteamId(id: string): boolean {
   try {
@@ -14,7 +14,7 @@ export function isValidSteamId(id: string): boolean {
     if (steamID64Regex.test(trimmedId)) return true;
 
     if (numericRegex.test(trimmedId)) {
-      const num = BigInt(trimmedId);
+      BigInt(trimmedId);
       return true;
     }
 

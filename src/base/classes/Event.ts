@@ -1,7 +1,7 @@
-import { Events } from "discord.js";
-import IEvent from "../interfaces/IEvent";
-import CustomClient from "./CustomClient";
-import IEventOptions from "../interfaces/IEventOptions";
+import { Events } from 'discord.js';
+import IEvent from '../interfaces/IEvent';
+import CustomClient from './CustomClient';
+import IEventOptions from '../interfaces/IEventOptions';
 
 export default abstract class Event implements IEvent {
   client: CustomClient;

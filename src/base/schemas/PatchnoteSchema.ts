@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { model, Schema } from 'mongoose';
 
 export type PatchNote = {
   category: string;
@@ -24,7 +24,7 @@ const PatchNoteSchema = new Schema<PatchNote>({
 });
 
 export default model<IPatchnote>(
-  "Patchnote",
+  'Patchnote',
   new Schema<IPatchnote>({
     guid: { type: String, required: true },
     title: { type: String, required: true },

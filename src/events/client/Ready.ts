@@ -1,14 +1,14 @@
-import { ActivityType, Collection, Events, REST, Routes } from "discord.js";
-import CustomClient from "../../base/classes/CustomClient";
-import Event from "../../base/classes/Event";
-import Command from "../../base/classes/Command";
-import { logger } from "../..";
+import { ActivityType, Collection, Events, REST, Routes } from 'discord.js';
+import CustomClient from '../../base/classes/CustomClient';
+import Event from '../../base/classes/Event';
+import Command from '../../base/classes/Command';
+import { logger } from '../..';
 
 export default class Ready extends Event {
   constructor(client: CustomClient) {
     super(client, {
       name: Events.ClientReady,
-      description: "Ready Event",
+      description: 'Ready Event',
       once: true,
     });
   }
@@ -19,46 +19,34 @@ export default class Ready extends Event {
     this.client.user?.setPresence({
       activities: [
         {
-          name: "your Statlocker 📊",
+          name: 'your Statlocker 📊',
           type: ActivityType.Watching,
         },
       ],
-      status: "online", // online | idle | dnd | invisible
+      status: 'online', // online | idle | dnd | invisible
     });
 
     const cliendId = this.client.config.discord_client_id;
     const rest = new REST().setToken(this.client.config.discord_bot_token);
 
     if (!this.client.developmentMode) {
-      const globalCommands: any = await rest.put(
-        Routes.applicationCommands(cliendId),
-        {
-          body: this.GetJson(
-            this.client.commands.filter(
-              (cmd) => !cmd.dev && cmd.limitedServers === undefined
-            )
-          ),
-        }
-      );
+      const globalCommands: any = await rest.put(Routes.applicationCommands(cliendId), {
+        body: this.GetJson(
+          this.client.commands.filter((cmd) => !cmd.dev && cmd.limitedServers === undefined)
+        ),
+      });
 
-      logger.info(
-        `Successfully loaded ${globalCommands.length} global application commands!`
-      );
+      logger.info(`Successfully loaded ${globalCommands.length} global application commands!`);
     }
 
     const devCommands: any = await rest.put(
-      Routes.applicationGuildCommands(
-        cliendId,
-        this.client.config.dev_guild_id
-      ),
+      Routes.applicationGuildCommands(cliendId, this.client.config.dev_guild_id),
       {
         body: this.GetJson(this.client.commands.filter((cmd) => cmd.dev)),
       }
     );
 
-    logger.info(
-      `Successfully loaded ${devCommands.length} developer application commands!`
-    );
+    logger.info(`Successfully loaded ${devCommands.length} developer application commands!`);
 
     const limitedCommandsMap = new Map<string, Command[]>();
 
@@ -75,22 +63,13 @@ export default class Ready extends Event {
 
     for (const [guildId, commands] of limitedCommandsMap.entries()) {
       try {
-        const registered: any = await rest.put(
-          Routes.applicationGuildCommands(cliendId, guildId),
-          {
-            body: this.GetJson(
-              new Collection(commands.map((cmd) => [cmd.name, cmd]))
-            ),
-          }
-        );
+        const registered: any = await rest.put(Routes.applicationGuildCommands(cliendId, guildId), {
+          body: this.GetJson(new Collection(commands.map((cmd) => [cmd.name, cmd]))),
+        });
 
-        logger.info(
-          `✅ Registered ${registered.length} limited commands for guild ${guildId}`
-        );
+        logger.info(`✅ Registered ${registered.length} limited commands for guild ${guildId}`);
       } catch (err) {
-        logger.error(
-          `❌ Failed to register commands for guild ${guildId}: ${err}`
-        );
+        logger.error(`❌ Failed to register commands for guild ${guildId}: ${err}`);
       }
     }
   }
@@ -103,8 +82,7 @@ export default class Ready extends Event {
         name: command.name,
         description: command.description,
         options: command.options,
-        default_member_permissions:
-          command.default_member_permissions.toString(),
+        default_member_permissions: command.default_member_permissions.toString(),
         dm_permission: command.dm_permission,
       });
     });

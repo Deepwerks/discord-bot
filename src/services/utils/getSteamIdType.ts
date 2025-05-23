@@ -1,6 +1,6 @@
-export function getSteamIdType(
-  steamId: string
-): "steamID" | "steamID3" | "steamID64" | null {
+import { logger } from '../..';
+
+export function getSteamIdType(steamId: string): 'steamID' | 'steamID3' | 'steamID64' | null {
   try {
     // SteamID (Legacy): STEAM_X:Y:Z
     const legacyRegex = /^STEAM_[0-5]:[01]:\d+$/;
@@ -12,16 +12,17 @@ export function getSteamIdType(
     const numericRegex = /^\d+$/;
 
     if (legacyRegex.test(steamId)) {
-      return "steamID";
+      return 'steamID';
     } else if (steam3Regex.test(steamId)) {
-      return "steamID3";
+      return 'steamID3';
     } else if (steamId64Regex.test(steamId)) {
-      return "steamID64";
+      return 'steamID64';
     } else if (numericRegex.test(steamId)) {
-      const num = BigInt(steamId);
-      return "steamID3";
+      BigInt(steamId);
+      return 'steamID3';
     } else return null;
   } catch (error) {
+    logger.warn(error);
     return null;
   }
 }

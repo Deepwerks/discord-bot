@@ -1,8 +1,8 @@
-import { AutocompleteInteraction, ButtonInteraction } from "discord.js";
-import CustomClient from "./CustomClient";
-import { TFunction } from "i18next";
-import IButtonAction from "../interfaces/IButtonAction";
-import IButtonActionOptions from "../interfaces/IButtonActionOptions";
+import { AutocompleteInteraction, ButtonInteraction } from 'discord.js';
+import CustomClient from './CustomClient';
+import { TFunction } from 'i18next';
+import IButtonAction from '../interfaces/IButtonAction';
+import IButtonActionOptions from '../interfaces/IButtonActionOptions';
 
 export default abstract class ButtonAction implements IButtonAction {
   client: CustomClient;
@@ -19,7 +19,7 @@ export default abstract class ButtonAction implements IButtonAction {
 
   abstract Execute(
     interaction: ButtonInteraction,
-    t: TFunction<"translation", undefined>
+    t: TFunction<'translation', undefined>
   ): Promise<void>;
 
   AutoComplete(interaction: AutocompleteInteraction): void {

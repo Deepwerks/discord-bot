@@ -9,7 +9,10 @@
     "build": "tsc --build",
     "start": "node build/index.js",
     "start:prod": "npm run clean && npm run build && cross-env NODE_ENV=production npm run start",
-    "start:dev": "npm run clean && npm run build && cross-env NODE_ENV=development npm run start"
+    "start:dev": "npm run clean && npm run build && cross-env NODE_ENV=development npm run start",
+    "prepare": "husky install",
+    "lint": "eslint . --ext .ts,.tsx,.js",
+    "format": "prettier --write ."
   },
   "repository": {
     "type": "git",
@@ -50,6 +53,7 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.27.0",
     "@types/cookie-parser": "^1.4.8",
     "@types/express": "^5.0.1",
     "@types/jest": "^29.5.14",
@@ -58,8 +62,20 @@
     "@types/node-steam-openid": "^1.0.3",
     "@types/winston": "^2.4.4",
     "cross-env": "^7.0.3",
+    "eslint": "^9.27.0",
+    "globals": "^16.1.0",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
+    "lint-staged": "^16.0.0",
+    "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
-    "ts-jest": "^29.3.2"
+    "ts-jest": "^29.3.2",
+    "typescript-eslint": "^8.32.1"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }

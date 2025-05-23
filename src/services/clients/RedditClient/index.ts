@@ -1,8 +1,9 @@
-import { EmbedBuilder } from "discord.js";
-import BaseClient, { IBaseApiOptions } from "../BaseClient";
-import CommandError from "../../../base/errors/CommandError";
-import { logger } from "../../..";
-import config from "../../../config";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { EmbedBuilder } from 'discord.js';
+import BaseClient, { IBaseApiOptions } from '../BaseClient';
+import CommandError from '../../../base/errors/CommandError';
+import { logger } from '../../..';
+import config from '../../../config';
 
 export default class RedditClient extends BaseClient {
   token: string | undefined;
@@ -14,7 +15,7 @@ export default class RedditClient extends BaseClient {
   }
 
   async Init() {
-    logger.info("Connecting to Reddit...");
+    logger.info('Connecting to Reddit...');
 
     const token = await this.getRedditAccessToken();
     this.token = token;
@@ -30,15 +31,12 @@ export default class RedditClient extends BaseClient {
         throw new CommandError(`Failed to send request to Reddit.`);
       }
 
-      const res = await fetch(
-        "https://oauth.reddit.com/r/DeadlockTheGame/top?limit=25&t=week",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "User-Agent": this.userAgent,
-          },
-        }
-      );
+      const res = await fetch('https://oauth.reddit.com/r/DeadlockTheGame/top?limit=25&t=week', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'User-Agent': this.userAgent,
+        },
+      });
 
       if (!res.ok) {
         throw new CommandError(`Reddit API returned status ${res.status}`);
@@ -47,14 +45,14 @@ export default class RedditClient extends BaseClient {
       const data = await res.json();
 
       if (!data?.data?.children) {
-        throw new CommandError("Unexpected response format from Reddit API");
+        throw new CommandError('Unexpected response format from Reddit API');
       }
 
       const posts = data.data.children.filter(
         (post: any) =>
           !post.data.over_18 &&
-          post.data.post_hint === "image" &&
-          post.data.link_flair_text?.toLowerCase() === "meme"
+          post.data.post_hint === 'image' &&
+          post.data.link_flair_text?.toLowerCase() === 'meme'
       );
 
       if (posts.length === 0) return null;
@@ -70,23 +68,23 @@ export default class RedditClient extends BaseClient {
         .setColor(0xff4500);
     } catch (error) {
       logger.error(error);
-      throw new CommandError("Failed to fetch memes from Reddit.");
+      throw new CommandError('Failed to fetch memes from Reddit.');
     }
   }
 
   private async getRedditAccessToken(): Promise<string> {
     const clientId = config.reddit_client_id;
     const clientSecret = config.reddit_client_secret;
-    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
-    const res = await fetch("https://www.reddit.com/api/v1/access_token", {
-      method: "POST",
+    const res = await fetch('https://www.reddit.com/api/v1/access_token', {
+      method: 'POST',
       headers: {
         Authorization: `Basic ${auth}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": this.userAgent,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': this.userAgent,
       },
-      body: "grant_type=client_credentials",
+      body: 'grant_type=client_credentials',
     });
 
     if (!res.ok) {
@@ -101,7 +99,7 @@ export default class RedditClient extends BaseClient {
 
   private async ensureValidToken(): Promise<void> {
     if (!this.token || !this.tokenExpiry || Date.now() >= this.tokenExpiry) {
-      logger.info("Refreshing Reddit access token...");
+      logger.info('Refreshing Reddit access token...');
       this.token = await this.getRedditAccessToken();
     }
   }

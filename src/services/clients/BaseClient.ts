@@ -1,7 +1,7 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios";
-import { RequestMethod } from "../../base/types/RequestMethod";
-import NotFoundError from "../../base/errors/NotFoundError";
-import Bottleneck from "bottleneck";
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import { RequestMethod } from '../../base/types/RequestMethod';
+import NotFoundError from '../../base/errors/NotFoundError';
+import Bottleneck from 'bottleneck';
 
 export interface IBaseApiOptions {
   baseURL?: string;
@@ -30,7 +30,7 @@ export default class BaseClient {
     method: RequestMethod,
     url: string,
     data?: object,
-    params?: Record<string, any>
+    params?: Record<string, unknown>
   ): Promise<T> {
     try {
       return await this.limiter.schedule(async () => {
@@ -55,12 +55,10 @@ export default class BaseClient {
             throw new NotFoundError(`Resource not found at ${url}`);
           }
 
-          throw new Error(
-            `Request failed with status ${status}: ${error.response.data}`
-          );
+          throw new Error(`Request failed with status ${status}: ${error.response.data}`);
         } else if (error.request) {
           // Request was made but no response received
-          throw new Error("No response received from the server.");
+          throw new Error('No response received from the server.');
         } else {
           // Something happened in setting up the request
           throw new Error(`Request setup failed: ${error.message}`);

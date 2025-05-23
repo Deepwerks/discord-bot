@@ -1,7 +1,7 @@
-import { logger } from "../../../..";
-import { statlockerProfileCache } from "../../../cache";
-import BaseClient from "../../BaseClient";
-import IStatlockerProfile from "./interfaces/IStatlockerProfile";
+import { logger } from '../../../..';
+import { statlockerProfileCache } from '../../../cache';
+import BaseClient from '../../BaseClient';
+import IStatlockerProfile from './interfaces/IStatlockerProfile';
 
 export interface IStatlockerProfileService {
   FetchProfile(account_id: string): Promise<IStatlockerProfile>;
@@ -10,9 +10,7 @@ export interface IStatlockerProfileService {
   GetProfilesCache(account_ids: string[]): Promise<IStatlockerProfile[]>;
 }
 
-export default class StatlockerProfileService
-  implements IStatlockerProfileService
-{
+export default class StatlockerProfileService implements IStatlockerProfileService {
   private client: BaseClient;
 
   constructor(client: BaseClient) {
@@ -20,10 +18,10 @@ export default class StatlockerProfileService
   }
 
   async FetchProfile(account_id: string): Promise<IStatlockerProfile> {
-    logger.info("[API CALL] Fetching a statlocker profile...");
+    logger.info('[API CALL] Fetching a statlocker profile...');
 
     const response = await this.client.request<IStatlockerProfile>(
-      "GET",
+      'GET',
       `/api/open/profile/${account_id}`
     );
 
@@ -31,13 +29,11 @@ export default class StatlockerProfileService
   }
 
   async FetchProfiles(account_ids: string[]): Promise<IStatlockerProfile[]> {
-    logger.info(
-      `[API CALL] Fetching ${account_ids.length} statlocker profiles...`
-    );
+    logger.info(`[API CALL] Fetching ${account_ids.length} statlocker profiles...`);
 
     try {
       const response = await this.client.request<IStatlockerProfile[]>(
-        "POST",
+        'POST',
         `/api/profile/batch-profiles`,
         account_ids.map((id) => Number(id))
       );
@@ -50,10 +46,10 @@ export default class StatlockerProfileService
         (id) =>
           ({
             accountId: Number(id),
-            avatarUrl: "",
-            name: "Unknown",
+            avatarUrl: '',
+            name: 'Unknown',
             performanceRankMessage: null,
-          } as IStatlockerProfile)
+          }) as IStatlockerProfile
       );
     }
   }

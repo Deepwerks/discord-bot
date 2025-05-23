@@ -1,9 +1,6 @@
-import {
-  AutocompleteInteraction,
-  StringSelectMenuInteraction,
-} from "discord.js";
-import CustomClient from "../classes/CustomClient";
-import { TFunction } from "i18next";
+import { AutocompleteInteraction, StringSelectMenuInteraction } from 'discord.js';
+import CustomClient from '../classes/CustomClient';
+import { TFunction } from 'i18next';
 
 export default interface ISelectMenu {
   client: CustomClient;
@@ -13,7 +10,7 @@ export default interface ISelectMenu {
 
   Execute(
     interaction: StringSelectMenuInteraction,
-    t: TFunction<"translation", undefined>
+    t: TFunction<'translation', undefined>
   ): Promise<void>;
   AutoComplete(interaction: AutocompleteInteraction): void;
 }

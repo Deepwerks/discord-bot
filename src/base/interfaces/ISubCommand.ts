@@ -1,6 +1,6 @@
-import { ChatInputCommandInteraction } from "discord.js";
-import CustomClient from "../classes/CustomClient";
-import { TFunction } from "i18next";
+import { ChatInputCommandInteraction } from 'discord.js';
+import CustomClient from '../classes/CustomClient';
+import { TFunction } from 'i18next';
 
 export default interface ISubCommand {
   client: CustomClient;
@@ -8,6 +8,6 @@ export default interface ISubCommand {
 
   Execute(
     interaction: ChatInputCommandInteraction,
-    t: TFunction<"translation", undefined>
+    t: TFunction<'translation', undefined>
   ): Promise<void>;
 }

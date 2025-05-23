@@ -1,14 +1,14 @@
-import { Events, Guild } from "discord.js";
-import CustomClient from "../../base/classes/CustomClient";
-import Event from "../../base/classes/Event";
-import GuildConfig from "../../base/schemas/GuildConfigSchema";
-import { logger } from "../..";
+import { Events, Guild } from 'discord.js';
+import CustomClient from '../../base/classes/CustomClient';
+import Event from '../../base/classes/Event';
+import GuildConfig from '../../base/schemas/GuildConfigSchema';
+import { logger } from '../..';
 
 export default class GuildDelete extends Event {
   constructor(client: CustomClient) {
     super(client, {
       name: Events.GuildDelete,
-      description: "Guild leave event",
+      description: 'Guild leave event',
       once: false,
     });
   }

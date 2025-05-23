@@ -1,14 +1,14 @@
-import { model, Schema } from "mongoose";
+import { model, Schema } from 'mongoose';
 
 interface IStoredPlayerSchema {
   steamId: string;
-  steamIdType: "steamID3" | "steamID" | "steamID64";
+  steamIdType: 'steamID3' | 'steamID' | 'steamID64';
   discordId: string;
   authenticated?: boolean;
 }
 
 export default model<IStoredPlayerSchema>(
-  "StoredPlayer",
+  'StoredPlayer',
   new Schema<IStoredPlayerSchema>(
     {
       discordId: { type: String, required: true, unique: true },
@@ -16,7 +16,7 @@ export default model<IStoredPlayerSchema>(
       steamIdType: {
         type: String,
         required: true,
-        enum: ["steamID3", "steamID", "steamID64"],
+        enum: ['steamID3', 'steamID', 'steamID64'],
       },
       authenticated: {
         type: Boolean,

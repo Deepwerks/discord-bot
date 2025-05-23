@@ -1,9 +1,9 @@
 export type PaginationContext = {
   userId: string;
-  data: any[];
+  data: never[];
   page: number;
   perPage: number;
-  generateEmbed: (data: any, page: number, total: number) => any;
+  generateEmbed: (data: never, page: number, total: number) => never;
 };
 
 export const paginationStore = new Map<string, PaginationContext>();

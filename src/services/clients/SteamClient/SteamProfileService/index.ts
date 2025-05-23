@@ -1,13 +1,14 @@
-import { logger } from "../../../..";
-import { ICachedSteamProfile } from "../../../../base/interfaces/ICachedSteamProfile";
-import { steamProfileCache } from "../../../cache";
-import { getSteamIdType } from "../../../utils/getSteamIdType";
-import { isValidSteamId } from "../../../utils/isValidSteamId";
-import { resolveToSteamID64 } from "../../../utils/resolveToSteamID64";
-import BaseClient from "../../BaseClient";
-import ISteamID from "./interfaces/ISteamID";
-import ISteamPlayer from "./interfaces/ISteamPlayer";
-import ISteamPlayersResponse from "./interfaces/ISteamPlayersResponse";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { logger } from '../../../..';
+import { ICachedSteamProfile } from '../../../../base/interfaces/ICachedSteamProfile';
+import { steamProfileCache } from '../../../cache';
+import { getSteamIdType } from '../../../utils/getSteamIdType';
+import { isValidSteamId } from '../../../utils/isValidSteamId';
+import { resolveToSteamID64 } from '../../../utils/resolveToSteamID64';
+import BaseClient from '../../BaseClient';
+import ISteamID from './interfaces/ISteamID';
+import ISteamPlayer from './interfaces/ISteamPlayer';
+import ISteamPlayersResponse from './interfaces/ISteamPlayersResponse';
 
 export interface ISteamProfileService {
   GetProfileCached(
@@ -20,17 +21,17 @@ export interface ISteamProfileService {
 
 export default class SteamProfileService implements ISteamProfileService {
   private client: BaseClient;
-  private readonly STEAM_ID64_BASE = BigInt("76561197960265728");
+  private readonly STEAM_ID64_BASE = BigInt('76561197960265728');
 
   constructor(client: BaseClient) {
     this.client = client;
   }
 
   async FetchProfile(steamID: ISteamID): Promise<ISteamPlayer> {
-    logger.info("[API CALL] Fetching a steam profile...");
+    logger.info('[API CALL] Fetching a steam profile...');
 
     const response = await this.client.request<ISteamPlayersResponse>(
-      "GET",
+      'GET',
       `/ISteamUser/GetPlayerSummaries/v0002/`,
       undefined,
       {
@@ -42,8 +43,8 @@ export default class SteamProfileService implements ISteamProfileService {
     const players = response.response.players;
 
     if (players.length === 0) {
-      logger.warn("Player not found!");
-      throw new Error("Player not found");
+      logger.warn('Player not found!');
+      throw new Error('Player not found');
     }
 
     return players[0];
@@ -57,12 +58,12 @@ export default class SteamProfileService implements ISteamProfileService {
 
     try {
       const response = await this.client.request<ISteamPlayersResponse>(
-        "GET",
+        'GET',
         `/ISteamUser/GetPlayerSummaries/v0002/`,
         undefined,
         {
           key: this.client.apiKey,
-          steamids: steamIDs.map((id) => id.value).join(","),
+          steamids: steamIDs.map((id) => id.value).join(','),
         }
       );
 
@@ -76,17 +77,17 @@ export default class SteamProfileService implements ISteamProfileService {
         (id) =>
           ({
             steamid: id.value,
-            personaname: "Unknown",
-            profileurl: "",
-            avatarmedium: "",
-          } as ISteamPlayer)
+            personaname: 'Unknown',
+            profileurl: '',
+            avatarmedium: '',
+          }) as ISteamPlayer
       );
     }
   }
 
   async GetIdFromUsername(username: string): Promise<string | null> {
     const response = await this.client.request<any>(
-      "GET",
+      'GET',
       `/ISteamUser/ResolveVanityURL/v1/?key=${this.client.apiKey}&vanityurl=${username}`
     );
 
@@ -98,30 +99,26 @@ export default class SteamProfileService implements ISteamProfileService {
   }
 
   // Cached
-  async GetProfileCached(
-    account_id: string | null,
-    isValidSteamID64: boolean = false
-  ) {
+  async GetProfileCached(account_id: string | null, isValidSteamID64: boolean = false) {
     if (!account_id) return null;
     let steamID64: string = account_id;
 
     if (!isValidSteamID64) {
       let steamId: string | undefined;
-      let steamIdType: "steamID3" | "steamID" | "steamID64" | null;
 
       if (isValidSteamId(account_id)) steamId = account_id;
       else {
-        let _steamId = await this.GetIdFromUsername(account_id);
+        const _steamId = await this.GetIdFromUsername(account_id);
 
         if (!_steamId || !isValidSteamId(_steamId)) return null;
 
         steamId = _steamId;
       }
 
-      steamIdType = getSteamIdType(steamId);
+      const steamIdType = getSteamIdType(steamId);
 
       if (!steamIdType) {
-        logger.error("Could not determine steamID type");
+        logger.error('Could not determine steamID type');
         return null;
       }
 
@@ -132,7 +129,7 @@ export default class SteamProfileService implements ISteamProfileService {
 
     if (!cachedProfile) {
       const steamProfile = await this.FetchProfile({
-        type: "steamID64",
+        type: 'steamID64',
         value: steamID64,
       });
 
@@ -146,7 +143,7 @@ export default class SteamProfileService implements ISteamProfileService {
   // Cached
   async GetProfilesCached(account_ids: string[]) {
     account_ids = account_ids.map(
-      (id) => this.convertToSteamId64({ type: "steamID3", value: id })!
+      (id) => this.convertToSteamId64({ type: 'steamID3', value: id })!
     );
 
     const cachedProfiles: Record<string, ICachedSteamProfile> = {};
@@ -162,7 +159,7 @@ export default class SteamProfileService implements ISteamProfileService {
     }
 
     const fetchedProfiles = await this.FetchProfiles(
-      idsToFetch.map((id) => ({ type: "steamID64", value: id }))
+      idsToFetch.map((id) => ({ type: 'steamID64', value: id }))
     );
 
     for (const profile of fetchedProfiles) {
@@ -180,16 +177,16 @@ export default class SteamProfileService implements ISteamProfileService {
   convertToSteamId64(steamID: ISteamID): string | null {
     try {
       switch (steamID.type) {
-        case "steamID":
-        case "steamID3":
+        case 'steamID':
+        case 'steamID3':
           return (this.STEAM_ID64_BASE + BigInt(steamID.value)).toString();
-        case "steamID64":
+        case 'steamID64':
           return steamID.value;
         default:
           return null;
       }
     } catch (e) {
-      console.error("Conversion error:", e);
+      console.error('Conversion error:', e);
       return null;
     }
   }

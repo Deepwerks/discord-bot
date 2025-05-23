@@ -5,56 +5,53 @@ import {
   ButtonBuilder,
   ButtonStyle,
   AttachmentBuilder,
-} from "discord.js";
-import SelectMenu from "../base/classes/SelectMenu";
-import CustomClient from "../base/classes/CustomClient";
-import CommandError from "../base/errors/CommandError";
-import { logger } from "..";
-import { TFunction } from "i18next";
-import { handleMatchRequest } from "../services/common/handleMatchRequest";
+} from 'discord.js';
+import SelectMenu from '../base/classes/SelectMenu';
+import CustomClient from '../base/classes/CustomClient';
+import CommandError from '../base/errors/CommandError';
+import { logger } from '..';
+import { TFunction } from 'i18next';
+import { handleMatchRequest } from '../services/common/handleMatchRequest';
 
 export default class GetMatchDetails extends SelectMenu {
   constructor(client: CustomClient) {
     super(client, {
-      customId: "get_match_details",
-      description: "Get match details",
+      customId: 'get_match_details',
+      description: 'Get match details',
       cooldown: 15,
     });
   }
 
-  async Execute(
-    interaction: StringSelectMenuInteraction,
-    t: TFunction<"translation", undefined>
-  ) {
+  async Execute(interaction: StringSelectMenuInteraction, t: TFunction<'translation', undefined>) {
     try {
       const matchId = interaction.values[0];
       const startTime = performance.now();
 
       if (!interaction.values.length) {
-        throw new CommandError("No value selected");
+        throw new CommandError('No value selected');
       }
 
-      await interaction.deferReply({ flags: ["Ephemeral"] });
+      await interaction.deferReply({ flags: ['Ephemeral'] });
 
       const { matchData, imageBuffer } = await handleMatchRequest({
         id: matchId,
-        type: "match_id",
+        type: 'match_id',
         userId: interaction.user.id,
         t,
       });
       const match = matchData.match;
 
       const linkButton = new ButtonBuilder()
-        .setLabel("View on Statlocker")
+        .setLabel('View on Statlocker')
         .setStyle(ButtonStyle.Link)
         .setURL(`https://statlocker.gg/match/${match.match_id}`)
-        .setEmoji("1367520315244023868");
+        .setEmoji('1367520315244023868');
 
       const showPlayersButton = new ButtonBuilder()
-        .setLabel("Show Players")
+        .setLabel('Show Players')
         .setStyle(ButtonStyle.Primary)
-        .setCustomId("show_players:" + match.match_id)
-        .setEmoji("👥");
+        .setCustomId('show_players:' + match.match_id)
+        .setEmoji('👥');
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
         showPlayersButton,
@@ -62,7 +59,7 @@ export default class GetMatchDetails extends SelectMenu {
       );
 
       const attachment = new AttachmentBuilder(imageBuffer, {
-        name: "match.png",
+        name: 'match.png',
       });
 
       const endTime = performance.now();
@@ -71,7 +68,7 @@ export default class GetMatchDetails extends SelectMenu {
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
-            .setColor("Blue")
+            .setColor('Blue')
             .setTimestamp()
             .setFooter({ text: `Generated in ${duration}ms` }),
         ],
@@ -86,17 +83,13 @@ export default class GetMatchDetails extends SelectMenu {
       });
 
       const errorEmbed = new EmbedBuilder()
-        .setColor("Red")
-        .setDescription(
-          error instanceof CommandError
-            ? error.message
-            : t("errors.generic_error")
-        );
+        .setColor('Red')
+        .setDescription(error instanceof CommandError ? error.message : t('errors.generic_error'));
 
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.reply({ embeds: [errorEmbed], flags: ["Ephemeral"] });
+        await interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
       }
     }
   }

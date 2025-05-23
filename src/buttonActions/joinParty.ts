@@ -1,48 +1,45 @@
-import { ButtonInteraction, EmbedBuilder } from "discord.js";
-import ButtonAction from "../base/classes/ButtonAction";
-import CustomClient from "../base/classes/CustomClient";
-import { logger } from "..";
-import { lobbyStore } from "../services/stores/LobbyStore";
-import CommandError from "../base/errors/CommandError";
-import { TFunction } from "i18next";
+import { ButtonInteraction, EmbedBuilder } from 'discord.js';
+import ButtonAction from '../base/classes/ButtonAction';
+import CustomClient from '../base/classes/CustomClient';
+import { logger } from '..';
+import { lobbyStore } from '../services/stores/LobbyStore';
+import CommandError from '../base/errors/CommandError';
+import { TFunction } from 'i18next';
 
 export default class JoinPartyButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
     super(client, {
-      customId: "join_party",
-      description: "Join a party/lobby",
+      customId: 'join_party',
+      description: 'Join a party/lobby',
       cooldown: 5,
     });
   }
 
-  async Execute(
-    interaction: ButtonInteraction,
-    t: TFunction<"translation", undefined>
-  ) {
+  async Execute(interaction: ButtonInteraction, t: TFunction<'translation', undefined>) {
     try {
-      const parts = interaction.customId.split(":");
+      const parts = interaction.customId.split(':');
       if (parts.length < 4) {
-        throw new CommandError(t("buttons.join_party.invalid_id"));
+        throw new CommandError(t('buttons.join_party.invalid_id'));
       }
 
       const [_, creatorId, maxPlayersRaw, lobbyId] = parts;
       const lobby = lobbyStore.getLobby(lobbyId);
 
       if (!lobby) {
-        throw new CommandError(t("buttons.join_party.lobby_not_found"));
+        throw new CommandError(t('buttons.join_party.lobby_not_found'));
       }
 
       const userId = interaction.user.id;
 
       // Already in lobby?
       if (lobby.players.has(userId)) {
-        throw new CommandError(t("buttons.join_party.already_joined"));
+        throw new CommandError(t('buttons.join_party.already_joined'));
       }
 
       // Lobby full?
       if (lobby.players.size >= lobby.maxPlayers) {
         throw new CommandError(
-          t("buttons.join_party.lobby_full", {
+          t('buttons.join_party.lobby_full', {
             current: lobby.players.size,
             max: lobby.maxPlayers,
           })
@@ -57,13 +54,13 @@ export default class JoinPartyButtonAction extends ButtonAction {
         .setTitle(lobby.name)
         .addFields([
           {
-            name: t("buttons.join_party.list_players_title", {
+            name: t('buttons.join_party.list_players_title', {
               current: lobby.players.size,
               max: lobby.maxPlayers,
             }),
             value: Array.from(lobby.players)
               .map((id) => `<@${id}>`)
-              .join("\n"),
+              .join('\n'),
             inline: false,
           },
         ])
@@ -75,12 +72,12 @@ export default class JoinPartyButtonAction extends ButtonAction {
       // Send ephemeral confirmation
       if (interaction.replied || interaction.deferred) {
         await interaction.editReply({
-          content: t("buttons.join_party.success"),
+          content: t('buttons.join_party.success'),
         });
       } else {
         await interaction.reply({
-          content: t("buttons.join_party.success"),
-          flags: ["Ephemeral"],
+          content: t('buttons.join_party.success'),
+          flags: ['Ephemeral'],
         });
       }
     } catch (error) {
@@ -91,11 +88,9 @@ export default class JoinPartyButtonAction extends ButtonAction {
       });
 
       const errorEmbed = new EmbedBuilder()
-        .setColor("Red")
+        .setColor('Red')
         .setDescription(
-          error instanceof CommandError
-            ? error.message
-            : t("buttons.join_party.error_generic")
+          error instanceof CommandError ? error.message : t('buttons.join_party.error_generic')
         );
 
       if (interaction.deferred || interaction.replied) {

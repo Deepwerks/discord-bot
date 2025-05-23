@@ -1,5 +1,5 @@
-import DeadlockMatchPlayer from "./DeadlockMatchPlayer";
-import dayjs from "dayjs";
+import DeadlockMatchPlayer from './DeadlockMatchPlayer';
+import dayjs from 'dayjs';
 
 export default class DeadlockMatch {
   match_id: number;

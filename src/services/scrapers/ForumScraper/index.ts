@@ -1,32 +1,24 @@
-import axios, { AxiosInstance } from "axios";
-import * as cheerio from "cheerio";
-import PatchnoteSchema, {
-  IPatchnote,
-  PatchNote,
-} from "../../../base/schemas/PatchnoteSchema";
-import { logger } from "../../..";
-import { IDeadlockPatch } from "../../clients/DeadlockClient/DeadlockPathService/entities/DeadlockPatch";
+import axios, { AxiosInstance } from 'axios';
+import * as cheerio from 'cheerio';
+import PatchnoteSchema, { IPatchnote, PatchNote } from '../../../base/schemas/PatchnoteSchema';
+import { logger } from '../../..';
+import { IDeadlockPatch } from '../../clients/DeadlockClient/DeadlockPathService/entities/DeadlockPatch';
 
 export default class ForumScraper {
   private axiosInstance: AxiosInstance;
   private cheerioInstance: typeof cheerio;
 
-  constructor(
-    axiosInstance: AxiosInstance = axios,
-    cheerioInstance: typeof cheerio = cheerio
-  ) {
+  constructor(axiosInstance: AxiosInstance = axios, cheerioInstance: typeof cheerio = cheerio) {
     this.axiosInstance = axiosInstance;
     this.cheerioInstance = cheerioInstance;
   }
 
   public async scrapeMany(patches: IDeadlockPatch[]) {
-    const results = await Promise.allSettled(
-      patches.map((patch) => this.scrape(patch))
-    );
+    const results = await Promise.allSettled(patches.map((patch) => this.scrape(patch)));
 
     results.forEach((result, index) => {
       const patch = patches[index];
-      if (result.status === "fulfilled") {
+      if (result.status === 'fulfilled') {
         logger.info(`Successfully scraped patch: ${patch.title}`);
       } else {
         logger.error(`Failed to scrape patch: ${patch.title}`, result.reason);
@@ -41,7 +33,7 @@ export default class ForumScraper {
       const { data: html } = await this.axiosInstance.get(link);
       const $ = this.cheerioInstance.load(html);
 
-      let changesRaw = $('div[class="bbWrapper"]').text();
+      const changesRaw = $('div[class="bbWrapper"]').text();
       const changes = this.parsePatchNotes(changesRaw);
 
       await this.savePatchnote({
@@ -61,14 +53,14 @@ export default class ForumScraper {
     try {
       await PatchnoteSchema.create(data);
     } catch (error) {
-      logger.error("Failed to save scraped patchnote", error);
+      logger.error('Failed to save scraped patchnote', error);
     }
   }
 
   private parsePatchNotes(input: string): PatchNote[] {
-    const lines = input.split("\n");
+    const lines = input.split('\n');
     const result: PatchNote[] = [];
-    let currentCategory = "";
+    let currentCategory = '';
     let currentEntry: PatchNote | null = null;
 
     for (const line of lines) {
@@ -82,17 +74,17 @@ export default class ForumScraper {
         continue;
       }
 
-      if (trimmed.startsWith("-")) {
+      if (trimmed.startsWith('-')) {
         const content = trimmed.slice(1).trim();
 
         // Initialize Uncategorized entry if needed
         if (!currentEntry) {
-          currentCategory = "Uncategorized";
+          currentCategory = 'Uncategorized';
           currentEntry = { category: currentCategory, changes: {} };
           result.push(currentEntry);
         }
 
-        if (["Heroes", "Items"].includes(currentCategory)) {
+        if (['Heroes', 'Items'].includes(currentCategory)) {
           const heroOrItemMatch = content.match(/^([A-Za-z &']+): (.+)$/);
           if (heroOrItemMatch) {
             const name = heroOrItemMatch[1].trim();
@@ -103,16 +95,16 @@ export default class ForumScraper {
             }
             currentEntry.changes[name].push(change);
           } else {
-            if (!currentEntry.changes["Misc"]) {
-              currentEntry.changes["Misc"] = [];
+            if (!currentEntry.changes['Misc']) {
+              currentEntry.changes['Misc'] = [];
             }
-            currentEntry.changes["Misc"].push(content);
+            currentEntry.changes['Misc'].push(content);
           }
         } else {
-          if (!currentEntry.changes["General"]) {
-            currentEntry.changes["General"] = [];
+          if (!currentEntry.changes['General']) {
+            currentEntry.changes['General'] = [];
           }
-          currentEntry.changes["General"].push(content);
+          currentEntry.changes['General'].push(content);
         }
       }
     }

@@ -1,8 +1,8 @@
-import { logger } from "../../../..";
-import ICachedDeadlockHero from "../../../../base/interfaces/ICachedDeadlockHero";
-import { deadlockAssetsHeroCache } from "../../../cache";
-import BaseClient from "../../BaseClient";
-import DeadlockHero from "./entities/DeadlockHero";
+import { logger } from '../../../..';
+import ICachedDeadlockHero from '../../../../base/interfaces/ICachedDeadlockHero';
+import { deadlockAssetsHeroCache } from '../../../cache';
+import BaseClient from '../../BaseClient';
+import DeadlockHero from './entities/DeadlockHero';
 
 export interface IDeadlockHeroService {
   GetHero(heroId: number): void;
@@ -16,11 +16,8 @@ export default class DeadlockHeroService implements IDeadlockHeroService {
   }
 
   async GetHero(heroId: number) {
-    logger.info("[API CALL] Fetching a deadlock hero...", heroId);
-    const response = await this.client.request<DeadlockHero>(
-      "GET",
-      `/v2/heroes/${heroId}`
-    );
+    logger.info('[API CALL] Fetching a deadlock hero...', heroId);
+    const response = await this.client.request<DeadlockHero>('GET', `/v2/heroes/${heroId}`);
 
     return new DeadlockHero(response);
   }
@@ -38,11 +35,8 @@ export default class DeadlockHeroService implements IDeadlockHeroService {
   }
 
   async LoadAllHeroesToCache() {
-    logger.info("[API CALL] Fetching all deadlock heroes...");
-    const allHeroesRaw = await this.client.request<DeadlockHero[]>(
-      "GET",
-      "/v2/heroes"
-    );
+    logger.info('[API CALL] Fetching all deadlock heroes...');
+    const allHeroesRaw = await this.client.request<DeadlockHero[]>('GET', '/v2/heroes');
     const allHeroes = allHeroesRaw.map((hero) => new DeadlockHero(hero));
 
     for (const hero of allHeroes.filter(

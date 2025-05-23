@@ -1,19 +1,19 @@
-import { Collection, EmbedBuilder, Events, Interaction } from "discord.js";
-import CustomClient from "../../base/classes/CustomClient";
-import Event from "../../base/classes/Event";
-import Command from "../../base/classes/Command";
-import i18next from "../../services/i18n";
-import GuildConfig from "../../base/schemas/GuildConfigSchema";
-import { logger } from "../..";
-import logInteraction from "../../services/logger/logInteraction";
-import { InteractionType } from "../../base/schemas/UserInteractionSchema";
-import CommandError from "../../base/errors/CommandError";
+import { Collection, EmbedBuilder, Events, Interaction } from 'discord.js';
+import CustomClient from '../../base/classes/CustomClient';
+import Event from '../../base/classes/Event';
+import Command from '../../base/classes/Command';
+import i18next from '../../services/i18n';
+import GuildConfig from '../../base/schemas/GuildConfigSchema';
+import { logger } from '../..';
+import logInteraction from '../../services/logger/logInteraction';
+import { InteractionType } from '../../base/schemas/UserInteractionSchema';
+import CommandError from '../../base/errors/CommandError';
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
     super(client, {
       name: Events.InteractionCreate,
-      description: "Command handler event",
+      description: 'Command handler event',
       once: false,
     });
   }
@@ -26,36 +26,26 @@ export default class CommandHandler extends Event {
       });
       const t = i18next.getFixedT(guildLang?.lang!);
 
-      const command: Command = this.client.commands.get(
-        interaction.commandName
-      )!;
+      const command: Command = this.client.commands.get(interaction.commandName)!;
 
       if (!command)
         return (
           //@ts-ignore
           interaction.reply({
-            content: t("warnings.no_command"),
-            flags: ["Ephemeral"],
+            content: t('warnings.no_command'),
+            flags: ['Ephemeral'],
           }) && this.client.commands.delete(interaction.commandName)
         );
 
-      if (
-        command.dev &&
-        !this.client.config.developer_user_ids.includes(interaction.user.id)
-      ) {
+      if (command.dev && !this.client.config.developer_user_ids.includes(interaction.user.id)) {
         return interaction.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setColor("Red")
-              .setDescription(t("warnings.no_permission")),
-          ],
-          flags: ["Ephemeral"],
+          embeds: [new EmbedBuilder().setColor('Red').setDescription(t('warnings.no_permission'))],
+          flags: ['Ephemeral'],
         });
       }
 
       const { cooldowns } = this.client;
-      if (!cooldowns.has(command.name))
-        cooldowns.set(command.name, new Collection());
+      if (!cooldowns.has(command.name)) cooldowns.set(command.name, new Collection());
 
       const now = Date.now();
       const timestamps = cooldowns.get(command.name)!;
@@ -67,18 +57,16 @@ export default class CommandHandler extends Event {
       )
         return interaction.reply({
           embeds: [
-            new EmbedBuilder().setColor("Red").setDescription(
-              t("warnings.cooldown", {
+            new EmbedBuilder().setColor('Red').setDescription(
+              t('warnings.cooldown', {
                 time: (
-                  ((timestamps.get(interaction.user.id) || 0) +
-                    cooldownAmount -
-                    now) /
+                  ((timestamps.get(interaction.user.id) || 0) + cooldownAmount - now) /
                   1000
                 ).toFixed(1),
               })
             ),
           ],
-          flags: ["Ephemeral"],
+          flags: ['Ephemeral'],
         });
 
       timestamps.set(interaction.user.id, now);
@@ -86,12 +74,10 @@ export default class CommandHandler extends Event {
 
       const subCommandGroup = interaction.options.getSubcommandGroup(false);
       const subCommand = `${interaction.commandName}${
-        subCommandGroup ? `${subCommandGroup}` : ""
-      }.${interaction.options.getSubcommand(false) || ""}`;
+        subCommandGroup ? `${subCommandGroup}` : ''
+      }.${interaction.options.getSubcommand(false) || ''}`;
 
-      logger.info(
-        `[COMMAND] ${interaction.user.tag} used /${interaction.commandName}`
-      );
+      logger.info(`[COMMAND] ${interaction.user.tag} used /${interaction.commandName}`);
 
       logInteraction(
         command.name,
@@ -115,11 +101,9 @@ export default class CommandHandler extends Event {
         });
 
         const errorEmbed = new EmbedBuilder()
-          .setColor("Red")
+          .setColor('Red')
           .setDescription(
-            error instanceof CommandError
-              ? error.message
-              : t("errors.generic_error")
+            error instanceof CommandError ? error.message : t('errors.generic_error')
           );
 
         if (interaction.deferred || interaction.replied) {

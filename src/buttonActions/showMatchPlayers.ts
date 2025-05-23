@@ -1,51 +1,41 @@
-import { ButtonInteraction, EmbedBuilder } from "discord.js";
-import ButtonAction from "../base/classes/ButtonAction";
-import CustomClient from "../base/classes/CustomClient";
-import { logger, useAssetsClient, useDeadlockClient } from "..";
-import CommandError from "../base/errors/CommandError";
-import { TFunction } from "i18next";
+import { ButtonInteraction, EmbedBuilder } from 'discord.js';
+import ButtonAction from '../base/classes/ButtonAction';
+import CustomClient from '../base/classes/CustomClient';
+import { logger, useAssetsClient, useDeadlockClient } from '..';
+import CommandError from '../base/errors/CommandError';
+import { TFunction } from 'i18next';
 
 export default class ShowMatchPlayersButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
     super(client, {
-      customId: "show_players",
-      description: "Show the players in the match.",
+      customId: 'show_players',
+      description: 'Show the players in the match.',
       cooldown: 6,
     });
   }
 
-  async Execute(
-    interaction: ButtonInteraction,
-    t: TFunction<"translation", undefined>
-  ) {
-    const [action, matchId] = interaction.customId.split(":");
+  async Execute(interaction: ButtonInteraction, t: TFunction<'translation', undefined>) {
+    const [action, matchId] = interaction.customId.split(':');
 
     try {
-      const deadlockMatch = await useDeadlockClient.MatchService.GetMatch(
-        matchId
-      );
+      const deadlockMatch = await useDeadlockClient.MatchService.GetMatch(matchId);
 
-      const allPlayers = [
-        ...deadlockMatch.team_0_players,
-        ...deadlockMatch.team_1_players,
-      ];
+      const allPlayers = [...deadlockMatch.team_0_players, ...deadlockMatch.team_1_players];
 
       const playerPromises = allPlayers.map(async (player) => {
-        const hero = await useAssetsClient.HeroService.GetHeroCached(
-          player.hero_id
-        );
+        const hero = await useAssetsClient.HeroService.GetHeroCached(player.hero_id);
 
         return `${hero?.name}: ${player.account_id}`;
       });
 
-      const playerIds = (await Promise.all(playerPromises)).join("\n");
+      const playerIds = (await Promise.all(playerPromises)).join('\n');
 
       await interaction.reply({
-        content: t("buttons.show_players.title", {
+        content: t('buttons.show_players.title', {
           matchId: matchId,
           playerIds: playerIds,
         }),
-        flags: ["Ephemeral"],
+        flags: ['Ephemeral'],
       });
     } catch (error) {
       logger.error({
@@ -55,11 +45,9 @@ export default class ShowMatchPlayersButtonAction extends ButtonAction {
       });
 
       const errorEmbed = new EmbedBuilder()
-        .setColor("Red")
+        .setColor('Red')
         .setDescription(
-          error instanceof CommandError
-            ? error.message
-            : t("buttons.show_players.error_generic")
+          error instanceof CommandError ? error.message : t('buttons.show_players.error_generic')
         );
 
       if (interaction.deferred || interaction.replied) {

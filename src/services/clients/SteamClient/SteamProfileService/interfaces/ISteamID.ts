@@ -1,4 +1,4 @@
 export default interface ISteamID {
   value: string;
-  type: "steamID" | "steamID3" | "steamID64";
+  type: 'steamID' | 'steamID3' | 'steamID64';
 }

@@ -5,24 +5,23 @@ import {
   ChatInputCommandInteraction,
   EmbedBuilder,
   PermissionsBitField,
-} from "discord.js";
-import Command from "../../base/classes/Command";
-import CustomClient from "../../base/classes/CustomClient";
-import Category from "../../base/enums/Category";
-import { TFunction } from "i18next";
-import CommandError from "../../base/errors/CommandError";
-import { logger, useDeadlockClient } from "../..";
-import PatchnoteSchema from "../../base/schemas/PatchnoteSchema";
-import ForumScraper from "../../services/scrapers/ForumScraper";
+} from 'discord.js';
+import Command from '../../base/classes/Command';
+import CustomClient from '../../base/classes/CustomClient';
+import Category from '../../base/enums/Category';
+import { TFunction } from 'i18next';
+import CommandError from '../../base/errors/CommandError';
+import { logger, useDeadlockClient } from '../..';
+import PatchnoteSchema from '../../base/schemas/PatchnoteSchema';
+import ForumScraper from '../../services/scrapers/ForumScraper';
 
 export default class Patchnotes extends Command {
   constructor(client: CustomClient) {
     super(client, {
-      name: "patchnotes",
-      description: "Retrieves the latest Deadlock patch",
+      name: 'patchnotes',
+      description: 'Retrieves the latest Deadlock patch',
       category: Category.Deadlock,
-      default_member_permissions:
-        PermissionsBitField.Flags.UseApplicationCommands,
+      default_member_permissions: PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 3,
       dev: false,
@@ -30,19 +29,12 @@ export default class Patchnotes extends Command {
     });
   }
 
-  async Execute(
-    interaction: ChatInputCommandInteraction,
-    t: TFunction<"translation", undefined>
-  ) {
+  async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
     await interaction.deferReply();
 
     try {
       const patches = await useDeadlockClient.PatchService.GetPatches();
-      let lastStoredPatch = await PatchnoteSchema.findOne(
-        {},
-        {},
-        { sort: { date: -1 } }
-      ).lean();
+      let lastStoredPatch = await PatchnoteSchema.findOne({}, {}, { sort: { date: -1 } }).lean();
 
       if (!lastStoredPatch) {
         const scraper = new ForumScraper();
@@ -50,11 +42,7 @@ export default class Patchnotes extends Command {
 
         logger.info(`Inserted ${patches.length} patches as the first batch.`);
 
-        lastStoredPatch = await PatchnoteSchema.findOne(
-          {},
-          {},
-          { sort: { date: -1 } }
-        ).lean();
+        lastStoredPatch = await PatchnoteSchema.findOne({}, {}, { sort: { date: -1 } }).lean();
       }
 
       const newPatches = patches.filter((patch) => {
@@ -67,41 +55,33 @@ export default class Patchnotes extends Command {
         await scraper.scrapeMany(newPatches);
         logger.info(`Inserted ${newPatches.length} new patches.`);
 
-        lastStoredPatch = await PatchnoteSchema.findOne(
-          {},
-          {},
-          { sort: { date: -1 } }
-        ).lean();
+        lastStoredPatch = await PatchnoteSchema.findOne({}, {}, { sort: { date: -1 } }).lean();
 
         if (!lastStoredPatch) {
-          throw new CommandError("No patch found");
+          throw new CommandError('No patch found');
         }
       }
 
       const linkButton = new ButtonBuilder()
-        .setLabel("Read More")
+        .setLabel('Read More')
         .setStyle(ButtonStyle.Link)
         .setURL(lastStoredPatch!.url)
-        .setEmoji("📰");
+        .setEmoji('📰');
 
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        linkButton
-      );
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(linkButton);
 
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
-            .setColor("#00BFFF")
+            .setColor('#00BFFF')
             .setTitle(`🛠️ Patch Notes - ${lastStoredPatch!.title}`)
             .setDescription(
               `
                 ${lastStoredPatch!.changes
                   .map((change) => {
-                    return `\`${change.category.padEnd(20)} ${countLeafProps(
-                      change.changes
-                    )}x\``;
+                    return `\`${change.category.padEnd(20)} ${countLeafProps(change.changes)}x\``;
                   })
-                  .join("\n")}
+                  .join('\n')}
                 `
             )
             .setFooter({
@@ -118,12 +98,8 @@ export default class Patchnotes extends Command {
       });
 
       const errorEmbed = new EmbedBuilder()
-        .setColor("Red")
-        .setDescription(
-          error instanceof CommandError
-            ? error.message
-            : t("errors.generic_error")
-        );
+        .setColor('Red')
+        .setDescription(error instanceof CommandError ? error.message : t('errors.generic_error'));
 
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ embeds: [errorEmbed] });
@@ -135,7 +111,7 @@ export default class Patchnotes extends Command {
 }
 
 function countLeafProps(obj: any): number {
-  if (typeof obj !== "object" || obj === null) return 0;
+  if (typeof obj !== 'object' || obj === null) return 0;
 
   let count = 0;
 
@@ -144,7 +120,7 @@ function countLeafProps(obj: any): number {
 
     const value = obj[key];
 
-    if (typeof value === "object" && value !== null) {
+    if (typeof value === 'object' && value !== null) {
       count += countLeafProps(value);
     } else {
       count += 1;

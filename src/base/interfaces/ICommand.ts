@@ -1,10 +1,7 @@
-import {
-  AutocompleteInteraction,
-  ChatInputCommandInteraction,
-} from "discord.js";
-import CustomClient from "../classes/CustomClient";
-import Category from "../enums/Category";
-import { TFunction } from "i18next";
+import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
+import CustomClient from '../classes/CustomClient';
+import Category from '../enums/Category';
+import { TFunction } from 'i18next';
 
 export default interface ICommand {
   client: CustomClient;
@@ -20,7 +17,7 @@ export default interface ICommand {
 
   Execute(
     interaction: ChatInputCommandInteraction,
-    t: TFunction<"translation", undefined>
+    t: TFunction<'translation', undefined>
   ): Promise<void>;
   AutoComplete(interaction: AutocompleteInteraction): void;
 }

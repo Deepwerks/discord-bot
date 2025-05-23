@@ -1,5 +1,5 @@
-import BaseClient, { IBaseApiOptions } from "../BaseClient";
-import SteamProfileService from "./SteamProfileService";
+import BaseClient, { IBaseApiOptions } from '../BaseClient';
+import SteamProfileService from './SteamProfileService';
 
 export interface ISteamClient {
   ProfileService: SteamProfileService;

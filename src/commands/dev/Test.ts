@@ -1,18 +1,17 @@
-import { ChatInputCommandInteraction, PermissionsBitField } from "discord.js";
-import Command from "../../base/classes/Command";
-import CustomClient from "../../base/classes/CustomClient";
-import Category from "../../base/enums/Category";
-import { TFunction } from "i18next";
-import ForumScraper from "../../services/scrapers/ForumScraper";
+import { ChatInputCommandInteraction, PermissionsBitField } from 'discord.js';
+import Command from '../../base/classes/Command';
+import CustomClient from '../../base/classes/CustomClient';
+import Category from '../../base/enums/Category';
+import { TFunction } from 'i18next';
+import ForumScraper from '../../services/scrapers/ForumScraper';
 
 export default class Test extends Command {
   constructor(client: CustomClient) {
     super(client, {
-      name: "test",
-      description: "my test command",
+      name: 'test',
+      description: 'my test command',
       category: Category.Utilities,
-      default_member_permissions:
-        PermissionsBitField.Flags.UseApplicationCommands,
+      default_member_permissions: PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 3,
       options: [],
@@ -20,19 +19,16 @@ export default class Test extends Command {
     });
   }
 
-  async Execute(
-    interaction: ChatInputCommandInteraction,
-    t: TFunction<"translation", undefined>
-  ) {
+  async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
     try {
       await interaction.reply({
-        content: t("commands.test.ran"),
-        flags: ["Ephemeral"],
+        content: t('commands.test.ran'),
+        flags: ['Ephemeral'],
       });
     } catch (error) {
       await interaction.reply({
-        content: "Failed",
-        flags: ["Ephemeral"],
+        content: 'Failed',
+        flags: ['Ephemeral'],
       });
     }
   }

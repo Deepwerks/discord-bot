@@ -1,17 +1,17 @@
-import { Client, Collection, GatewayIntentBits, Partials } from "discord.js";
-import ICustomClient from "../interfaces/ICustomClient";
-import IConfig from "../interfaces/IConfig";
-import Handler from "./Handler";
-import Command from "./Command";
-import SubCommand from "./SubCommand";
-import { connect } from "mongoose";
-import config from "../../config";
-import { initI18n } from "../../services/i18n";
-import WebService from "../../services/web";
-import ModalHandler from "../interfaces/IModalHandler";
-import { logger, useAssetsClient, useRedditClient } from "../..";
-import ButtonAction from "./ButtonAction";
-import SelectMenu from "./SelectMenu";
+import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
+import ICustomClient from '../interfaces/ICustomClient';
+import IConfig from '../interfaces/IConfig';
+import Handler from './Handler';
+import Command from './Command';
+import SubCommand from './SubCommand';
+import { connect } from 'mongoose';
+import config from '../../config';
+import { initI18n } from '../../services/i18n';
+import WebService from '../../services/web';
+import ModalHandler from '../interfaces/IModalHandler';
+import { logger, useAssetsClient, useRedditClient } from '../..';
+import ButtonAction from './ButtonAction';
+import SelectMenu from './SelectMenu';
 
 export default class CustomClient extends Client implements ICustomClient {
   config: IConfig;
@@ -37,14 +37,12 @@ export default class CustomClient extends Client implements ICustomClient {
     this.modals = new Collection();
     this.selectMenus = new Collection();
     this.cooldowns = new Collection();
-    this.developmentMode = this.config.running_env === "development";
+    this.developmentMode = this.config.running_env === 'development';
   }
 
   async Init() {
     logger.info(
-      `Starting the bot in ${
-        this.developmentMode ? "development" : "production"
-      } mode...`
+      `Starting the bot in ${this.developmentMode ? 'development' : 'production'} mode...`
     );
 
     await initI18n();
@@ -77,7 +75,7 @@ export default class CustomClient extends Client implements ICustomClient {
         useAssetsClient.HeroService.LoadAllHeroesToCache(),
       ]);
     } catch (error) {
-      logger.error("Failed to load static deadlock data to cache...", error);
+      logger.error('Failed to load static deadlock data to cache...', error);
     }
   }
 }

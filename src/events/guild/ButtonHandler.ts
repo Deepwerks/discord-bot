@@ -1,31 +1,26 @@
-import {
-  ButtonInteraction,
-  Collection,
-  EmbedBuilder,
-  Events,
-} from "discord.js";
-import CustomClient from "../../base/classes/CustomClient";
-import Event from "../../base/classes/Event";
-import { logger } from "../..";
-import i18next from "../../services/i18n";
-import GuildConfig from "../../base/schemas/GuildConfigSchema";
-import logInteraction from "../../services/logger/logInteraction";
-import { InteractionType } from "../../base/schemas/UserInteractionSchema";
-import CommandError from "../../base/errors/CommandError";
+import { ButtonInteraction, Collection, EmbedBuilder, Events } from 'discord.js';
+import CustomClient from '../../base/classes/CustomClient';
+import Event from '../../base/classes/Event';
+import { logger } from '../..';
+import i18next from '../../services/i18n';
+import GuildConfig from '../../base/schemas/GuildConfigSchema';
+import logInteraction from '../../services/logger/logInteraction';
+import { InteractionType } from '../../base/schemas/UserInteractionSchema';
+import CommandError from '../../base/errors/CommandError';
 
 export default class ButtonHandler extends Event {
   constructor(client: CustomClient) {
     super(client, {
       name: Events.InteractionCreate,
-      description: "Button handler event",
+      description: 'Button handler event',
       once: false,
     });
   }
 
   async Execute(interaction: ButtonInteraction) {
     if (!interaction.isButton()) return;
-    const [action] = interaction.customId.split(":");
-    if (action === "ready_up") return;
+    const [action] = interaction.customId.split(':');
+    if (action === 'ready_up') return;
 
     const guildLang = await GuildConfig.findOne({
       guildId: interaction.guildId!,
@@ -39,8 +34,8 @@ export default class ButtonHandler extends Event {
         return (
           //@ts-ignore
           interaction.reply({
-            content: t("warnings.no_button_action"),
-            flags: ["Ephemeral"],
+            content: t('warnings.no_button_action'),
+            flags: ['Ephemeral'],
           }) && this.client.buttons.delete(action)
         );
       }
@@ -59,18 +54,16 @@ export default class ButtonHandler extends Event {
       )
         return interaction.reply({
           embeds: [
-            new EmbedBuilder().setColor("Red").setDescription(
-              t("warnings.cooldown", {
+            new EmbedBuilder().setColor('Red').setDescription(
+              t('warnings.cooldown', {
                 time: (
-                  ((timestamps.get(interaction.user.id) || 0) +
-                    cooldownAmount -
-                    now) /
+                  ((timestamps.get(interaction.user.id) || 0) + cooldownAmount - now) /
                   1000
                 ).toFixed(1),
               })
             ),
           ],
-          flags: ["Ephemeral"],
+          flags: ['Ephemeral'],
         });
 
       timestamps.set(interaction.user.id, now);
@@ -91,10 +84,8 @@ export default class ButtonHandler extends Event {
       });
 
       const errorEmbed = new EmbedBuilder()
-        .setColor("Red")
-        .setDescription(
-          error instanceof CommandError ? error.message : "Button action failed"
-        );
+        .setColor('Red')
+        .setDescription(error instanceof CommandError ? error.message : 'Button action failed');
 
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ embeds: [errorEmbed] });

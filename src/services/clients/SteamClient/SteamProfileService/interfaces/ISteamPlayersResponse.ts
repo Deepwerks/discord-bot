@@ -1,4 +1,4 @@
-import ISteamPlayer from "./ISteamPlayer";
+import ISteamPlayer from './ISteamPlayer';
 
 export default interface ISteamPlayersResponse {
   response: {

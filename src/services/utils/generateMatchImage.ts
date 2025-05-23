@@ -1,7 +1,7 @@
-import DeadlockMatchPlayer from "../clients/DeadlockClient/DeadlockMatchService/entities/DeadlockMatchPlayer";
-import { useAssetsClient } from "../..";
-import { getFormattedMatchTime } from "./getFormattedMatchTime";
-import { Canvas, loadImage, SKRSContext2D, Image } from "@napi-rs/canvas";
+import DeadlockMatchPlayer from '../clients/DeadlockClient/DeadlockMatchService/entities/DeadlockMatchPlayer';
+import { useAssetsClient } from '../..';
+import { getFormattedMatchTime } from './getFormattedMatchTime';
+import { Canvas, loadImage, SKRSContext2D, Image } from '@napi-rs/canvas';
 
 interface IDeadlockPlayerWithName extends DeadlockMatchPlayer {
   name: string;
@@ -35,64 +35,53 @@ const Layout = {
 };
 
 const Fonts = {
-  title: "bold 28px Arial",
-  point: "22px Arial",
-  playerName: "bold 16px Arial",
-  stat: "16px Arial",
-  label: "bold 16px Arial",
+  title: 'bold 28px Arial',
+  point: '22px Arial',
+  playerName: 'bold 16px Arial',
+  stat: '16px Arial',
+  label: 'bold 16px Arial',
   victory: "italic bold 48px 'Georgia', 'Times New Roman', serif",
-  team: "bold 22px Arial",
+  team: 'bold 22px Arial',
 };
 
 const Colors = {
-  background: "#1e1e2f",
-  white: "#ffffff",
-  grey: "#999",
-  sapphire: "#4fc3f7",
-  amber: "#ffb74d",
+  background: '#1e1e2f',
+  white: '#ffffff',
+  grey: '#999',
+  sapphire: '#4fc3f7',
+  amber: '#ffb74d',
 };
 
 const partyColors = new Map<number, string>([
-  [0, "#FF6B6B"],
-  [1, "#FF6B6B"],
-  [2, "#6BCB77"],
-  [3, "#4D96FF"],
-  [4, "#FFD93D"],
-  [5, "#9D4EDD"],
-  [6, "#FF922B"],
+  [0, '#FF6B6B'],
+  [1, '#FF6B6B'],
+  [2, '#6BCB77'],
+  [3, '#4D96FF'],
+  [4, '#FFD93D'],
+  [5, '#9D4EDD'],
+  [6, '#FF922B'],
 ]);
 
 const bestStatColors = new Map<string, string>([
-  ["souls", "#C2B4F0"],
-  ["kills", "#F88080"],
-  ["assists", "#90E0B0"],
-  ["player_damage", "#F0A8A8"],
-  ["obj_damage", "#E0C080"],
-  ["healing", "#80E8D0"],
+  ['souls', '#C2B4F0'],
+  ['kills', '#F88080'],
+  ['assists', '#90E0B0'],
+  ['player_damage', '#F0A8A8'],
+  ['obj_damage', '#E0C080'],
+  ['healing', '#80E8D0'],
 ]);
 
-const rowLabels = [
-  "Souls",
-  "Kills",
-  "Deaths",
-  "Assists",
-  "Player Damage",
-  "Obj Damage",
-  "Healing",
-];
+const rowLabels = ['Souls', 'Kills', 'Deaths', 'Assists', 'Player Damage', 'Obj Damage', 'Healing'];
 
 // --- Helpers ---
 
-const shortenPlayerName = (name: string) =>
-  name.length <= 12 ? name : name.slice(0, 9) + "...";
+const shortenPlayerName = (name: string) => (name.length <= 12 ? name : name.slice(0, 9) + '...');
 
-async function safeLoadImage(
-  url: string
-): Promise<ReturnType<typeof loadImage> | null> {
+async function safeLoadImage(url: string): Promise<ReturnType<typeof loadImage> | null> {
   try {
     return await loadImage(url);
   } catch (error) {
-    console.error("Failed to load image:", url, error);
+    console.error('Failed to load image:', url, error);
     return null;
   }
 }
@@ -108,12 +97,7 @@ function getBestStats(players: IDeadlockPlayerWithName[]) {
   };
 }
 
-function getCenteredPosition(
-  x: number,
-  y: number,
-  imageWidth: number,
-  imageHeight: number
-) {
+function getCenteredPosition(x: number, y: number, imageWidth: number, imageHeight: number) {
   return {
     x: x - imageWidth / 2,
     y: y - imageHeight / 2,
@@ -144,7 +128,7 @@ async function drawPlayer(
   const { startY, labelGap, nameStatGap, playerSpacing } = Layout;
 
   // Background
-  ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
   ctx.fillRect(
     x - playerSpacing / 2 + 10,
     startY - Layout.avatarWidth + 10,
@@ -171,7 +155,7 @@ async function drawPlayer(
   // Player name
   ctx.fillStyle = Colors.white;
   ctx.font = Fonts.playerName;
-  ctx.textAlign = "center";
+  ctx.textAlign = 'center';
   ctx.fillText(shortenPlayerName(player.name), x, startY + 10);
 
   // Party icon
@@ -184,13 +168,13 @@ async function drawPlayer(
 
   // Stats
   const stats = [
-    { value: player.net_worth, key: "souls" },
-    { value: player.kills, key: "kills" },
+    { value: player.net_worth, key: 'souls' },
+    { value: player.kills, key: 'kills' },
     { value: player.deaths },
-    { value: player.assists, key: "assists" },
-    { value: player.damage_dealt, key: "player_damage" },
-    { value: player.obj_damage, key: "obj_damage" },
-    { value: player.healing, key: "healing" },
+    { value: player.assists, key: 'assists' },
+    { value: player.damage_dealt, key: 'player_damage' },
+    { value: player.obj_damage, key: 'obj_damage' },
+    { value: player.healing, key: 'healing' },
   ];
 
   for (let i = 0; i < stats.length; i++) {
@@ -200,7 +184,7 @@ async function drawPlayer(
     ctx.fillStyle = isBest ? bestStatColors.get(key!)! : Colors.white;
     ctx.font = isBest ? `bold 16px Arial` : Fonts.stat;
     ctx.fillText(
-      typeof value === "number" ? value.toLocaleString() : value,
+      typeof value === 'number' ? value.toLocaleString() : value,
       x,
       startY + labelGap * (i + 1) + nameStatGap
     );
@@ -215,31 +199,20 @@ async function drawTeam(
   bestStats: Record<string, number>
 ) {
   const promises = team.map((player, i) =>
-    drawPlayer(
-      ctx,
-      player,
-      startX + i * Layout.playerSpacing,
-      heroImages,
-      bestStats
-    )
+    drawPlayer(ctx, player, startX + i * Layout.playerSpacing, heroImages, bestStats)
   );
   await Promise.all(promises);
 }
 
 function drawLabels(ctx: SKRSContext2D) {
   const { startY, labelGap, nameStatGap, marginX } = Layout;
-  ctx.textAlign = "center";
+  ctx.textAlign = 'center';
   ctx.font = Fonts.label;
   rowLabels.forEach((label, i) => {
     const y = startY + labelGap * (i + 1) + nameStatGap;
     if (i % 2 === 0) {
-      ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
-      ctx.fillRect(
-        marginX,
-        y - labelGap / 2,
-        Layout.canvasWidth - marginX * 2,
-        labelGap
-      );
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.fillRect(marginX, y - labelGap / 2, Layout.canvasWidth - marginX * 2, labelGap);
     }
     ctx.fillStyle = Colors.grey;
     ctx.fillText(label, Layout.canvasWidth / 2, y);
@@ -248,20 +221,18 @@ function drawLabels(ctx: SKRSContext2D) {
 
 // --- Main Function ---
 
-export async function generateMatchImage(
-  options: IGenerateMatchImageOptions
-): Promise<Buffer> {
+export async function generateMatchImage(options: IGenerateMatchImageOptions): Promise<Buffer> {
   const { match } = options;
   const { team_0_players: sapphireTeam, team_1_players: amberTeam } = match;
   const allPlayers = [...sapphireTeam, ...amberTeam];
   const bestStats = getBestStats(allPlayers);
 
   const canvas = new Canvas(Layout.canvasWidth, Layout.canvasHeight);
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
 
   ctx.fillStyle = Colors.background;
   ctx.fillRect(0, 0, Layout.canvasWidth, Layout.canvasHeight);
-  ctx.textBaseline = "middle";
+  ctx.textBaseline = 'middle';
 
   const [team0BadgeUrl, team1BadgeUrl] = await Promise.all([
     useAssetsClient.DefaultService.GetRankImage(match.average_badge_team0),
@@ -290,28 +261,24 @@ export async function generateMatchImage(
   const boxX = Layout.canvasWidth / 2 - boxWidth / 2;
   const boxY = 20;
 
-  ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
   ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
 
   ctx.fillStyle = Colors.white;
   ctx.font = Fonts.title;
-  ctx.textAlign = "center";
-  ctx.fillText(
-    getFormattedMatchTime(match.duration_s),
-    Layout.canvasWidth / 2,
-    60
-  );
+  ctx.textAlign = 'center';
+  ctx.fillText(getFormattedMatchTime(match.duration_s), Layout.canvasWidth / 2, 60);
 
   // Team Points
   ctx.font = Fonts.point;
-  ctx.textAlign = "left";
+  ctx.textAlign = 'left';
   ctx.fillText(
     sapphireTeam.reduce((sum, p) => sum + p.net_worth, 0).toLocaleString(),
     Layout.canvasWidth / 2 - 175,
     60
   );
 
-  ctx.textAlign = "right";
+  ctx.textAlign = 'right';
   ctx.fillText(
     amberTeam.reduce((sum, p) => sum + p.net_worth, 0).toLocaleString(),
     Layout.canvasWidth / 2 + 175,
@@ -332,8 +299,7 @@ export async function generateMatchImage(
 
   // Badges
   const sapphireLeftmostX = sapphireStartX;
-  const amberRightmostX =
-    amberStartX + (amberTeam.length - 1) * Layout.playerSpacing;
+  const amberRightmostX = amberStartX + (amberTeam.length - 1) * Layout.playerSpacing;
 
   if (team0Badge) {
     const crop = cropBadgeCentered(team0Badge, 500); // pl. 500px max width
@@ -364,8 +330,7 @@ export async function generateMatchImage(
     const crop = cropBadgeCentered(team1Badge, 500);
     const scaledHeight = Layout.badgeDesiredWidth * (crop.sh / crop.sw);
 
-    const amberRightmostX =
-      amberStartX + (amberTeam.length - 1) * Layout.playerSpacing;
+    const amberRightmostX = amberStartX + (amberTeam.length - 1) * Layout.playerSpacing;
     const team1Position = getCenteredPosition(
       amberRightmostX,
       scaledHeight / 2 + 25,
@@ -388,23 +353,23 @@ export async function generateMatchImage(
 
   // Team names + Victory
   ctx.font = Fonts.team;
-  ctx.textAlign = "left";
+  ctx.textAlign = 'left';
   ctx.fillStyle = Colors.sapphire;
-  ctx.fillText("The Sapphire Flame", sapphireLeftmostX + 80, 70);
+  ctx.fillText('The Sapphire Flame', sapphireLeftmostX + 80, 70);
 
-  ctx.textAlign = "right";
+  ctx.textAlign = 'right';
   ctx.fillStyle = Colors.amber;
-  ctx.fillText("The Amber Hand", amberRightmostX - 80, 70);
+  ctx.fillText('The Amber Hand', amberRightmostX - 80, 70);
 
   ctx.font = Fonts.victory;
   ctx.fillStyle = Colors.white;
 
   if (match.winning_team === 0) {
-    ctx.textAlign = "left";
-    ctx.fillText("Victory", sapphireLeftmostX + 80, 120);
+    ctx.textAlign = 'left';
+    ctx.fillText('Victory', sapphireLeftmostX + 80, 120);
   } else if (match.winning_team === 1) {
-    ctx.textAlign = "right";
-    ctx.fillText("Victory", amberRightmostX - 80, 120);
+    ctx.textAlign = 'right';
+    ctx.fillText('Victory', amberRightmostX - 80, 120);
   }
 
   // Labels
@@ -413,17 +378,9 @@ export async function generateMatchImage(
   // Footer
   ctx.font = Fonts.label;
   ctx.fillStyle = Colors.grey;
-  ctx.textAlign = "right";
-  ctx.fillText(
-    match.match_id.toString(),
-    Layout.canvasWidth - 75,
-    Layout.canvasHeight - 45
-  );
-  ctx.fillText(
-    match.start_date,
-    Layout.canvasWidth - 75,
-    Layout.canvasHeight - 25
-  );
+  ctx.textAlign = 'right';
+  ctx.fillText(match.match_id.toString(), Layout.canvasWidth - 75, Layout.canvasHeight - 45);
+  ctx.fillText(match.start_date, Layout.canvasWidth - 75, Layout.canvasHeight - 25);
 
-  return canvas.toBuffer("image/png");
+  return canvas.toBuffer('image/png');
 }

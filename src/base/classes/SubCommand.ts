@@ -1,8 +1,8 @@
-import { ChatInputCommandInteraction } from "discord.js";
-import ISubCommand from "../interfaces/ISubCommand";
-import CustomClient from "./CustomClient";
-import ISubCommandOptions from "../interfaces/ISubCommandOptions";
-import { TFunction } from "i18next";
+import { ChatInputCommandInteraction } from 'discord.js';
+import ISubCommand from '../interfaces/ISubCommand';
+import CustomClient from './CustomClient';
+import ISubCommandOptions from '../interfaces/ISubCommandOptions';
+import { TFunction } from 'i18next';
 
 export default abstract class SubCommand implements ISubCommand {
   client: CustomClient;
@@ -15,6 +15,6 @@ export default abstract class SubCommand implements ISubCommand {
 
   abstract Execute(
     interaction: ChatInputCommandInteraction,
-    t: TFunction<"translation", undefined>
+    t: TFunction<'translation', undefined>
   ): Promise<void>;
 }

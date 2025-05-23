@@ -5,50 +5,43 @@ import {
   EmbedBuilder,
   escapeMarkdown,
   PermissionsBitField,
-} from "discord.js";
-import Command from "../../base/classes/Command";
-import CustomClient from "../../base/classes/CustomClient";
-import Category from "../../base/enums/Category";
-import { TFunction } from "i18next";
-import CommandError from "../../base/errors/CommandError";
-import {
-  logger,
-  useAssetsClient,
-  useDeadlockClient,
-  useStatlockerClient,
-} from "../..";
-import StoredPlayer from "../../base/schemas/StoredPlayerSchema";
-import { findHeroByName } from "../../services/utils/findHeroByName";
+} from 'discord.js';
+import Command from '../../base/classes/Command';
+import CustomClient from '../../base/classes/CustomClient';
+import Category from '../../base/enums/Category';
+import { TFunction } from 'i18next';
+import CommandError from '../../base/errors/CommandError';
+import { logger, useAssetsClient, useDeadlockClient, useStatlockerClient } from '../..';
+import StoredPlayer from '../../base/schemas/StoredPlayerSchema';
+import { findHeroByName } from '../../services/utils/findHeroByName';
 
 export default class Stats extends Command {
   constructor(client: CustomClient) {
     super(client, {
-      name: "stats",
+      name: 'stats',
       description: "Get player's overall statistics",
       category: Category.Deadlock,
-      default_member_permissions:
-        PermissionsBitField.Flags.UseApplicationCommands,
+      default_member_permissions: PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 6,
       dev: false,
       options: [
         {
-          name: "player",
-          description:
-            'Player\'s name or SteamID | Use "me" to get your statistics!',
+          name: 'player',
+          description: 'Player\'s name or SteamID | Use "me" to get your statistics!',
           required: true,
           type: ApplicationCommandOptionType.String,
         },
         {
-          name: "hero_name",
+          name: 'hero_name',
           description: "If given, returns the player's stats on the given hero",
           required: false,
           type: ApplicationCommandOptionType.String,
           autocomplete: true,
         },
         {
-          name: "private",
-          description: "Only show result to you",
+          name: 'private',
+          description: 'Only show result to you',
           required: false,
           type: ApplicationCommandOptionType.Boolean,
         },
@@ -56,92 +49,74 @@ export default class Stats extends Command {
     });
   }
 
-  async Execute(
-    interaction: ChatInputCommandInteraction,
-    t: TFunction<"translation", undefined>
-  ) {
-    const player = interaction.options.getString("player");
-    const ephemeral = interaction.options.getBoolean("private", false);
+  async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
+    const player = interaction.options.getString('player');
+    const ephemeral = interaction.options.getBoolean('private', false);
     let steamAuthNeeded: boolean = false;
 
     const HeroSpecificStats: Record<string, string[]> = {
-      "Grey Talon": ["max_guided_owl_stacks", "max_spirit_snare_stacks"],
-      Bebop: ["max_bomb_stacks"],
-      "Mo & Krill": ["max_bonus_health_per_kill"],
+      'Grey Talon': ['max_guided_owl_stacks', 'max_spirit_snare_stacks'],
+      Bebop: ['max_bomb_stacks'],
+      'Mo & Krill': ['max_bonus_health_per_kill'],
     };
 
     try {
-      await interaction.deferReply({ flags: ephemeral ? ["Ephemeral"] : [] });
+      await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
       let _steamId = player;
 
-      if (player === "me") {
+      if (player === 'me') {
         const storedPlayer = await StoredPlayer.findOne({
           discordId: interaction.user.id,
         });
 
-        if (!storedPlayer)
-          throw new CommandError(t("errors.steam_not_yet_stored"));
+        if (!storedPlayer) throw new CommandError(t('errors.steam_not_yet_stored'));
         steamAuthNeeded =
-          storedPlayer.authenticated === undefined ||
-          storedPlayer.authenticated === false;
+          storedPlayer.authenticated === undefined || storedPlayer.authenticated === false;
 
         _steamId = storedPlayer.steamId;
       }
 
-      const steamProfile =
-        await useStatlockerClient.ProfileService.GetProfileCache(_steamId!);
+      const steamProfile = await useStatlockerClient.ProfileService.GetProfileCache(_steamId!);
 
       if (!steamProfile) {
-        throw new CommandError(t("errors.steam_profile_not_found"));
+        throw new CommandError(t('errors.steam_profile_not_found'));
       }
 
       const accountId = steamProfile.accountId;
-      const heroName = interaction.options.getString("hero_name", false);
+      const heroName = interaction.options.getString('hero_name', false);
 
-      const hero = findHeroByName(heroName ?? "");
+      const hero = findHeroByName(heroName ?? '');
 
       if (heroName && !hero) {
         throw new CommandError(`Hero not found: ${heroName}`);
       }
 
-      const globalStats = [
-        "total_kd",
-        "total_matches",
-        "total_wins",
-        "total_losses",
-      ];
+      const globalStats = ['total_kd', 'total_matches', 'total_wins', 'total_losses'];
 
-      const additionalStats = [
-        "total_winrate",
-        "hours_played",
-        "most_played_hero",
-      ];
+      const additionalStats = ['total_winrate', 'hours_played', 'most_played_hero'];
 
       const heroStats = heroName
         ? [
-            "hero_kd",
-            "hero_matches",
-            "hero_wins",
-            "hero_losses",
-            "hero_winrate",
-            "hero_hours_played",
+            'hero_kd',
+            'hero_matches',
+            'hero_wins',
+            'hero_losses',
+            'hero_winrate',
+            'hero_hours_played',
           ]
         : [];
 
-      const heroSpecificStats = heroName
-        ? HeroSpecificStats[hero!.name] || []
-        : [];
+      const heroSpecificStats = heroName ? HeroSpecificStats[hero!.name] || [] : [];
 
       const stats = await useDeadlockClient.PlayerService.GetStats(
         accountId.toString(),
-        hero?.name || "",
+        hero?.name || '',
         [...globalStats, ...additionalStats, ...heroStats, ...heroSpecificStats]
       );
 
       const globalStatBlock = formatStatsBlock(stats, globalStats);
       const additionalStatBlock = formatStatsBlock(stats, additionalStats);
-      const heroStatBlock =
-        heroStats.length > 0 ? formatStatsBlock(stats, heroStats) : "";
+      const heroStatBlock = heroStats.length > 0 ? formatStatsBlock(stats, heroStats) : '';
       const heroSpecificStatBlock = formatStatsBlock(stats, heroSpecificStats);
 
       const description = `
@@ -149,18 +124,14 @@ export default class Stats extends Command {
           !heroName
             ? `\`\`\`Predicted Rank: ${steamProfile.performanceRankMessage}\`\`\` \nGlobal Stats ${globalStatBlock}  \nAdditional Stats ${additionalStatBlock}`
             : `Stats on ${hero?.name} ${heroStatBlock} ${
-                heroSpecificStats.length
-                  ? `\nHero Specific Stats ${heroSpecificStatBlock}`
-                  : ``
+                heroSpecificStats.length ? `\nHero Specific Stats ${heroSpecificStatBlock}` : ``
               } \nGlobal Stats ${globalStatBlock}`
         }
       `;
 
       const embed = new EmbedBuilder()
         .setColor(heroName ? 0x00ae86 : 0x7289da)
-        .setThumbnail(
-          heroName ? hero!.images.minimap_image : steamProfile.avatarUrl
-        )
+        .setThumbnail(heroName ? hero!.images.minimap_image : steamProfile.avatarUrl)
         .setTitle(`${escapeMarkdown(steamProfile.name)}'s stats`)
         .setURL(`https://statlocker.gg/profile/${steamProfile.accountId}`)
         .setDescription(description)
@@ -175,8 +146,8 @@ export default class Stats extends Command {
       if (steamAuthNeeded) {
         const embed = new EmbedBuilder()
           .setColor(0xffa500)
-          .setTitle(t("commands.stats.steam_auth_required_title"))
-          .setDescription(t("commands.stats.steam_auth_required_description"));
+          .setTitle(t('commands.stats.steam_auth_required_title'))
+          .setDescription(t('commands.stats.steam_auth_required_description'));
 
         await interaction.followUp({
           embeds: [embed],
@@ -191,12 +162,8 @@ export default class Stats extends Command {
       });
 
       const errorEmbed = new EmbedBuilder()
-        .setColor("Red")
-        .setDescription(
-          error instanceof CommandError
-            ? error.message
-            : t("errors.generic_error")
-        );
+        .setColor('Red')
+        .setDescription(error instanceof CommandError ? error.message : t('errors.generic_error'));
 
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ embeds: [errorEmbed] });
@@ -209,16 +176,14 @@ export default class Stats extends Command {
   async AutoComplete(interaction: AutocompleteInteraction) {
     // Check if the focused option is the hero_name option
     const focusedOption = interaction.options.getFocused(true);
-    if (focusedOption.name !== "hero_name") return;
+    if (focusedOption.name !== 'hero_name') return;
     const focusedValue = focusedOption.value.toLowerCase();
 
     // Get all hero names from the cache
-    const heroNames = useAssetsClient.HeroService.getCachedHeroes().map(
-      (h) => h.name
-    );
+    const heroNames = useAssetsClient.HeroService.getCachedHeroes().map((h) => h.name);
 
     // Filter the hero names based on the focused value
-    let suggestions = heroNames
+    const suggestions = heroNames
       .filter((h) => h.toLowerCase().includes(focusedValue))
       .sort((a, b) => {
         const aIndex = a.toLowerCase().indexOf(focusedValue);
@@ -232,21 +197,16 @@ export default class Stats extends Command {
   }
 }
 
-function formatStatsBlock(
-  stats: Record<string, any>,
-  fields: string[]
-): string {
+function formatStatsBlock(stats: Record<string, any>, fields: string[]): string {
   return (
-    "```\n" +
-    fields
-      .map((field) => `${formatFieldName(field)}: ${stats[field] ?? "N/A"}`)
-      .join("\n") +
-    "\n```"
+    '```\n' +
+    fields.map((field) => `${formatFieldName(field)}: ${stats[field] ?? 'N/A'}`).join('\n') +
+    '\n```'
   );
 }
 
 function formatFieldName(field: string): string {
   return field
-    .replace(/_/g, " ") // replace underscores with spaces
+    .replace(/_/g, ' ') // replace underscores with spaces
     .replace(/\b\w/g, (c) => c.toUpperCase()); // capitalize each word
 }

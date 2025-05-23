@@ -1,16 +1,13 @@
-import BaseClient, { IBaseApiOptions } from "../BaseClient";
-import DefaultAssetsService from "./DefaultService";
-import DeadlockHeroService from "./HeroService";
+import BaseClient, { IBaseApiOptions } from '../BaseClient';
+import DefaultAssetsService from './DefaultService';
+import DeadlockHeroService from './HeroService';
 
 export interface IDeadlockAssetsClient {
   HeroService: DeadlockHeroService;
   DefaultService: DefaultAssetsService;
 }
 
-export class DeadlockAssetsClient
-  extends BaseClient
-  implements IDeadlockAssetsClient
-{
+export class DeadlockAssetsClient extends BaseClient implements IDeadlockAssetsClient {
   HeroService: DeadlockHeroService;
   DefaultService: DefaultAssetsService;
 

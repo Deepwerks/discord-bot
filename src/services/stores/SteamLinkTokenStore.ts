@@ -1,10 +1,6 @@
 const tokenStore = new Map<string, { discordId: string; expiresAt: number }>();
 
-export function storeToken(
-  token: string,
-  discordId: string,
-  expiresAt: number
-) {
+export function storeToken(token: string, discordId: string, expiresAt: number) {
   tokenStore.set(token, { discordId, expiresAt });
 }
 
@@ -21,10 +17,13 @@ export function consumeToken(token: string): string | null {
 }
 
 export function cleanUpTokens() {
-  setInterval(() => {
-    const now = Date.now();
-    for (const [token, entry] of tokenStore.entries()) {
-      if (entry.expiresAt < now) tokenStore.delete(token);
-    }
-  }, 5 * 60 * 1000);
+  setInterval(
+    () => {
+      const now = Date.now();
+      for (const [token, entry] of tokenStore.entries()) {
+        if (entry.expiresAt < now) tokenStore.delete(token);
+      }
+    },
+    5 * 60 * 1000
+  );
 }

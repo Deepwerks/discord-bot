@@ -1,16 +1,15 @@
-import { ChatInputCommandInteraction, PermissionsBitField } from "discord.js";
-import Command from "../base/classes/Command";
-import CustomClient from "../base/classes/CustomClient";
-import Category from "../base/enums/Category";
+import { ChatInputCommandInteraction, PermissionsBitField } from 'discord.js';
+import Command from '../base/classes/Command';
+import CustomClient from '../base/classes/CustomClient';
+import Category from '../base/enums/Category';
 
 export default class Ping extends Command {
   constructor(client: CustomClient) {
     super(client, {
-      name: "ping",
-      description: "Pong! 🏓",
+      name: 'ping',
+      description: 'Pong! 🏓',
       category: Category.Utilities,
-      default_member_permissions:
-        PermissionsBitField.Flags.UseApplicationCommands,
+      default_member_permissions: PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 3,
       options: [],
@@ -22,7 +21,7 @@ export default class Ping extends Command {
     const startTime = performance.now();
 
     await interaction.reply({
-      content: "Pinging...",
+      content: 'Pinging...',
       withResponse: true,
     });
 
