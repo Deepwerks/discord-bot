@@ -52,6 +52,7 @@ export default class CustomClient extends Client implements ICustomClient {
     await useRedditClient.Init();
 
     this.LoadHandlers();
+    this.LoadCache();
 
     this.login(this.config.discord_bot_token).catch((err) => logger.error(err));
 
@@ -68,5 +69,12 @@ export default class CustomClient extends Client implements ICustomClient {
     this.handler.LoadCommands();
     this.handler.LoadButtonActions();
     this.handler.LoadSelectMenus();
+  }
+
+  async LoadCache() {
+    await Promise.all([
+      useAssetsClient.DefaultService.GetRanksCached(),
+      useAssetsClient.HeroService.LoadAllHeroesToCache(),
+    ]);
   }
 }
