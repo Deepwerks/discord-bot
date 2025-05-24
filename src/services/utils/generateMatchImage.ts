@@ -84,7 +84,7 @@ function getBestStats(players: DeadlockMatchPlayer[]) {
     kills: Math.max(...players.map((p) => p.kills)),
     assists: Math.max(...players.map((p) => p.assists)),
     player_damage: Math.max(...players.map((p) => p.stats.at(-1)?.player_damage ?? 0)),
-    obj_damage: Math.max(...players.map((p) => p.stats.at(-1)?.neutral_damage ?? 0)),
+    obj_damage: Math.max(...players.map((p) => p.stats.at(-1)?.boss_damage ?? 0)),
     healing: Math.max(...players.map((p) => p.stats.at(-1)?.player_healing ?? 0)),
   };
 }
@@ -165,7 +165,7 @@ async function drawPlayer(
     { value: player.deaths },
     { value: player.assists, key: 'assists' },
     { value: player.stats.at(-1)?.player_damage ?? 0, key: 'player_damage' },
-    { value: player.stats.at(-1)?.neutral_damage ?? 0, key: 'obj_damage' },
+    { value: player.stats.at(-1)?.boss_damage ?? 0, key: 'obj_damage' },
     { value: player.stats.at(-1)?.player_healing ?? 0, key: 'healing' },
   ];
 
@@ -215,6 +215,9 @@ function drawLabels(ctx: SKRSContext2D) {
 
 export async function generateMatchImage(options: IGenerateMatchImageOptions): Promise<Buffer> {
   const { match } = options;
+
+  await match.loadPlayerProfiles();
+
   const { team0Players: sapphireTeam, team1Players: amberTeam } = match;
   const allPlayers = [...sapphireTeam, ...amberTeam];
   const bestStats = getBestStats(allPlayers);
@@ -226,8 +229,8 @@ export async function generateMatchImage(options: IGenerateMatchImageOptions): P
   ctx.fillRect(0, 0, Layout.canvasWidth, Layout.canvasHeight);
   ctx.textBaseline = 'middle';
 
-  const team0BadgeUrl = await match.getaverageBadgeTeam0Url();
-  const team1BadgeUrl = await match.getaverageBadgeTeam1Url();
+  const team0BadgeUrl = await match.getAverageBadgeTeam0Url();
+  const team1BadgeUrl = await match.getAverageBadgeTeam1Url();
 
   const [team0Badge, team1Badge] = await Promise.all([
     safeLoadImage(team0BadgeUrl),

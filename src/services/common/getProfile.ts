@@ -1,4 +1,3 @@
-import { ChatInputCommandInteraction } from 'discord.js';
 import StoredPlayer from '../../base/schemas/StoredPlayerSchema';
 import CommandError from '../../base/errors/CommandError';
 import { TFunction } from 'i18next';
@@ -6,7 +5,7 @@ import { useStatlockerClient } from '../..';
 
 export default async function getProfile(
   player: string,
-  interaction: ChatInputCommandInteraction,
+  discordUserId: string,
   t: TFunction<'translation', undefined>
 ) {
   let _steamId = player;
@@ -14,7 +13,7 @@ export default async function getProfile(
 
   if (player === 'me') {
     const storedPlayer = await StoredPlayer.findOne({
-      discordId: interaction.user.id,
+      discordId: discordUserId,
     });
 
     if (!storedPlayer) throw new CommandError(t('errors.steam_not_yet_stored'));

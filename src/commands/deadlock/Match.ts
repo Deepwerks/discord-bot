@@ -60,15 +60,20 @@ export default class Match extends Command {
   }
 
   async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
-    const id = interaction.options.getString('id')!;
-    const type = id === 'me' ? 'player_id' : (interaction.options.getString('type') ?? 'match_id');
+    const id = interaction.options.getString('id', true);
+    const type: 'player_id' | 'match_id' =
+      id.toLowerCase() === 'me'
+        ? 'player_id'
+        : interaction.options.getString('type')
+          ? (interaction.options.getString('type') as 'player_id' | 'match_id')
+          : 'match_id';
     const ephemeral = interaction.options.getBoolean('private', false);
     const startTime = performance.now();
 
     await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
 
     try {
-      const { matchData, imageBuffer, steamAuthNeeded } = await handleMatchRequest({
+      const { matchData, imageBuffer, _steamAuthNeeded } = await handleMatchRequest({
         id,
         type,
         userId: interaction.user.id,
@@ -113,7 +118,7 @@ export default class Match extends Command {
         components: [row],
       });
 
-      if (steamAuthNeeded) {
+      if (_steamAuthNeeded) {
         const embed = new EmbedBuilder()
           .setColor(0xffa500)
           .setTitle(t('commands.match.steam_auth_required_title'))

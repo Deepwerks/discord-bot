@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction, EmbedBuilder, PermissionsBitField } from '
 import Command from '../../base/classes/Command';
 import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
+import { getBotVersion } from '../../services/utils/getBotVersion';
 
 export default class About extends Command {
   constructor(client: CustomClient) {
@@ -54,7 +55,8 @@ It fetches real-time match data, player stats, and full match history directly f
           .setAuthor({
             name: author.username,
             iconURL: author.displayAvatarURL(),
-          }),
+          })
+          .setFooter({ text: `DeadlockAssistant - v${getBotVersion()}` }),
       ],
     });
   }

@@ -1,4 +1,3 @@
-import BaseClient from '../../../base/classes/BaseClient';
 import { logger } from '../../../../..';
 import DeadlockMatch from './entities/DeadlockMatch';
 import DeadlockMatchSchema from './validators/DeadlockMatch.validator';
@@ -11,16 +10,10 @@ import DeadlockMatchIdSchema from './validators/DeadlockMatchId.validator';
 import DeadlockMatchId from './entities/DeadlockMatchId';
 
 export default class DeadlockMatchService extends BaseClientService {
-  private cache: CustomCache<DeadlockMatch>;
-
-  constructor(client: BaseClient) {
-    super(client);
-
-    this.cache = new CustomCache<DeadlockMatch>(60);
-  }
+  private cache = new CustomCache<DeadlockMatch>(60);
 
   async GetMatch(matchId: number): Promise<DeadlockMatch | null> {
-    const cached = this.cache.get(matchId);
+    const cached = this.cache.get(String(matchId));
 
     if (cached) {
       return cached;
@@ -39,7 +32,7 @@ export default class DeadlockMatchService extends BaseClientService {
       });
 
       const fetchedMatch = new DeadlockMatch(response);
-      this.cache.set(matchId, fetchedMatch);
+      this.cache.set(String(matchId), fetchedMatch);
 
       return fetchedMatch;
     } catch (error) {

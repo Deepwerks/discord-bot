@@ -60,9 +60,9 @@ export default class Performance extends Command {
     await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
 
     try {
-      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction, t);
+      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction.user.id, t);
 
-      const matches = await useDeadlockClient.PlayerService.GetMatchHistory(
+      const matches = await useDeadlockClient.PlayerService.fetchMatchHistory(
         steamProfile.accountId,
         matchHistoryLimit
       );

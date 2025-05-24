@@ -22,7 +22,7 @@ export default abstract class ButtonAction implements IButtonAction {
     t: TFunction<'translation', undefined>
   ): Promise<void>;
 
-  AutoComplete(interaction: AutocompleteInteraction): void {
+  AutoComplete(_interaction: AutocompleteInteraction): void {
     /* default no-op – can be overridden */
   }
 }

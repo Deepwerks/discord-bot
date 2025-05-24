@@ -52,9 +52,13 @@ export default class History extends Command {
     const ephemeral = interaction.options.getBoolean('private', false);
 
     try {
-      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction, t);
+      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction.user.id, t);
 
-      const matches = await useDeadlockClient.PlayerService.GetMatchHistory(
+      const matchHistory = await useDeadlockClient.PlayerService.fetchMatchHistory(
+        steamProfile.accountId,
+        15
+      );
+      const mmrHistory = await useDeadlockClient.PlayerService.fetchMMRHistory(
         steamProfile.accountId,
         15
       );
@@ -62,20 +66,20 @@ export default class History extends Command {
       const limit = pLimit(10);
 
       const matchesString: string[] = await Promise.all(
-        matches.map((match) =>
+        matchHistory.map((match) =>
           limit(async () => {
             const hero = await match.getHero();
             const heroName = hero ? hero.name : 'Unknown';
 
-            const mmrRecord = await match.getMMRRecord();
+            const mmrRecord = mmrHistory.find((record) => record.matchId === match.matchId);
 
             const champion = heroName.slice(0, 14).padEnd(15);
             const time = getFormattedMatchTime(match.matchDurationS).padEnd(9);
 
             const rank = (
               await useAssetsClient.DefaultService.GetRankName(
-                mmrRecord?.division ?? 0,
-                mmrRecord?.divisionTier ?? 0
+                mmrRecord?.division,
+                mmrRecord?.divisionTier
               )
             )
               ?.slice(0, 12)
@@ -102,7 +106,7 @@ export default class History extends Command {
         'Date'.padEnd(12);
 
       const response = `\`\`\`diff
-${escapeMarkdown(steamProfile.name)}'s (${steamProfile.accountId}) last ${matches.length} matches:
+${escapeMarkdown(steamProfile.name)}'s (${steamProfile.accountId}) last ${matchHistory.length} matches:
 
 ${header}
 ${matchesString.join('\n')}
@@ -119,7 +123,7 @@ ${matchesString.join('\n')}
         .setPlaceholder(t('commands.history.match_details_placeholder'))
         .addOptions(
           await Promise.all(
-            matches.map(async (match) => {
+            matchHistory.map(async (match) => {
               const win = match.matchResult === match.playerTeam ? 'Win' : 'Loss';
               const hero = await match.getHero();
 

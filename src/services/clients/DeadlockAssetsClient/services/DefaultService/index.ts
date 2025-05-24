@@ -1,18 +1,12 @@
 import { logger } from '../../../../..';
 import CustomCache from '../../../../cache';
 import { hasMiscProperty } from '../../../../utils/guards';
-import BaseClient from '../../../base/classes/BaseClient';
 import BaseClientService from '../../../base/classes/BaseClientService';
 import DeadlockRank from './entities/DeadlockRank';
 import DeadlockRanksSchema from './validators/DeadlockRanks.validator';
 
 export default class DeadlockDefaultService extends BaseClientService {
-  private cache: CustomCache<DeadlockRank>;
-  constructor(client: BaseClient) {
-    super(client);
-
-    this.cache = new CustomCache<DeadlockRank>(0);
-  }
+  private cache = new CustomCache<DeadlockRank>(0);
 
   private async fetchRanks(): Promise<DeadlockRank[]> {
     try {
@@ -25,7 +19,7 @@ export default class DeadlockDefaultService extends BaseClientService {
       const ranks = response.map((rank) => {
         const _rank = new DeadlockRank(rank);
 
-        this.cache.set(_rank.tier, _rank);
+        this.cache.set(String(_rank.tier), _rank);
         return _rank;
       });
 
@@ -44,7 +38,7 @@ export default class DeadlockDefaultService extends BaseClientService {
   async GetRanks(): Promise<DeadlockRank[]> {
     const cached = this.cache.getAll().map((rank) => rank);
 
-    if (cached) {
+    if (cached.length > 0) {
       return cached;
     }
 
@@ -53,37 +47,40 @@ export default class DeadlockDefaultService extends BaseClientService {
   }
 
   async GetRank(tier: number): Promise<DeadlockRank | null> {
-    let rank = this.cache.get(tier);
+    let rank = this.cache.get(String(tier));
 
-    if (!rank) {
+    if (rank === null) {
       await this.fetchRanks();
-      rank = this.cache.get(tier);
+      rank = this.cache.get(String(tier));
     }
 
     return rank;
   }
 
-  async GetRankName(rank: number, subrank: number): Promise<string> {
+  async GetRankName(rank?: number, subrank?: number): Promise<string> {
+    if (!rank) return 'Unknown';
+
     const tierData = await this.GetRank(rank);
     if (!tierData) return 'Unknown';
 
-    return `${tierData.name}${subrank > 0 ? ` ${subrank}` : ''}`;
+    return `${tierData.name}${(subrank ?? 0 > 0) ? ` ${subrank}` : ''}`;
   }
 
-  async GetRankImage(rank: number, subrank: number) {
+  async GetRankImage(rank?: number, subrank?: number) {
     let unknownImage = (await this.GetRank(0))?.images.large;
 
-    if (!unknownImage) {
+    if (!unknownImage)
       unknownImage =
         'https://assets-bucket.deadlock-api.com/assets-api-res/images/ranks/rank0/badge_lg.png';
-    }
+
+    if (!rank) return unknownImage;
 
     const tierData = await this.GetRank(rank);
     if (!tierData) return unknownImage;
 
     const images = tierData.images;
 
-    if (subrank === 0) {
+    if (subrank === 0 || subrank === undefined) {
       return images.large;
     }
 
@@ -101,7 +98,7 @@ export default class DeadlockDefaultService extends BaseClientService {
 
       response.map((rank) => {
         const _rank = new DeadlockRank(rank);
-        this.cache.set(_rank.tier, _rank);
+        this.cache.set(String(_rank.tier), _rank);
       });
     } catch (error) {
       logger.error('Failed to fetch all deadlock ranks', {

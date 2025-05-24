@@ -4,7 +4,6 @@ import DeadlockAssetsClient from './services/clients/DeadlockAssetsClient';
 import DeadlockClient from './services/clients/DeadlockClient';
 import RedditClient from './services/clients/RedditClient';
 import StatlockerClient from './services/clients/StatlockerClient';
-import SteamClient from './services/clients/SteamClient';
 import { logtailLogger } from './services/logger';
 import { JobScheduler } from './services/scheduler';
 import CheckDeadlockPatches from './services/scheduler/jobs/CheckDeadlockPatches';
@@ -26,10 +25,6 @@ const useStatlockerClient = new StatlockerClient({
 const useRedditClient = new RedditClient({
   config,
 });
-const useSteamClient = new SteamClient({
-  config,
-  baseURL: config.steam_api_url,
-});
 
 new CustomClient().Init();
 
@@ -38,14 +33,7 @@ const scheduler = new JobScheduler()
   .addJob('CheckDeadlockPatchesAfternoon', '0 0 15 * * *', CheckDeadlockPatches);
 scheduler.startJobs();
 
-export {
-  useDeadlockClient,
-  useAssetsClient,
-  useStatlockerClient,
-  useRedditClient,
-  useSteamClient,
-  logger,
-};
+export { useDeadlockClient, useAssetsClient, useStatlockerClient, useRedditClient, logger };
 
 process.on('uncaughtException', (err) => {
   logger.error('Uncaught Exception:', err);

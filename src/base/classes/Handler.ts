@@ -34,9 +34,9 @@ export default class Handler implements IHandler {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const execute = (...args: any) => event.Execute(...args);
 
-      //@ts-ignore
+      //@ts-expect-error DISCORD-JS-TYPE
       if (event.once) this.client.once(event.name, execute);
-      //@ts-ignore
+      //@ts-expect-error DISCORD-JS-TYPE
       else this.client.on(event.name, execute);
 
       return delete require.cache[require.resolve(file)];

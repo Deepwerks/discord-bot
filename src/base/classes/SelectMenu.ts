@@ -22,7 +22,6 @@ export default abstract class SelectMenu implements ISelectMenu {
     t: TFunction<'translation', undefined>
   ): Promise<void>;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   AutoComplete(_interaction: AutocompleteInteraction): Promise<void> | void {
     /* default no-op – can be overridden */
   }

@@ -26,7 +26,7 @@ export default class FinishMatchButtonAction extends ButtonAction {
   async Execute(interaction: ButtonInteraction, t: TFunction<'translation', undefined>) {
     try {
       await interaction.deferReply();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
       const [_, creatorId] = interaction.customId.split(':');
 
       const startTime = performance.now();

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import express, { Application, Request, Response, NextFunction } from 'express';
 import IConfig from '../../base/interfaces/IConfig';
 import { logger } from '../..';
@@ -29,7 +28,7 @@ export default class WebService implements IWebService {
 
     cleanUpTokens();
 
-    app.get('/', limiter, (req: Request, res: Response, _next: NextFunction) => {
+    app.get('/', limiter, (_req: Request, res: Response, _next: NextFunction) => {
       res.json({
         service: 'Deadlock Assistant',
         type: 'Discord BOT',

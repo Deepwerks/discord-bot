@@ -26,7 +26,7 @@ export default class StatlockerProfileService extends BaseClientService {
 
       const profile = new StatlockerProfile(response);
 
-      this.cache.set(profile.accountId, profile);
+      this.cache.set(String(profile.accountId), profile);
       return profile;
     } catch (error) {
       logger.error('Failed to fetch statlocker profile', {
@@ -58,7 +58,7 @@ export default class StatlockerProfileService extends BaseClientService {
       const profiles = response.map((profile) => {
         const _profile = new StatlockerProfile(profile);
 
-        this.cache.set(_profile.accountId, _profile);
+        this.cache.set(String(_profile.accountId), _profile);
         return _profile;
       });
 
@@ -85,7 +85,7 @@ export default class StatlockerProfileService extends BaseClientService {
   }
 
   async GetProfile(account_id: number): Promise<StatlockerProfile> {
-    const cached = this.cache.get(account_id);
+    const cached = this.cache.get(String(account_id));
 
     if (cached) return cached;
 
@@ -98,7 +98,7 @@ export default class StatlockerProfileService extends BaseClientService {
     const idsToFetch: number[] = [];
 
     for (const id of account_ids) {
-      const cached = this.cache.get(id);
+      const cached = this.cache.get(String(id));
       if (cached) {
         cachedProfiles[id] = cached;
       } else {

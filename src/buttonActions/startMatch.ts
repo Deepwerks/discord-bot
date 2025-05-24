@@ -29,7 +29,6 @@ export default class StartMatchButtonAction extends ButtonAction {
 
   async Execute(interaction: ButtonInteraction, t: TFunction<'translation', undefined>) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, creatorId] = interaction.customId.split(':');
 
       if (interaction.user.id !== creatorId) {

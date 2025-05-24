@@ -5,7 +5,6 @@ import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
 import { logger } from '../..';
-import { getBotVersion } from '../../services/utils/getBotVersion';
 
 export default class Test extends Command {
   constructor(client: CustomClient) {
@@ -17,7 +16,7 @@ export default class Test extends Command {
       dm_permission: true,
       cooldown: 3,
       options: [],
-      dev: false,
+      dev: true,
     });
   }
 
@@ -25,10 +24,8 @@ export default class Test extends Command {
     try {
       await interaction.deferReply();
 
-      const botVersion = getBotVersion();
-
       await interaction.editReply({
-        content: botVersion,
+        content: 'awdd',
       });
     } catch (error) {
       logger.error(error);

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import DeadlockHeroImagesSchema from './DeadlockHeroImages.validator';
-import DeadlockHeroDescriptionSchema from './DeadlockHeroDescription';
+import DeadlockHeroDescriptionSchema from './DeadlockHeroDescription.validator';
 
 const DeadlockHeroSchema = z.object({
   id: z.number(),

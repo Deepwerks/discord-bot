@@ -12,5 +12,5 @@ export default abstract class Modal {
     this.description = options.description;
   }
 
-  abstract Execute(interaction: ModalSubmitInteraction): Promise<any>;
+  abstract Execute(interaction: ModalSubmitInteraction): Promise<void>;
 }
