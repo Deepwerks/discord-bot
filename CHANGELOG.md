@@ -1,4 +1,4 @@
-# [1.8.0](https://github.com/Deepwerks/discord-bot/compare/v1.8.0-release...v1.8.0) (2025-05-24)
+## [1.8.1](https://github.com/Deepwerks/discord-bot/compare/v1.8.0-release...v1.8.1) (2025-05-24)
 
 
 
