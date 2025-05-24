@@ -4,42 +4,39 @@ import {
   ButtonStyle,
   EmbedBuilder,
   ModalSubmitInteraction,
-} from "discord.js";
-import CustomClient from "../base/classes/CustomClient";
-import Modal from "../base/classes/CustomModal";
-import { logger } from "..";
-import CommandError from "../base/errors/CommandError";
-import { lobbyStore } from "../services/stores/LobbyStore";
+} from 'discord.js';
+import CustomClient from '../base/classes/CustomClient';
+import Modal from '../base/classes/CustomModal';
+import { logger } from '..';
+import CommandError from '../base/errors/CommandError';
+import { lobbyStore } from '../services/stores/LobbyStore';
 
 export default class CreateLobby extends Modal {
   constructor(client: CustomClient) {
     super(client, {
-      customId: "createLobby",
-      description: "Handles lobby creation settings",
+      customId: 'createLobby',
+      description: 'Handles lobby creation settings',
     });
   }
 
   async Execute(interaction: ModalSubmitInteraction) {
     try {
-      const maxPlayers =
-        interaction.fields.getTextInputValue("max_players_input");
+      const maxPlayers = interaction.fields.getTextInputValue('max_players_input');
       const maxPlayersNum = parseInt(maxPlayers);
       if (isNaN(maxPlayersNum) || maxPlayersNum <= 0) {
-        throw new CommandError("Max players must be a positive number");
+        throw new CommandError('Max players must be a positive number');
       }
 
       const lobbyId = interaction.user.id;
 
       const embed = new EmbedBuilder()
         .setColor(0x00bcd4)
-        .setTitle("🎮 New Lobby Created")
-        .setDescription(
-          "A new lobby has been created with the following settings:"
-        )
+        .setTitle('🎮 New Lobby Created')
+        .setDescription('A new lobby has been created with the following settings:')
         .addFields(
-          { name: "Max Players", value: String(maxPlayers), inline: true },
+          { name: 'Max Players', value: String(maxPlayers), inline: true },
           {
-            name: "Created By",
+            name: 'Created By',
             value: `<@${interaction.user.id}>`,
             inline: true,
           },
@@ -49,33 +46,28 @@ export default class CreateLobby extends Modal {
             inline: false,
           }
         )
-        .setFooter({ text: "Join the lobby by clicking the button below" })
+        .setFooter({ text: 'Join the lobby by clicking the button below' })
         .setTimestamp();
 
       const experimentalWarningEmbed = new EmbedBuilder()
-        .setColor("Yellow")
+        .setColor('Yellow')
         .setDescription(
-          "⚠️ This feature is in early development. Please share feedback using /feedback!"
+          '⚠️ This feature is in early development. Please share feedback using /feedback!'
         );
 
       const joinButton = new ButtonBuilder()
-        .setCustomId(
-          `join_party:${interaction.user.id}:${maxPlayersNum}:${lobbyId}`
-        )
-        .setLabel("Join Party")
+        .setCustomId(`join_party:${interaction.user.id}:${maxPlayersNum}:${lobbyId}`)
+        .setLabel('Join Party')
         .setStyle(ButtonStyle.Primary)
-        .setEmoji("👥");
+        .setEmoji('👥');
 
       const startMatchButton = new ButtonBuilder()
         .setCustomId(`start_match:${interaction.user.id}:${maxPlayersNum}`)
-        .setLabel("Start Match")
+        .setLabel('Start Match')
         .setStyle(ButtonStyle.Success)
-        .setEmoji("🎮");
+        .setEmoji('🎮');
 
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        joinButton,
-        startMatchButton
-      );
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(joinButton, startMatchButton);
 
       const replyMessage = await interaction.reply({
         embeds: [embed, experimentalWarningEmbed],
@@ -97,11 +89,9 @@ export default class CreateLobby extends Modal {
       });
 
       const errorEmbed = new EmbedBuilder()
-        .setColor("Red")
+        .setColor('Red')
         .setDescription(
-          error instanceof CommandError
-            ? error.message
-            : "❌ Failed to create lobby."
+          error instanceof CommandError ? error.message : '❌ Failed to create lobby.'
         );
 
       if (interaction.deferred || interaction.replied) {

@@ -1,10 +1,5 @@
-import {
-  ButtonBuilder,
-  ButtonStyle,
-  ActionRowBuilder,
-  InteractionReplyOptions,
-} from "discord.js";
-import { PaginationContext, paginationStore } from "../stores/PaginationStore";
+import { ButtonBuilder, ButtonStyle, ActionRowBuilder, InteractionReplyOptions } from 'discord.js';
+import { PaginationContext, paginationStore } from '../stores/PaginationStore';
 
 export function createPaginationSession(
   sessionId: string,
@@ -16,20 +11,17 @@ export function createPaginationSession(
 
   const backButton = new ButtonBuilder()
     .setCustomId(`pagination:back:${sessionId}`)
-    .setLabel("◀ Back")
+    .setLabel('◀ Back')
     .setStyle(ButtonStyle.Primary)
     .setDisabled(true);
 
   const nextButton = new ButtonBuilder()
     .setCustomId(`pagination:next:${sessionId}`)
-    .setLabel("Next ▶")
+    .setLabel('Next ▶')
     .setStyle(ButtonStyle.Primary)
     .setDisabled(context.data.length <= 1);
 
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    backButton,
-    nextButton
-  );
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(backButton, nextButton);
 
   // Auto-clean after 5 minutes
   setTimeout(() => paginationStore.delete(sessionId), 5 * 60 * 1000);

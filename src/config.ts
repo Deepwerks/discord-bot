@@ -1,27 +1,29 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 dotenv.config();
 
-import IConfig from "./base/interfaces/IConfig";
-import { logger } from ".";
+import IConfig from './base/interfaces/IConfig';
+import { logger } from '.';
+import { getBotVersion } from './services/utils/getBotVersion';
 
 let config: IConfig | null = null;
 
-let running_env = process.env.NODE_ENV;
+const running_env = process.env.NODE_ENV;
+const botVersion = getBotVersion() || '1.0.0';
 
 if (running_env === undefined) {
-  logger.error("NODE_ENV is undefined. Shutting down...");
+  logger.error('NODE_ENV is undefined. Shutting down...');
   process.exit(1);
 }
 
 switch (running_env) {
-  case "production":
+  case 'production':
     config = {
       running_env,
       discord_bot_token: process.env.DISCORD_BOT_TOKEN!,
       discord_client_id: process.env.DISCORD_CLIENT_ID!,
       mongodb_url: process.env.MONGODB_URL!,
       dev_guild_id: process.env.DEV_GUILD_ID!,
-      developer_user_ids: ["282548643142172672"], //leave the first record for the lead dev
+      developer_user_ids: ['282548643142172672'], //leave the first record for the lead dev
       port: Number(process.env.PORT!),
       steam_api_key: process.env.STEAM_API_KEY!,
       steam_api_url: process.env.STEAM_API_URL!,
@@ -35,10 +37,11 @@ switch (running_env) {
       logtail_endpoint: process.env.LOGTAIL_ENDPOINT!,
       logtail_source_token: process.env.LOGTAIL_SOURCE_TOKEN!,
       secret: process.env.SECRET!,
+      bot_version: botVersion,
     };
     break;
-  case "development":
-    dotenv.config({ path: "dev.env" });
+  case 'development':
+    dotenv.config({ path: 'dev.env' });
 
     config = {
       running_env,
@@ -46,7 +49,7 @@ switch (running_env) {
       discord_client_id: process.env.DISCORD_CLIENT_ID!,
       mongodb_url: process.env.MONGODB_URL!,
       dev_guild_id: process.env.DEV_GUILD_ID!,
-      developer_user_ids: ["282548643142172672"],
+      developer_user_ids: ['282548643142172672'],
       port: Number(process.env.PORT!),
       steam_api_key: process.env.STEAM_API_KEY!,
       steam_api_url: process.env.STEAM_API_URL!,
@@ -60,41 +63,41 @@ switch (running_env) {
       logtail_endpoint: process.env.LOGTAIL_ENDPOINT!,
       logtail_source_token: process.env.LOGTAIL_SOURCE_TOKEN!,
       secret: process.env.SECRET!,
+      bot_version: botVersion,
     };
     break;
-  case "test":
+  case 'test':
     config = {
       running_env,
-      discord_bot_token: "",
-      discord_client_id: "",
-      mongodb_url: "",
-      dev_guild_id: "",
-      developer_user_ids: [""],
+      discord_bot_token: '',
+      discord_client_id: '',
+      mongodb_url: '',
+      dev_guild_id: '',
+      developer_user_ids: [''],
       port: 9000,
-      steam_api_key: "",
-      steam_api_url: "",
-      deadlock_api_key: "",
-      deadlock_api_url: "",
-      deadlock_assets_api_url: "",
-      statlocker_api_url: "",
-      deadlock_assistant_url: "",
-      reddit_client_id: "",
-      reddit_client_secret: "",
-      logtail_endpoint: "",
-      logtail_source_token: "",
-      secret: "",
+      steam_api_key: '',
+      steam_api_url: '',
+      deadlock_api_key: '',
+      deadlock_api_url: '',
+      deadlock_assets_api_url: '',
+      statlocker_api_url: '',
+      deadlock_assistant_url: '',
+      reddit_client_id: '',
+      reddit_client_secret: '',
+      logtail_endpoint: '',
+      logtail_source_token: '',
+      secret: '',
+      bot_version: botVersion,
     };
     break;
 
   default:
-    logger.error(
-      "Failed to initialize config: no valid environment found. Shutting down..."
-    );
+    logger.error('Failed to initialize config: no valid environment found. Shutting down...');
     process.exit(1);
 }
 
 if (config === null) {
-  logger.error("Failed to initialize config: config is null. Shutting down...");
+  logger.error('Failed to initialize config: config is null. Shutting down...');
   process.exit(1);
 }
 

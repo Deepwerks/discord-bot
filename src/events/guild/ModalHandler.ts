@@ -1,15 +1,15 @@
-import { EmbedBuilder, Events, ModalSubmitInteraction } from "discord.js";
-import CustomClient from "../../base/classes/CustomClient";
-import Event from "../../base/classes/Event";
-import IModalHandler from "../../base/interfaces/IModalHandler";
-import CommandError from "../../base/errors/CommandError";
-import { logger } from "../..";
+import { EmbedBuilder, Events, ModalSubmitInteraction } from 'discord.js';
+import CustomClient from '../../base/classes/CustomClient';
+import Event from '../../base/classes/Event';
+import IModalHandler from '../../base/interfaces/IModalHandler';
+import CommandError from '../../base/errors/CommandError';
+import { logger } from '../..';
 
 export default class ModalHandler extends Event implements IModalHandler {
   constructor(client: CustomClient) {
     super(client, {
       name: Events.InteractionCreate,
-      description: "Modal handler event",
+      description: 'Modal handler event',
       once: false,
     });
   }
@@ -34,11 +34,11 @@ export default class ModalHandler extends Event implements IModalHandler {
       });
 
       const errorEmbed = new EmbedBuilder()
-        .setColor("Red")
+        .setColor('Red')
         .setDescription(
           error instanceof CommandError
             ? error.message
-            : "An error occurred while processing the modal."
+            : 'An error occurred while processing the modal.'
         );
 
       if (interaction.deferred || interaction.replied) {

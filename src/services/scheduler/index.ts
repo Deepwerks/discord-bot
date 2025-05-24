@@ -1,5 +1,5 @@
-import cron from "node-cron";
-import { logger } from "../..";
+import cron from 'node-cron';
+import { logger } from '../..';
 
 export class JobScheduler {
   private jobs: Map<string, cron.ScheduledTask>;
@@ -19,9 +19,7 @@ export class JobScheduler {
     // Schedule the new job
     const job = cron.schedule(cronExpression, task);
     this.jobs.set(name, job);
-    logger.info(
-      `Job "${name}" added with cron expression "${cronExpression}".`
-    );
+    logger.info(`Job "${name}" added with cron expression "${cronExpression}".`);
 
     return this;
   }

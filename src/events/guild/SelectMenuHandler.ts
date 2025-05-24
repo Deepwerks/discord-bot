@@ -1,23 +1,18 @@
-import {
-  Collection,
-  EmbedBuilder,
-  Events,
-  StringSelectMenuInteraction,
-} from "discord.js";
-import CustomClient from "../../base/classes/CustomClient";
-import Event from "../../base/classes/Event";
-import { logger } from "../..";
-import i18next from "../../services/i18n";
-import GuildConfig from "../../base/schemas/GuildConfigSchema";
-import logInteraction from "../../services/logger/logInteraction";
-import { InteractionType } from "../../base/schemas/UserInteractionSchema";
-import CommandError from "../../base/errors/CommandError";
+import { Collection, EmbedBuilder, Events, StringSelectMenuInteraction } from 'discord.js';
+import CustomClient from '../../base/classes/CustomClient';
+import Event from '../../base/classes/Event';
+import { logger } from '../..';
+import i18next from '../../services/i18n';
+import GuildConfig from '../../base/schemas/GuildConfigSchema';
+import logInteraction from '../../services/logger/logInteraction';
+import { InteractionType } from '../../base/schemas/UserInteractionSchema';
+import CommandError from '../../base/errors/CommandError';
 
 export default class SelectMenuHandler extends Event {
   constructor(client: CustomClient) {
     super(client, {
       name: Events.InteractionCreate,
-      description: "SelectMenu handler event",
+      description: 'SelectMenu handler event',
       once: false,
     });
   }
@@ -25,19 +20,19 @@ export default class SelectMenuHandler extends Event {
   async Execute(interaction: StringSelectMenuInteraction) {
     if (!interaction.isStringSelectMenu()) return;
 
-    const [action] = interaction.customId.split(":");
+    const [action] = interaction.customId.split(':');
 
     const guildLang = await GuildConfig.findOne({
       guildId: interaction.guildId!,
     });
-    const t = i18next.getFixedT(guildLang?.lang!);
+    const t = i18next.getFixedT(guildLang?.lang ?? 'en');
 
     try {
       const selectMenuHandler = this.client.selectMenus.get(action);
 
       if (!selectMenuHandler) {
         this.client.selectMenus.delete(action);
-        throw new CommandError("No button found");
+        throw new CommandError('No button found');
       }
 
       const { cooldowns } = this.client;
@@ -54,18 +49,16 @@ export default class SelectMenuHandler extends Event {
       )
         return interaction.reply({
           embeds: [
-            new EmbedBuilder().setColor("Red").setDescription(
-              t("warnings.cooldown", {
+            new EmbedBuilder().setColor('Red').setDescription(
+              t('warnings.cooldown', {
                 time: (
-                  ((timestamps.get(interaction.user.id) || 0) +
-                    cooldownAmount -
-                    now) /
+                  ((timestamps.get(interaction.user.id) || 0) + cooldownAmount - now) /
                   1000
                 ).toFixed(1),
               })
             ),
           ],
-          flags: ["Ephemeral"],
+          flags: ['Ephemeral'],
         });
 
       timestamps.set(interaction.user.id, now);
@@ -86,12 +79,8 @@ export default class SelectMenuHandler extends Event {
       });
 
       const errorEmbed = new EmbedBuilder()
-        .setColor("Red")
-        .setDescription(
-          error instanceof CommandError
-            ? error.message
-            : t("errors.generic_error")
-        );
+        .setColor('Red')
+        .setDescription(error instanceof CommandError ? error.message : t('errors.generic_error'));
 
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ embeds: [errorEmbed] });

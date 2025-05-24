@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { model, Schema } from 'mongoose';
 
 interface IChangelogRecordSchema {
   name: string;
@@ -37,7 +37,7 @@ const ChangelogRecordSchema = new Schema<IChangelogRecordSchema>(
 );
 
 export default model<IChangelogSchema>(
-  "Changelog",
+  'Changelog',
   new Schema<IChangelogSchema>(
     {
       version: { type: String, required: true },
