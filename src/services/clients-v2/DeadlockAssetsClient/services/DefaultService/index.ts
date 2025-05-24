@@ -7,11 +7,11 @@ import DeadlockRank from './entities/DeadlockRank';
 import DeadlockRanksSchema from './validators/DeadlockRanks.validator';
 
 export default class DeadlockDefaultService extends BaseClientService {
-  private ranksCache: CustomCache<DeadlockRank>;
+  private cache: CustomCache<DeadlockRank>;
   constructor(client: BaseClient) {
     super(client);
 
-    this.ranksCache = new CustomCache<DeadlockRank>(0);
+    this.cache = new CustomCache<DeadlockRank>(0);
   }
 
   private async fetchRanks(): Promise<DeadlockRank[]> {
@@ -25,7 +25,7 @@ export default class DeadlockDefaultService extends BaseClientService {
       const ranks = response.map((rank) => {
         const _rank = new DeadlockRank(rank);
 
-        this.ranksCache.set(_rank.tier, _rank);
+        this.cache.set(_rank.tier, _rank);
         return _rank;
       });
 
@@ -42,7 +42,7 @@ export default class DeadlockDefaultService extends BaseClientService {
   }
 
   async GetRanks(): Promise<DeadlockRank[]> {
-    const cached = this.ranksCache.getAll().map((rank) => rank);
+    const cached = this.cache.getAll().map((rank) => rank);
 
     if (cached) {
       return cached;
@@ -53,11 +53,11 @@ export default class DeadlockDefaultService extends BaseClientService {
   }
 
   async GetRank(number: number): Promise<DeadlockRank | null> {
-    let rank = this.ranksCache.get(number);
+    let rank = this.cache.get(number);
 
     if (!rank) {
       await this.fetchRanks();
-      rank = this.ranksCache.get(number);
+      rank = this.cache.get(number);
     }
 
     return rank;
@@ -99,5 +99,26 @@ export default class DeadlockDefaultService extends BaseClientService {
 
     const key = `large_subrank${subrank}`;
     return (images as Record<string, string>)[key] || unknownImage;
+  }
+
+  async LoadAllRanksToCache(): Promise<void> {
+    try {
+      logger.info('[API CALL] Fetching all deadlock ranks...');
+
+      const response = await this.client.request('GET', `/v2/ranks`, {
+        schema: DeadlockRanksSchema,
+      });
+
+      response.map((rank) => {
+        const _rank = new DeadlockRank(rank);
+        this.cache.set(_rank.tier, _rank);
+      });
+    } catch (error) {
+      logger.error('Failed to fetch all deadlock ranks', {
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        misc: hasMiscProperty(error) ? error.misc : undefined,
+      });
+    }
   }
 }
