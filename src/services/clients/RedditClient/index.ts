@@ -1,17 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { EmbedBuilder } from 'discord.js';
-import BaseClient, { IBaseApiOptions } from '../BaseClient';
-import CommandError from '../../../base/errors/CommandError';
 import { logger } from '../../..';
-import config from '../../../config';
+import BaseClient, { IBaseApiOptions } from '../base/classes/BaseClient';
+import CommandError from '../../../base/errors/CommandError';
+import { RedditTokenResponse, RedditApiResponse } from './interfaces';
 
 export default class RedditClient extends BaseClient {
-  token: string | undefined;
-  tokenExpiry: number | undefined;
-  userAgent: string = `discord:${config.discord_client_id}:v1.6.0 (by /u/Mexter-)`;
+  private token: string | undefined;
+  private tokenExpiry: number | undefined;
+  private userAgent: string;
 
   constructor(options: IBaseApiOptions) {
     super(options);
+    this.userAgent = `discord:${this.config.discord_client_id}:v${this.config.bot_version} (by /u/Mexter-)`;
   }
 
   async Init() {
@@ -24,7 +24,6 @@ export default class RedditClient extends BaseClient {
   async GetDeadlockMemeEmbed(): Promise<EmbedBuilder | null> {
     try {
       await this.ensureValidToken();
-
       const token = this.token;
 
       if (!token) {
@@ -42,14 +41,14 @@ export default class RedditClient extends BaseClient {
         throw new CommandError(`Reddit API returned status ${res.status}`);
       }
 
-      const data = await res.json();
+      const data: RedditApiResponse = await res.json();
 
       if (!data?.data?.children) {
         throw new CommandError('Unexpected response format from Reddit API');
       }
 
       const posts = data.data.children.filter(
-        (post: any) =>
+        (post) =>
           !post.data.over_18 &&
           post.data.post_hint === 'image' &&
           post.data.link_flair_text?.toLowerCase() === 'meme'
@@ -73,8 +72,8 @@ export default class RedditClient extends BaseClient {
   }
 
   private async getRedditAccessToken(): Promise<string> {
-    const clientId = config.reddit_client_id;
-    const clientSecret = config.reddit_client_secret;
+    const clientId = this.config.reddit_client_id;
+    const clientSecret = this.config.reddit_client_secret;
     const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
     const res = await fetch('https://www.reddit.com/api/v1/access_token', {
@@ -91,7 +90,7 @@ export default class RedditClient extends BaseClient {
       throw new Error(`Failed to get Reddit access token: ${res.status}`);
     }
 
-    const data = await res.json();
+    const data: RedditTokenResponse = await res.json();
 
     this.tokenExpiry = Date.now() + data.expires_in * 1000;
     return data.access_token;

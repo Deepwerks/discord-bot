@@ -33,7 +33,7 @@ export default class Patchnotes extends Command {
     await interaction.deferReply();
 
     try {
-      const patches = await useDeadlockClient.PatchService.GetPatches();
+      const patches = await useDeadlockClient.PatchService.FetchPatches();
       let lastStoredPatch = await PatchnoteSchema.findOne({}, {}, { sort: { date: -1 } }).lean();
 
       if (!lastStoredPatch) {
@@ -46,7 +46,7 @@ export default class Patchnotes extends Command {
       }
 
       const newPatches = patches.filter((patch) => {
-        return new Date(patch.pub_date) > lastStoredPatch!.date;
+        return new Date(patch.pubDate) > lastStoredPatch!.date;
       });
 
       if (newPatches.length > 0) {
@@ -110,6 +110,7 @@ export default class Patchnotes extends Command {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function countLeafProps(obj: any): number {
   if (typeof obj !== 'object' || obj === null) return 0;
 

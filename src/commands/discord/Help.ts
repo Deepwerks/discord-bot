@@ -53,7 +53,7 @@ export default class Help extends Command {
             name: 'Options',
             value:
               cmd.options.length > 0
-                ? cmd.options.map((opt: any) => `• \`${opt.name}\` — ${opt.description}`).join('\n')
+                ? cmd.options.map((opt) => `• \`${opt.name}\` — ${opt.description}`).join('\n')
                 : 'None',
           }
         )

@@ -1,11 +1,7 @@
-import BaseClient, { IBaseApiOptions } from '../BaseClient';
-import SteamProfileService from './SteamProfileService';
+import BaseClient, { IBaseApiOptions } from '../base/classes/BaseClient';
+import SteamProfileService from './services/SteamProfileService';
 
-export interface ISteamClient {
-  ProfileService: SteamProfileService;
-}
-
-export default class SteamClient extends BaseClient implements ISteamClient {
+export default class SteamClient extends BaseClient {
   ProfileService: SteamProfileService;
 
   constructor(options: IBaseApiOptions) {

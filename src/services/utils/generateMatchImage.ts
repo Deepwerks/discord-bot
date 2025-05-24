@@ -1,23 +1,11 @@
-import DeadlockMatchPlayer from '../clients/DeadlockClient/DeadlockMatchService/entities/DeadlockMatchPlayer';
 import { useAssetsClient } from '../..';
+import DeadlockMatch from '../clients/DeadlockClient/services/DeadlockMatchService/entities/DeadlockMatch';
+import DeadlockMatchPlayer from '../clients/DeadlockClient/services/DeadlockMatchService/entities/DeadlockMatchPlayer';
 import { getFormattedMatchTime } from './getFormattedMatchTime';
 import { Canvas, loadImage, SKRSContext2D, Image } from '@napi-rs/canvas';
 
-interface IDeadlockPlayerWithName extends DeadlockMatchPlayer {
-  name: string;
-}
-
 export interface IGenerateMatchImageOptions {
-  match: {
-    match_id: number;
-    duration_s: number;
-    start_date: string;
-    average_badge_team0: number;
-    average_badge_team1: number;
-    winning_team: number;
-    team_0_players: IDeadlockPlayerWithName[];
-    team_1_players: IDeadlockPlayerWithName[];
-  };
+  match: DeadlockMatch;
 }
 
 // --- Constants ---
@@ -75,7 +63,11 @@ const rowLabels = ['Souls', 'Kills', 'Deaths', 'Assists', 'Player Damage', 'Obj 
 
 // --- Helpers ---
 
-const shortenPlayerName = (name: string) => (name.length <= 12 ? name : name.slice(0, 9) + '...');
+const shortenPlayerName = async (player: DeadlockMatchPlayer) => {
+  const profile = await player.getProfile();
+
+  return profile.name.length <= 12 ? profile.name : profile.name.slice(0, 9) + '...';
+};
 
 async function safeLoadImage(url: string): Promise<ReturnType<typeof loadImage> | null> {
   try {
@@ -86,14 +78,14 @@ async function safeLoadImage(url: string): Promise<ReturnType<typeof loadImage> 
   }
 }
 
-function getBestStats(players: IDeadlockPlayerWithName[]) {
+function getBestStats(players: DeadlockMatchPlayer[]) {
   return {
-    souls: Math.max(...players.map((p) => p.net_worth)),
+    souls: Math.max(...players.map((p) => p.netWorth)),
     kills: Math.max(...players.map((p) => p.kills)),
     assists: Math.max(...players.map((p) => p.assists)),
-    player_damage: Math.max(...players.map((p) => p.damage_dealt)),
-    obj_damage: Math.max(...players.map((p) => p.obj_damage)),
-    healing: Math.max(...players.map((p) => p.healing)),
+    player_damage: Math.max(...players.map((p) => p.stats.at(-1)?.player_damage ?? 0)),
+    obj_damage: Math.max(...players.map((p) => p.stats.at(-1)?.neutral_damage ?? 0)),
+    healing: Math.max(...players.map((p) => p.stats.at(-1)?.player_healing ?? 0)),
   };
 }
 
@@ -120,7 +112,7 @@ function cropBadgeCentered(
 
 async function drawPlayer(
   ctx: SKRSContext2D,
-  player: IDeadlockPlayerWithName,
+  player: DeadlockMatchPlayer,
   x: number,
   heroImages: Map<number, string>,
   bestStats: Record<string, number>
@@ -137,7 +129,7 @@ async function drawPlayer(
   );
 
   // Avatar
-  const heroUrl = heroImages.get(player.hero_id);
+  const heroUrl = heroImages.get(player.heroId);
   if (heroUrl) {
     const img = await safeLoadImage(heroUrl);
     if (img) {
@@ -156,7 +148,7 @@ async function drawPlayer(
   ctx.fillStyle = Colors.white;
   ctx.font = Fonts.playerName;
   ctx.textAlign = 'center';
-  ctx.fillText(shortenPlayerName(player.name), x, startY + 10);
+  ctx.fillText(await shortenPlayerName(player), x, startY + 10);
 
   // Party icon
   if (player.party !== 0) {
@@ -168,13 +160,13 @@ async function drawPlayer(
 
   // Stats
   const stats = [
-    { value: player.net_worth, key: 'souls' },
+    { value: player.netWorth, key: 'souls' },
     { value: player.kills, key: 'kills' },
     { value: player.deaths },
     { value: player.assists, key: 'assists' },
-    { value: player.damage_dealt, key: 'player_damage' },
-    { value: player.obj_damage, key: 'obj_damage' },
-    { value: player.healing, key: 'healing' },
+    { value: player.stats.at(-1)?.player_damage ?? 0, key: 'player_damage' },
+    { value: player.stats.at(-1)?.neutral_damage ?? 0, key: 'obj_damage' },
+    { value: player.stats.at(-1)?.player_healing ?? 0, key: 'healing' },
   ];
 
   for (let i = 0; i < stats.length; i++) {
@@ -193,7 +185,7 @@ async function drawPlayer(
 
 async function drawTeam(
   ctx: SKRSContext2D,
-  team: IDeadlockPlayerWithName[],
+  team: DeadlockMatchPlayer[],
   startX: number,
   heroImages: Map<number, string>,
   bestStats: Record<string, number>
@@ -223,7 +215,7 @@ function drawLabels(ctx: SKRSContext2D) {
 
 export async function generateMatchImage(options: IGenerateMatchImageOptions): Promise<Buffer> {
   const { match } = options;
-  const { team_0_players: sapphireTeam, team_1_players: amberTeam } = match;
+  const { team0Players: sapphireTeam, team1Players: amberTeam } = match;
   const allPlayers = [...sapphireTeam, ...amberTeam];
   const bestStats = getBestStats(allPlayers);
 
@@ -234,18 +226,16 @@ export async function generateMatchImage(options: IGenerateMatchImageOptions): P
   ctx.fillRect(0, 0, Layout.canvasWidth, Layout.canvasHeight);
   ctx.textBaseline = 'middle';
 
-  const [team0BadgeUrl, team1BadgeUrl] = await Promise.all([
-    useAssetsClient.DefaultService.GetRankImage(match.average_badge_team0),
-    useAssetsClient.DefaultService.GetRankImage(match.average_badge_team1),
-  ]);
+  const team0BadgeUrl = await match.getaverageBadgeTeam0Url();
+  const team1BadgeUrl = await match.getaverageBadgeTeam1Url();
 
   const [team0Badge, team1Badge] = await Promise.all([
-    safeLoadImage(team0BadgeUrl!),
-    safeLoadImage(team1BadgeUrl!),
+    safeLoadImage(team0BadgeUrl),
+    safeLoadImage(team1BadgeUrl),
   ]);
 
   const heroPromises = allPlayers.map((player) =>
-    useAssetsClient.HeroService.GetHeroCached(player.hero_id)
+    useAssetsClient.HeroService.GetHero(player.heroId)
   );
   const resolvedHeroes = await Promise.all(heroPromises);
   const heroImages = new Map<number, string>();
@@ -267,20 +257,20 @@ export async function generateMatchImage(options: IGenerateMatchImageOptions): P
   ctx.fillStyle = Colors.white;
   ctx.font = Fonts.title;
   ctx.textAlign = 'center';
-  ctx.fillText(getFormattedMatchTime(match.duration_s), Layout.canvasWidth / 2, 60);
+  ctx.fillText(getFormattedMatchTime(match.durationS), Layout.canvasWidth / 2, 60);
 
   // Team Points
   ctx.font = Fonts.point;
   ctx.textAlign = 'left';
   ctx.fillText(
-    sapphireTeam.reduce((sum, p) => sum + p.net_worth, 0).toLocaleString(),
+    sapphireTeam.reduce((sum, p) => sum + p.netWorth, 0).toLocaleString(),
     Layout.canvasWidth / 2 - 175,
     60
   );
 
   ctx.textAlign = 'right';
   ctx.fillText(
-    amberTeam.reduce((sum, p) => sum + p.net_worth, 0).toLocaleString(),
+    amberTeam.reduce((sum, p) => sum + p.netWorth, 0).toLocaleString(),
     Layout.canvasWidth / 2 + 175,
     60
   );
@@ -364,10 +354,10 @@ export async function generateMatchImage(options: IGenerateMatchImageOptions): P
   ctx.font = Fonts.victory;
   ctx.fillStyle = Colors.white;
 
-  if (match.winning_team === 0) {
+  if (match.winningTeam === 0) {
     ctx.textAlign = 'left';
     ctx.fillText('Victory', sapphireLeftmostX + 80, 120);
-  } else if (match.winning_team === 1) {
+  } else if (match.winningTeam === 1) {
     ctx.textAlign = 'right';
     ctx.fillText('Victory', amberRightmostX - 80, 120);
   }
@@ -379,8 +369,12 @@ export async function generateMatchImage(options: IGenerateMatchImageOptions): P
   ctx.font = Fonts.label;
   ctx.fillStyle = Colors.grey;
   ctx.textAlign = 'right';
-  ctx.fillText(match.match_id.toString(), Layout.canvasWidth - 75, Layout.canvasHeight - 45);
-  ctx.fillText(match.start_date, Layout.canvasWidth - 75, Layout.canvasHeight - 25);
+  ctx.fillText(match.matchId.toString(), Layout.canvasWidth - 75, Layout.canvasHeight - 45);
+  ctx.fillText(
+    match.startDate.format('D MMMM, YYYY'),
+    Layout.canvasWidth - 75,
+    Layout.canvasHeight - 25
+  );
 
   return canvas.toBuffer('image/png');
 }

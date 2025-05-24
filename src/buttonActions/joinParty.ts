@@ -22,6 +22,7 @@ export default class JoinPartyButtonAction extends ButtonAction {
         throw new CommandError(t('buttons.join_party.invalid_id'));
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, creatorId, maxPlayersRaw, lobbyId] = parts;
       const lobby = lobbyStore.getLobby(lobbyId);
 

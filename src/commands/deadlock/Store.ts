@@ -4,10 +4,7 @@ import {
   ButtonStyle,
   ChatInputCommandInteraction,
   EmbedBuilder,
-  ModalBuilder,
   PermissionsBitField,
-  TextInputBuilder,
-  TextInputStyle,
 } from 'discord.js';
 import Command from '../../base/classes/Command';
 import CustomClient from '../../base/classes/CustomClient';

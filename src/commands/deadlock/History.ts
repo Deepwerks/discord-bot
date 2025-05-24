@@ -15,10 +15,10 @@ import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
 import CommandError from '../../base/errors/CommandError';
-import { logger, useAssetsClient, useDeadlockClient, useStatlockerClient } from '../..';
+import { logger, useAssetsClient, useDeadlockClient } from '../..';
 import { getFormattedMatchTime } from '../../services/utils/getFormattedMatchTime';
 import pLimit from 'p-limit';
-import StoredPlayer from '../../base/schemas/StoredPlayerSchema';
+import getProfile from '../../services/common/getProfile';
 
 export default class History extends Command {
   constructor(client: CustomClient) {
@@ -48,71 +48,46 @@ export default class History extends Command {
   }
 
   async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
-    const player = interaction.options.getString('player');
+    const player = interaction.options.getString('player', true);
     const ephemeral = interaction.options.getBoolean('private', false);
 
-    let steamAuthNeeded: boolean = false;
-
     try {
-      let _steamId = player;
-
-      if (player === 'me') {
-        const storedPlayer = await StoredPlayer.findOne({
-          discordId: interaction.user.id,
-        });
-
-        if (!storedPlayer) throw new CommandError(t('errors.steam_not_yet_stored'));
-        steamAuthNeeded =
-          storedPlayer.authenticated === undefined || storedPlayer.authenticated === false;
-
-        _steamId = storedPlayer.steamId;
-      }
-
-      const steamProfile = await useStatlockerClient.ProfileService.GetProfileCache(_steamId!);
-
-      if (!steamProfile) {
-        throw new CommandError(t('errors.steam_profile_not_found'));
-      }
+      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction, t);
 
       const matches = await useDeadlockClient.PlayerService.GetMatchHistory(
-        String(steamProfile.accountId),
-        15
-      );
-      const mmrMatches = await useDeadlockClient.PlayerService.GetMMRHistory(
-        String(steamProfile.accountId),
+        steamProfile.accountId,
         15
       );
 
       const limit = pLimit(10);
-      const uniqueHeroIds = [...new Set(matches.map((m) => m.hero_id))];
-
-      const heroEntries = await Promise.all(
-        uniqueHeroIds.map(async (id) => {
-          const hero = await useAssetsClient.HeroService.GetHeroCached(id);
-          return [id, hero?.name ?? 'Unknown'];
-        })
-      );
-      const heroMap = Object.fromEntries(heroEntries);
 
       const matchesString: string[] = await Promise.all(
         matches.map((match) =>
           limit(async () => {
-            const heroName = heroMap[match.hero_id];
+            const hero = await match.getHero();
+            const heroName = hero ? hero.name : 'Unknown';
+
+            const mmrRecord = await match.getMMRRecord();
 
             const champion = heroName.slice(0, 14).padEnd(15);
-            const time = getFormattedMatchTime(match.match_duration_s).padEnd(9);
-            const mmr = mmrMatches.find((m) => m.match_id === match.match_id)?.rank;
-            const rank = (await useAssetsClient.DefaultService.GetRankName(mmr))
+            const time = getFormattedMatchTime(match.matchDurationS).padEnd(9);
+
+            const rank = (
+              await useAssetsClient.DefaultService.GetRankName(
+                mmrRecord?.division ?? 0,
+                mmrRecord?.divisionTier ?? 0
+              )
+            )
               ?.slice(0, 12)
               .padEnd(13);
             const kda =
-              `(${match.player_kills}/${match.player_deaths}/${match.player_assists})`.padEnd(13);
-            const matchId = match.match_id.toString().padEnd(13);
-            const date = match.start_date.format('D MMM YYYY').padEnd(12);
+              `(${match.playerKills}/${match.playerDeaths}/${match.playerAssists})`.padEnd(13);
+            const matchId = match.matchId.toString().padEnd(13);
+            const date = match.startDate.format('D MMM YYYY').padEnd(12);
 
             const line = `${champion}${time}${rank}${kda}${matchId}${date}`;
 
-            const prefix = match.match_result === match.player_team ? '+' : '-';
+            const prefix = match.matchResult === match.playerTeam ? '+' : '-';
             return `${prefix}${line}`;
           })
         )
@@ -143,17 +118,19 @@ ${matchesString.join('\n')}
         .setCustomId(`get_match_details`)
         .setPlaceholder(t('commands.history.match_details_placeholder'))
         .addOptions(
-          matches.map((match) => {
-            const heroName = heroMap[match.hero_id];
-            const win = match.match_result === match.player_team ? 'Win' : 'Loss';
+          await Promise.all(
+            matches.map(async (match) => {
+              const win = match.matchResult === match.playerTeam ? 'Win' : 'Loss';
+              const hero = await match.getHero();
 
-            return new StringSelectMenuOptionBuilder()
-              .setLabel(`${heroName} — ${win}`)
-              .setDescription(
-                `${String(match.match_id)} (${match.start_date.format('D MMMM, YYYY')})`
-              )
-              .setValue(String(match.match_id));
-          })
+              return new StringSelectMenuOptionBuilder()
+                .setLabel(`${hero?.name} — ${win}`)
+                .setDescription(
+                  `${String(match.matchId)} (${match.startDate.format('D MMMM, YYYY')})`
+                )
+                .setValue(String(match.matchId));
+            })
+          )
         );
 
       const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(linkButton);

@@ -6,7 +6,7 @@ export default async () => {
   try {
     const scraper = new ForumScraper();
 
-    const patches = await useDeadlockClient.PatchService.GetPatches();
+    const patches = await useDeadlockClient.PatchService.FetchPatches();
     const lastStoredPatch = await PatchnoteSchema.findOne({}, {}, { sort: { date: -1 } });
 
     if (!lastStoredPatch) {
@@ -16,7 +16,7 @@ export default async () => {
     }
 
     const newPatches = patches.filter((patch) => {
-      return new Date(patch.pub_date) > lastStoredPatch.date;
+      return new Date(patch.pubDate) > lastStoredPatch.date;
     });
 
     if (newPatches.length > 0) {

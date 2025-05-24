@@ -71,7 +71,7 @@ export default class CustomClient extends Client implements ICustomClient {
   async LoadCache() {
     try {
       await Promise.all([
-        useAssetsClient.DefaultService.GetRanksCached(),
+        useAssetsClient.DefaultService.LoadAllRanksToCache(),
         useAssetsClient.HeroService.LoadAllHeroesToCache(),
       ]);
     } catch (error) {

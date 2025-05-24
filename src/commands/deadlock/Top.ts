@@ -8,14 +8,15 @@ import {
 import Command from '../../base/classes/Command';
 import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
-import { t, TFunction } from 'i18next';
+import { TFunction } from 'i18next';
 import CommandError from '../../base/errors/CommandError';
-import { logger, useAssetsClient, useDeadlockClient, useStatlockerClient } from '../..';
-import StoredPlayer from '../../base/schemas/StoredPlayerSchema';
-import HeroStats from '../../services/clients/DeadlockClient/DeadlockPlayerService/entities/HeroStats';
+import { logger, useDeadlockClient } from '../..';
+import DeadlockPlayerHeroStats from '../../services/clients/DeadlockClient/services/DeadlockPlayerService/entities/DeadlockPlayerHeroStats';
+import getProfile from '../../services/common/getProfile';
 
-const calculateKDA = (m: HeroStats) => (m.kills + m.assists) / Math.max(1, m.deaths);
-const calculateWinRate = (m: HeroStats) => (m.wins / Math.max(1, m.matches_played)) * 100;
+const calculateKDA = (m: DeadlockPlayerHeroStats) => (m.kills + m.assists) / Math.max(1, m.deaths);
+const calculateWinRate = (m: DeadlockPlayerHeroStats) =>
+  (m.wins / Math.max(1, m.matchesPlayed)) * 100;
 
 export default class Top extends Command {
   constructor(client: CustomClient) {
@@ -76,35 +77,14 @@ export default class Top extends Command {
     const player = interaction.options.getString('player', true);
     let sortBy = interaction.options.getString('sort_by', false);
     const ephemeral = interaction.options.getBoolean('private', false);
-    let steamAuthNeeded: boolean = false;
 
     if (!sortBy) sortBy = 'kda';
     await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
 
     try {
-      let _steamId = player;
+      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction, t);
 
-      if (player === 'me') {
-        const storedPlayer = await StoredPlayer.findOne({
-          discordId: interaction.user.id,
-        });
-
-        if (!storedPlayer) throw new CommandError(t('errors.steam_not_yet_stored'));
-        steamAuthNeeded =
-          storedPlayer.authenticated === undefined || storedPlayer.authenticated === false;
-
-        _steamId = storedPlayer.steamId;
-      }
-
-      const steamProfile = await useStatlockerClient.ProfileService.GetProfileCache(_steamId!);
-
-      if (!steamProfile) {
-        throw new CommandError(t('errors.steam_profile_not_found'));
-      }
-
-      const accountId = steamProfile.accountId;
-
-      const stats = await useDeadlockClient.PlayerService.GetHeroStats(String(accountId));
+      const stats = await useDeadlockClient.PlayerService.FetchHeroStats(steamProfile.accountId);
 
       if (!stats || !Array.isArray(stats) || stats.length === 0) {
         throw new CommandError(t('errors.no_stats_found'));
@@ -116,11 +96,11 @@ export default class Top extends Command {
         } else if (sortBy === 'winrate') {
           return calculateWinRate(b) - calculateWinRate(a);
         } else if (sortBy === 'matches') {
-          return b.matches_played - a.matches_played;
+          return b.matchesPlayed - a.matchesPlayed;
         } else if (sortBy === 'denies_per_match') {
-          return b.denies_per_match - a.denies_per_match;
+          return b.deniesPerMatch - a.deniesPerMatch;
         } else if (sortBy === 'networth_per_min') {
-          return b.networth_per_min - a.networth_per_min;
+          return b.networthPerMin - a.networthPerMin;
         }
         return 0;
       });
@@ -168,7 +148,7 @@ export default class Top extends Command {
 }
 
 async function createHeroStatsEmbeds(
-  stats: HeroStats[],
+  stats: DeadlockPlayerHeroStats[],
   playerName: string,
   playerId: string,
   sort_by: string
@@ -198,12 +178,14 @@ async function createHeroStatsEmbeds(
       const index = i + j + 1;
       const stat = chunk[j];
 
-      const name = (await useAssetsClient.HeroService.GetHeroCached(stat.hero_id))?.name.padEnd(17);
+      const hero = await stat.getHero();
+
+      const name = (hero ? hero.name : 'Unknown').padEnd(17);
       const kda = calculateKDA(stat).toFixed(2).padEnd(7);
       const winrate = `${calculateWinRate(stat).toFixed(0)}%`.padEnd(7);
-      const matches = stat.matches_played.toString().padEnd(7);
-      const denies = stat.denies_per_match.toFixed(2).padEnd(7);
-      const networth = stat.networth_per_min.toFixed(1).padEnd(8);
+      const matches = stat.matchesPlayed.toString().padEnd(7);
+      const denies = stat.deniesPerMatch.toFixed(2).padEnd(7);
+      const networth = stat.networthPerMin.toFixed(1).padEnd(8);
 
       description += `${(index + '.').padEnd(
         4

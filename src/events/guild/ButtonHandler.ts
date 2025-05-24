@@ -25,19 +25,18 @@ export default class ButtonHandler extends Event {
     const guildLang = await GuildConfig.findOne({
       guildId: interaction.guildId!,
     });
-    const t = i18next.getFixedT(guildLang?.lang!);
+    const t = i18next.getFixedT(guildLang?.lang ?? 'en');
 
     try {
       const buttonActionHandler = this.client.buttons.get(action);
 
       if (!buttonActionHandler) {
-        return (
-          //@ts-ignore
-          interaction.reply({
-            content: t('warnings.no_button_action'),
-            flags: ['Ephemeral'],
-          }) && this.client.buttons.delete(action)
-        );
+        await interaction.reply({
+          content: t('warnings.no_button_action'),
+          flags: ['Ephemeral'],
+        });
+        this.client.buttons.delete(action);
+        return;
       }
 
       const { cooldowns } = this.client;

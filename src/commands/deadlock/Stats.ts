@@ -11,9 +11,9 @@ import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
 import CommandError from '../../base/errors/CommandError';
-import { logger, useAssetsClient, useDeadlockClient, useStatlockerClient } from '../..';
-import StoredPlayer from '../../base/schemas/StoredPlayerSchema';
+import { logger, useAssetsClient, useDeadlockClient } from '../..';
 import { findHeroByName } from '../../services/utils/findHeroByName';
+import getProfile from '../../services/common/getProfile';
 
 export default class Stats extends Command {
   constructor(client: CustomClient) {
@@ -50,9 +50,8 @@ export default class Stats extends Command {
   }
 
   async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
-    const player = interaction.options.getString('player');
+    const player = interaction.options.getString('player', true);
     const ephemeral = interaction.options.getBoolean('private', false);
-    let steamAuthNeeded: boolean = false;
 
     const HeroSpecificStats: Record<string, string[]> = {
       'Grey Talon': ['max_guided_owl_stacks', 'max_spirit_snare_stacks'],
@@ -62,21 +61,7 @@ export default class Stats extends Command {
 
     try {
       await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
-      let _steamId = player;
-
-      if (player === 'me') {
-        const storedPlayer = await StoredPlayer.findOne({
-          discordId: interaction.user.id,
-        });
-
-        if (!storedPlayer) throw new CommandError(t('errors.steam_not_yet_stored'));
-        steamAuthNeeded =
-          storedPlayer.authenticated === undefined || storedPlayer.authenticated === false;
-
-        _steamId = storedPlayer.steamId;
-      }
-
-      const steamProfile = await useStatlockerClient.ProfileService.GetProfileCache(_steamId!);
+      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction, t);
 
       if (!steamProfile) {
         throw new CommandError(t('errors.steam_profile_not_found'));
@@ -108,11 +93,16 @@ export default class Stats extends Command {
 
       const heroSpecificStats = heroName ? HeroSpecificStats[hero!.name] || [] : [];
 
-      const stats = await useDeadlockClient.PlayerService.GetStats(
-        accountId.toString(),
-        hero?.name || '',
-        [...globalStats, ...additionalStats, ...heroStats, ...heroSpecificStats]
-      );
+      const stats = await useDeadlockClient.PlayerService.FetchStats(accountId, hero?.name || '', [
+        ...globalStats,
+        ...additionalStats,
+        ...heroStats,
+        ...heroSpecificStats,
+      ]);
+
+      if (!stats) {
+        throw new CommandError('Failed to get player stats');
+      }
 
       const globalStatBlock = formatStatsBlock(stats, globalStats);
       const additionalStatBlock = formatStatsBlock(stats, additionalStats);
@@ -131,7 +121,9 @@ export default class Stats extends Command {
 
       const embed = new EmbedBuilder()
         .setColor(heroName ? 0x00ae86 : 0x7289da)
-        .setThumbnail(heroName ? hero!.images.minimap_image : steamProfile.avatarUrl)
+        .setThumbnail(
+          heroName ? (hero!.images.minimap_image ?? steamProfile.avatarUrl) : steamProfile.avatarUrl
+        )
         .setTitle(`${escapeMarkdown(steamProfile.name)}'s stats`)
         .setURL(`https://statlocker.gg/profile/${steamProfile.accountId}`)
         .setDescription(description)
@@ -180,7 +172,7 @@ export default class Stats extends Command {
     const focusedValue = focusedOption.value.toLowerCase();
 
     // Get all hero names from the cache
-    const heroNames = useAssetsClient.HeroService.getCachedHeroes().map((h) => h.name);
+    const heroNames = useAssetsClient.HeroService.GetHeroes().map((h) => h.name);
 
     // Filter the hero names based on the focused value
     const suggestions = heroNames
@@ -197,6 +189,7 @@ export default class Stats extends Command {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatStatsBlock(stats: Record<string, any>, fields: string[]): string {
   return (
     '```\n' +

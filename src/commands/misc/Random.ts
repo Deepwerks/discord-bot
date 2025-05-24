@@ -24,19 +24,14 @@ export default class Random extends Command {
     await interaction.deferReply();
 
     try {
-      const heroes = useAssetsClient.HeroService.getCachedHeroes();
-      const heroIds = Array.from(heroes.keys());
+      const heroes = useAssetsClient.HeroService.GetHeroes();
 
-      let randomIndex = Math.floor(Math.random() * heroIds.length);
-      let randomHeroId = heroIds[randomIndex];
-
-      let hero = heroes.get(randomHeroId);
+      let randomIndex = Math.floor(Math.random() * heroes.length);
+      let hero = heroes[randomIndex];
 
       while (!hero) {
-        randomIndex = Math.floor(Math.random() * heroIds.length);
-        randomHeroId = heroIds[randomIndex];
-
-        hero = heroes.get(randomHeroId);
+        randomIndex = Math.floor(Math.random() * heroes.length);
+        hero = heroes[randomIndex];
       }
 
       await interaction.editReply({
@@ -44,10 +39,10 @@ export default class Random extends Command {
           new EmbedBuilder()
             .setColor('Random')
             .setTitle(`Your random hero is **${hero.name}**`)
-            .setThumbnail(hero.images.icon_hero_card)
+            .setThumbnail(hero.images.icon_hero_card ?? '')
             .setDescription(
               `*${hero.description.role}*\n\n` +
-                hero.description.playstyle.replace('<i>', '*').replace('</i>', '*')
+                (hero.description.playstyle ?? '').replace('<i>', '*').replace('</i>', '*')
             ),
         ],
       });

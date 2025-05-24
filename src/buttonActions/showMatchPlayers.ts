@@ -15,17 +15,21 @@ export default class ShowMatchPlayersButtonAction extends ButtonAction {
   }
 
   async Execute(interaction: ButtonInteraction, t: TFunction<'translation', undefined>) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [action, matchId] = interaction.customId.split(':');
 
     try {
-      const deadlockMatch = await useDeadlockClient.MatchService.GetMatch(matchId);
+      const deadlockMatch = await useDeadlockClient.MatchService.GetMatch(Number());
 
-      const allPlayers = [...deadlockMatch.team_0_players, ...deadlockMatch.team_1_players];
+      const allPlayers = [
+        ...(deadlockMatch?.team0Players ?? []),
+        ...(deadlockMatch?.team1Players ?? []),
+      ];
 
       const playerPromises = allPlayers.map(async (player) => {
-        const hero = await useAssetsClient.HeroService.GetHeroCached(player.hero_id);
+        const hero = await useAssetsClient.HeroService.GetHero(player.heroId);
 
-        return `${hero?.name}: ${player.account_id}`;
+        return `${hero?.name}: ${player.accountId}`;
       });
 
       const playerIds = (await Promise.all(playerPromises)).join('\n');

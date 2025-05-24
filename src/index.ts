@@ -1,53 +1,49 @@
 import CustomClient from './base/classes/CustomClient';
-import { DeadlockClient } from './services/clients/DeadlockClient';
-import SteamClient from './services/clients/SteamClient';
 import config from './config';
-import { DeadlockAssetsClient } from './services/clients/DeadlockAssetsClient';
-import Bottleneck from 'bottleneck';
-import StatlockerClient from './services/clients/StatlockerClient';
-import { logtailLogger } from './services/logger';
+import DeadlockAssetsClient from './services/clients/DeadlockAssetsClient';
+import DeadlockClient from './services/clients/DeadlockClient';
 import RedditClient from './services/clients/RedditClient';
+import StatlockerClient from './services/clients/StatlockerClient';
+import SteamClient from './services/clients/SteamClient';
+import { logtailLogger } from './services/logger';
 import { JobScheduler } from './services/scheduler';
 import CheckDeadlockPatches from './services/scheduler/jobs/CheckDeadlockPatches';
-import MemoryCheck from './services/scheduler/jobs/MemoryCheck';
 
 const logger = logtailLogger;
 
-const useSteamClient = new SteamClient({
-  apiKey: config.steam_api_key,
-  baseURL: config.steam_api_url,
-  limiter: new Bottleneck({
-    maxConcurrent: 1,
-    minTime: 333,
-  }),
-});
 const useDeadlockClient = new DeadlockClient({
-  apiKey: config.deadlock_api_key,
+  config,
   baseURL: config.deadlock_api_url,
 });
 const useAssetsClient = new DeadlockAssetsClient({
-  apiKey: config.deadlock_api_key,
+  config,
   baseURL: config.deadlock_assets_api_url,
 });
 const useStatlockerClient = new StatlockerClient({
+  config,
   baseURL: config.statlocker_api_url,
 });
-const useRedditClient = new RedditClient({});
+const useRedditClient = new RedditClient({
+  config,
+});
+const useSteamClient = new SteamClient({
+  config,
+  baseURL: config.steam_api_url,
+});
 
 new CustomClient().Init();
 
 const scheduler = new JobScheduler()
   .addJob('CheckDeadlockPatches', '0 0 3 * * *', CheckDeadlockPatches)
-  .addJob('CheckDeadlockPatchesAfternoon', '0 0 15 * * *', CheckDeadlockPatches)
-  .addJob('MemoryCheck', '* * * * *', MemoryCheck);
+  .addJob('CheckDeadlockPatchesAfternoon', '0 0 15 * * *', CheckDeadlockPatches);
 scheduler.startJobs();
 
 export {
-  useSteamClient,
   useDeadlockClient,
   useAssetsClient,
   useStatlockerClient,
   useRedditClient,
+  useSteamClient,
   logger,
 };
 

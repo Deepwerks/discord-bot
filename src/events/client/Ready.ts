@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ActivityType, Collection, Events, REST, Routes } from 'discord.js';
 import CustomClient from '../../base/classes/CustomClient';
 import Event from '../../base/classes/Event';

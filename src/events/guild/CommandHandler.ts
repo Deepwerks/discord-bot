@@ -24,18 +24,18 @@ export default class CommandHandler extends Event {
       const guildLang = await GuildConfig.findOne({
         guildId: interaction.guildId!,
       });
-      const t = i18next.getFixedT(guildLang?.lang!);
+      const t = i18next.getFixedT(guildLang?.lang ?? 'en');
 
       const command: Command = this.client.commands.get(interaction.commandName)!;
 
-      if (!command)
-        return (
-          //@ts-ignore
-          interaction.reply({
-            content: t('warnings.no_command'),
-            flags: ['Ephemeral'],
-          }) && this.client.commands.delete(interaction.commandName)
-        );
+      if (!command) {
+        await interaction.reply({
+          content: t('warnings.no_command'),
+          flags: ['Ephemeral'],
+        });
+        this.client.commands.delete(interaction.commandName);
+        return;
+      }
 
       if (command.dev && !this.client.config.developer_user_ids.includes(interaction.user.id)) {
         return interaction.reply({

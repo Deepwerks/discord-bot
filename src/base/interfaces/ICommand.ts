@@ -1,4 +1,8 @@
-import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
+import {
+  ApplicationCommandOptionData,
+  AutocompleteInteraction,
+  ChatInputCommandInteraction,
+} from 'discord.js';
 import CustomClient from '../classes/CustomClient';
 import Category from '../enums/Category';
 import { TFunction } from 'i18next';
@@ -8,7 +12,7 @@ export default interface ICommand {
   name: string;
   description: string;
   category: Category;
-  options: Array<object>;
+  options: ApplicationCommandOptionData[];
   default_member_permissions: bigint;
   dm_permission: boolean;
   cooldown: number;

@@ -31,8 +31,8 @@ export default class CreateLobby extends Command {
 
     const maxPlayersInput = new TextInputBuilder()
       .setCustomId('max_players_input')
-      .setLabel('Max players')
-      .setPlaceholder('e.g., 12')
+      .setLabel(t('commands.create_lobby.max_players'))
+      .setPlaceholder(t('commands.create_lobby.placeholder'))
       .setStyle(TextInputStyle.Short)
       .setValue('12')
       .setRequired(true);

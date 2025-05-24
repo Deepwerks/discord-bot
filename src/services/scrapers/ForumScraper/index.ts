@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import * as cheerio from 'cheerio';
 import PatchnoteSchema, { IPatchnote, PatchNote } from '../../../base/schemas/PatchnoteSchema';
 import { logger } from '../../..';
-import { IDeadlockPatch } from '../../clients/DeadlockClient/DeadlockPathService/entities/DeadlockPatch';
+import DeadlockPatch from '../../clients/DeadlockClient/services/DeadlockPatchService/entities/DeadlockPatch';
 
 export default class ForumScraper {
   private axiosInstance: AxiosInstance;
@@ -13,7 +13,7 @@ export default class ForumScraper {
     this.cheerioInstance = cheerioInstance;
   }
 
-  public async scrapeMany(patches: IDeadlockPatch[]) {
+  public async scrapeMany(patches: DeadlockPatch[]) {
     const results = await Promise.allSettled(patches.map((patch) => this.scrape(patch)));
 
     results.forEach((result, index) => {
@@ -26,8 +26,8 @@ export default class ForumScraper {
     });
   }
 
-  public async scrape(patch: IDeadlockPatch) {
-    const { title, pub_date, link, guid, author } = patch;
+  public async scrape(patch: DeadlockPatch) {
+    const { title, pubDate, link, guid, author } = patch;
 
     try {
       const { data: html } = await this.axiosInstance.get(link);
@@ -40,7 +40,7 @@ export default class ForumScraper {
         guid: guid.text,
         title,
         author,
-        date: new Date(pub_date),
+        date: new Date(pubDate),
         url: link,
         changes,
       });

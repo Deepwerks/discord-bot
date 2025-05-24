@@ -79,13 +79,13 @@ export default class Match extends Command {
       const linkButton = new ButtonBuilder()
         .setLabel(t('commands.match.view_on_statlocker'))
         .setStyle(ButtonStyle.Link)
-        .setURL(`https://statlocker.gg/match/${match.match_id}`)
+        .setURL(`https://statlocker.gg/match/${match.matchId}`)
         .setEmoji('1367520315244023868');
 
       const showPlayersButton = new ButtonBuilder()
         .setLabel(t('commands.match.show_players'))
         .setStyle(ButtonStyle.Primary)
-        .setCustomId('show_players:' + match.match_id)
+        .setCustomId('show_players:' + match.matchId)
         .setEmoji('👥');
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(

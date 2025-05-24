@@ -1,13 +1,8 @@
-import BaseClient, { IBaseApiOptions } from '../BaseClient';
-import StatlockerProfileService from './StatlockerProfileService';
+import BaseClient, { IBaseApiOptions } from '../base/classes/BaseClient';
+import StatlockerProfileService from './services/StatlockerProfileService';
 
-export interface IStatlockerClient {
+export default class StatlockerClient extends BaseClient {
   ProfileService: StatlockerProfileService;
-}
-
-export default class StatlockerClient extends BaseClient implements IStatlockerClient {
-  ProfileService: StatlockerProfileService;
-
   constructor(options: IBaseApiOptions) {
     super(options);
 

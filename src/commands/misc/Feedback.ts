@@ -26,14 +26,12 @@ export default class Feedback extends Command {
   }
 
   async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
-    const modal = new ModalBuilder()
-      .setCustomId('feedback')
-      .setTitle('Submit Your Feedback (Anonymous)');
+    const modal = new ModalBuilder().setCustomId('feedback').setTitle(t('commands.feedback.title'));
 
     const steamIdInput = new TextInputBuilder()
       .setCustomId('feedback_input')
-      .setLabel('Please enter your feedback here')
-      .setPlaceholder('e.g., I love this bot!')
+      .setLabel(t('commands.feedback.label'))
+      .setPlaceholder(t('commands.feedback.placeholder'))
       .setMinLength(10)
       .setStyle(TextInputStyle.Paragraph)
       .setRequired(true);

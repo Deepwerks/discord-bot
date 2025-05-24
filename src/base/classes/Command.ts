@@ -1,4 +1,9 @@
-import { ChatInputCommandInteraction, AutocompleteInteraction } from 'discord.js';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {
+  ChatInputCommandInteraction,
+  AutocompleteInteraction,
+  ApplicationCommandOptionData,
+} from 'discord.js';
 import Category from '../enums/Category';
 import ICommand from '../interfaces/ICommand';
 import CustomClient from './CustomClient';
@@ -10,7 +15,7 @@ export default abstract class Command implements ICommand {
   name: string;
   description: string;
   category: Category;
-  options: Array<object>;
+  options: ApplicationCommandOptionData[];
   default_member_permissions: bigint;
   dm_permission: boolean;
   cooldown: number;

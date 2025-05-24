@@ -29,6 +29,7 @@ export default class StartMatchButtonAction extends ButtonAction {
 
   async Execute(interaction: ButtonInteraction, t: TFunction<'translation', undefined>) {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, creatorId] = interaction.customId.split(':');
 
       if (interaction.user.id !== creatorId) {
@@ -114,7 +115,11 @@ export default class StartMatchButtonAction extends ButtonAction {
           try {
             const match = await useDeadlockClient.MatchService.CreateCustomMatch();
 
-            lobbyStore.setPartId(creatorId, String(match.party_id));
+            if (!match) {
+              throw new CommandError('Failed to create match');
+            }
+
+            lobbyStore.setPartId(creatorId, String(match.partyId));
 
             // Create a "Finish" button
             const finishButton = new ButtonBuilder()
@@ -135,7 +140,7 @@ export default class StartMatchButtonAction extends ButtonAction {
 
             await statusMessage.edit({
               content: t('buttons.start_match.all_ready', {
-                party_id: match.party_id,
+                party_id: match.partyId,
                 party_code: match.party_code,
               }),
               components: [row],

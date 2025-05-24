@@ -16,6 +16,7 @@ export default class CloseThreadButtonAction extends ButtonAction {
 
   async Execute(interaction: ButtonInteraction, t: TFunction<'translation', undefined>) {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [action, threadId, creatorId] = interaction.customId.split(':');
 
       if (interaction.user.id !== creatorId) {

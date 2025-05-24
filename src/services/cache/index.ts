@@ -1,8 +1,4 @@
 import { LRUCache } from 'lru-cache';
-import { ICachedSteamProfile } from '../../base/interfaces/ICachedSteamProfile';
-import ICachedDeadlockHero from '../../base/interfaces/ICachedDeadlockHero';
-import DeadlockRank from '../clients/DeadlockAssetsClient/DefaultService/entities/DeadlockRank';
-import IStatlockerProfile from '../clients/StatlockerClient/StatlockerProfileService/interfaces/IStatlockerProfile';
 import { Collection } from 'discord.js';
 
 export default class CustomCache<T extends object> {
@@ -46,8 +42,3 @@ export default class CustomCache<T extends object> {
     return allRecords;
   }
 }
-
-export const steamProfileCache = new CustomCache<ICachedSteamProfile>(60 * 30);
-export const statlockerProfileCache = new CustomCache<IStatlockerProfile>(60 * 30);
-export const deadlockAssetsHeroCache = new CustomCache<ICachedDeadlockHero>(0);
-export const deadlockAssetsDefaultCache = new CustomCache<DeadlockRank[]>(0);

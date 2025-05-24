@@ -25,7 +25,7 @@ export default class SelectMenuHandler extends Event {
     const guildLang = await GuildConfig.findOne({
       guildId: interaction.guildId!,
     });
-    const t = i18next.getFixedT(guildLang?.lang!);
+    const t = i18next.getFixedT(guildLang?.lang ?? 'en');
 
     try {
       const selectMenuHandler = this.client.selectMenus.get(action);

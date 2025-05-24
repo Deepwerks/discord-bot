@@ -31,6 +31,7 @@ export default class Handler implements IHandler {
           logger.info(`${file.split('/').pop()} does not have a name.`)
         );
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const execute = (...args: any) => event.Execute(...args);
 
       //@ts-ignore

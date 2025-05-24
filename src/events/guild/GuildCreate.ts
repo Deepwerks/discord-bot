@@ -20,7 +20,7 @@ export default class GuildCreate extends Event {
       }
 
       const owner = await guild.fetchOwner();
-      const mexter = await this.client.users.fetch(this.client.config.developer_user_ids[0]);
+      const author = await this.client.users.fetch(this.client.config.developer_user_ids[0]);
 
       await owner
         .send({
@@ -32,8 +32,8 @@ export default class GuildCreate extends Event {
                 `Hi there! 👋\nThanks for adding **${this.client.user?.displayName}** to your server! We are excited to be part of your community!\n\nIf you’re planning to actively use the bot, we **strongly recommend** joining our [Support Server](https://discord.gg/C968DEVs6j) to stay informed about **updates, planned features**, and any **potential downtime**.\n\nWe're here to help if you run into issues or have suggestions. Thanks again, see you in the Cursed Apple!`
               )
               .setAuthor({
-                name: mexter.displayName,
-                iconURL: mexter.displayAvatarURL(),
+                name: author.displayName,
+                iconURL: author.displayAvatarURL(),
               }),
           ],
         })

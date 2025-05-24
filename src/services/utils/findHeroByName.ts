@@ -1,5 +1,5 @@
 import Fuse from 'fuse.js';
-import { deadlockAssetsHeroCache } from '../cache';
+import { useAssetsClient } from '../..';
 
 export function findHeroByName(input: string) {
   const heroAliasList = [
@@ -8,7 +8,7 @@ export function findHeroByName(input: string) {
     { alias: 'mcginnis', heroName: 'McGinnis' },
   ];
 
-  const searchableHeroes = deadlockAssetsHeroCache.getAll().map((hero) => ({
+  const searchableHeroes = useAssetsClient.HeroService.GetHeroes().map((hero) => ({
     name: hero.name,
     searchableName: hero.name.toLowerCase(),
   }));
@@ -24,7 +24,7 @@ export function findHeroByName(input: string) {
   });
 
   const normalizedInput = input.trim().toLowerCase();
-  const heroList = deadlockAssetsHeroCache.getAll();
+  const heroList = useAssetsClient.HeroService.GetHeroes();
 
   let hero = heroList.find((h) => h.name.toLowerCase() === normalizedInput);
 
