@@ -84,7 +84,7 @@ function getBestStats(players: DeadlockMatchPlayer[]) {
     kills: Math.max(...players.map((p) => p.kills)),
     assists: Math.max(...players.map((p) => p.assists)),
     player_damage: Math.max(...players.map((p) => p.stats.at(-1)?.player_damage ?? 0)),
-    obj_damage: Math.max(...players.map((p) => p.stats.at(-1)?.neutral_damage ?? 0)),
+    obj_damage: Math.max(...players.map((p) => p.stats.at(-1)?.boss_damage ?? 0)),
     healing: Math.max(...players.map((p) => p.stats.at(-1)?.player_healing ?? 0)),
   };
 }
@@ -165,7 +165,7 @@ async function drawPlayer(
     { value: player.deaths },
     { value: player.assists, key: 'assists' },
     { value: player.stats.at(-1)?.player_damage ?? 0, key: 'player_damage' },
-    { value: player.stats.at(-1)?.neutral_damage ?? 0, key: 'obj_damage' },
+    { value: player.stats.at(-1)?.boss_damage ?? 0, key: 'obj_damage' },
     { value: player.stats.at(-1)?.player_healing ?? 0, key: 'healing' },
   ];
 
