@@ -29,4 +29,6 @@ export default interface IConfig {
   port: number;
 
   secret: string;
+
+  bot_version: string;
 }

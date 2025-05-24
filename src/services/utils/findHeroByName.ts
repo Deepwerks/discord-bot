@@ -1,14 +1,14 @@
-import Fuse from "fuse.js";
-import { deadlockAssetsHeroCache } from "../cache";
+import Fuse from 'fuse.js';
+import { useAssetsClient } from '../..';
 
 export function findHeroByName(input: string) {
   const heroAliasList = [
-    { alias: "talon", heroName: "Gray Talon" },
-    { alias: "gray", heroName: "Gray Talon" },
-    { alias: "mcginnis", heroName: "McGinnis" },
+    { alias: 'talon', heroName: 'Gray Talon' },
+    { alias: 'gray', heroName: 'Gray Talon' },
+    { alias: 'mcginnis', heroName: 'McGinnis' },
   ];
 
-  const searchableHeroes = deadlockAssetsHeroCache.getAll().map((hero) => ({
+  const searchableHeroes = useAssetsClient.HeroService.GetHeroes().map((hero) => ({
     name: hero.name,
     searchableName: hero.name.toLowerCase(),
   }));
@@ -19,12 +19,12 @@ export function findHeroByName(input: string) {
   }));
 
   const fuse = new Fuse([...searchableHeroes, ...searchableAliases], {
-    keys: ["searchableName"],
+    keys: ['searchableName'],
     threshold: 0.3,
   });
 
   const normalizedInput = input.trim().toLowerCase();
-  const heroList = deadlockAssetsHeroCache.getAll();
+  const heroList = useAssetsClient.HeroService.GetHeroes();
 
   let hero = heroList.find((h) => h.name.toLowerCase() === normalizedInput);
 
@@ -33,13 +33,9 @@ export function findHeroByName(input: string) {
   }
 
   if (!hero) {
-    const aliasEntry = heroAliasList.find(
-      (entry) => entry.alias.toLowerCase() === normalizedInput
-    );
+    const aliasEntry = heroAliasList.find((entry) => entry.alias.toLowerCase() === normalizedInput);
     if (aliasEntry) {
-      hero = heroList.find(
-        (h) => h.name.toLowerCase() === aliasEntry.heroName.toLowerCase()
-      );
+      hero = heroList.find((h) => h.name.toLowerCase() === aliasEntry.heroName.toLowerCase());
     }
   }
 
@@ -47,9 +43,7 @@ export function findHeroByName(input: string) {
     const fuseResult = fuse.search(normalizedInput);
     const bestMatch = fuseResult[0]?.item.name;
     if (bestMatch) {
-      hero = heroList.find(
-        (h) => h.name.toLowerCase() === bestMatch.toLowerCase()
-      );
+      hero = heroList.find((h) => h.name.toLowerCase() === bestMatch.toLowerCase());
     }
   }
 

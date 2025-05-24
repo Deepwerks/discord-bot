@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { model, Schema } from 'mongoose';
 
 export interface IDeadlockMatchPlayerSchema {
   account_id: number;
@@ -84,11 +84,5 @@ const DeadlockMatchSchema = new Schema<IDeadlockMatchSchema>(
   }
 );
 
-DeadlockMatchSchema.index(
-  { createdAt: 1 },
-  { expireAfterSeconds: 4 * 7 * 24 * 60 * 60 }
-);
-export default model<IDeadlockMatchSchema>(
-  "DeadlockMatch",
-  DeadlockMatchSchema
-);
+DeadlockMatchSchema.index({ createdAt: 1 }, { expireAfterSeconds: 4 * 7 * 24 * 60 * 60 });
+export default model<IDeadlockMatchSchema>('DeadlockMatch', DeadlockMatchSchema);

@@ -1,5 +1,5 @@
-import { Events } from "discord.js";
-import CustomClient from "../classes/CustomClient";
+import { Events } from 'discord.js';
+import CustomClient from '../classes/CustomClient';
 
 export default interface IEvent {
   client: CustomClient;
@@ -7,5 +7,6 @@ export default interface IEvent {
   description: string;
   once: boolean;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Execute(...args: any): void;
 }

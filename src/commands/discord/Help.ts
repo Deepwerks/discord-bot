@@ -4,27 +4,26 @@ import {
   ChatInputCommandInteraction,
   EmbedBuilder,
   PermissionsBitField,
-} from "discord.js";
-import Command from "../../base/classes/Command";
-import CustomClient from "../../base/classes/CustomClient";
-import Category from "../../base/enums/Category";
-import CommandError from "../../base/errors/CommandError";
+} from 'discord.js';
+import Command from '../../base/classes/Command';
+import CustomClient from '../../base/classes/CustomClient';
+import Category from '../../base/enums/Category';
+import CommandError from '../../base/errors/CommandError';
 
 export default class Help extends Command {
   constructor(client: CustomClient) {
     super(client, {
-      name: "help",
-      description: "Help command for the bot",
+      name: 'help',
+      description: 'Help command for the bot',
       category: Category.Utilities,
-      default_member_permissions:
-        PermissionsBitField.Flags.UseApplicationCommands,
+      default_member_permissions: PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 3,
       dev: false,
       options: [
         {
-          name: "command",
-          description: "The name of the command you want help with.",
+          name: 'command',
+          description: 'The name of the command you want help with.',
           type: ApplicationCommandOptionType.String,
           required: false,
           autocomplete: true,
@@ -34,7 +33,7 @@ export default class Help extends Command {
   }
 
   async Execute(interaction: ChatInputCommandInteraction) {
-    const input = interaction.options.getString("command", false);
+    const input = interaction.options.getString('command', false);
     const commands = this.client.commands;
 
     if (input) {
@@ -48,16 +47,14 @@ export default class Help extends Command {
         .setTitle(`📘 Help: /${cmd.name}`)
         .setDescription(cmd.description)
         .addFields(
-          { name: "Category", value: cmd.category, inline: true },
-          { name: "Cooldown", value: `${cmd.cooldown}s`, inline: true },
+          { name: 'Category', value: cmd.category, inline: true },
+          { name: 'Cooldown', value: `${cmd.cooldown}s`, inline: true },
           {
-            name: "Options",
+            name: 'Options',
             value:
               cmd.options.length > 0
-                ? cmd.options
-                    .map((opt: any) => `• \`${opt.name}\` — ${opt.description}`)
-                    .join("\n")
-                : "None",
+                ? cmd.options.map((opt) => `• \`${opt.name}\` — ${opt.description}`).join('\n')
+                : 'None',
           }
         )
         .setColor(0x00bcd4);
@@ -80,14 +77,14 @@ export default class Help extends Command {
     }
 
     const embed = new EmbedBuilder()
-      .setTitle("📖 Bot Commands")
-      .setDescription("Here’s a list of all available commands:")
+      .setTitle('📖 Bot Commands')
+      .setDescription('Here’s a list of all available commands:')
       .setColor(0x00bcd4);
 
     for (const [category, cmds] of grouped) {
       embed.addFields({
         name: `📂 ${category}`,
-        value: cmds.join("\n"),
+        value: cmds.join('\n'),
       });
     }
 

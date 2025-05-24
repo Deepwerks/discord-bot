@@ -4,18 +4,16 @@ import {
   PermissionsBitField,
   EmbedBuilder,
   InteractionEditReplyOptions,
-} from "discord.js";
-import Command from "../../base/classes/Command";
-import CustomClient from "../../base/classes/CustomClient";
-import Category from "../../base/enums/Category";
-import { TFunction } from "i18next";
-import CommandError from "../../base/errors/CommandError";
-import { logger } from "../..";
-import PatchnoteSchema, {
-  IPatchnote,
-} from "../../base/schemas/PatchnoteSchema";
-import { createPaginationSession } from "../../services/utils/createPagination";
-import i18n from "../../services/i18n";
+} from 'discord.js';
+import Command from '../../base/classes/Command';
+import CustomClient from '../../base/classes/CustomClient';
+import Category from '../../base/enums/Category';
+import { TFunction } from 'i18next';
+import CommandError from '../../base/errors/CommandError';
+import { logger } from '../..';
+import PatchnoteSchema, { IPatchnote } from '../../base/schemas/PatchnoteSchema';
+import { createPaginationSession } from '../../services/utils/createPagination';
+import i18n from '../../services/i18n';
 
 type PatchChange = {
   patchTitle: string;
@@ -28,20 +26,17 @@ type PatchChange = {
 export default class Evolution extends Command {
   constructor(client: CustomClient) {
     super(client, {
-      name: "evolution",
-      description:
-        "Retrieves history of all changes made to a specific hero or item",
+      name: 'evolution',
+      description: 'Retrieves history of all changes made to a specific hero or item',
       category: Category.Deadlock,
-      default_member_permissions:
-        PermissionsBitField.Flags.UseApplicationCommands,
+      default_member_permissions: PermissionsBitField.Flags.UseApplicationCommands,
       dm_permission: true,
       cooldown: 2,
       dev: false,
       options: [
         {
-          name: "search",
-          description:
-            "Name of the hero, item, or keyword to find relevant balance changes for",
+          name: 'search',
+          description: 'Name of the hero, item, or keyword to find relevant balance changes for',
           required: true,
           type: ApplicationCommandOptionType.String,
         },
@@ -49,20 +44,15 @@ export default class Evolution extends Command {
     });
   }
 
-  async Execute(
-    interaction: ChatInputCommandInteraction,
-    t: TFunction<"translation", undefined>
-  ) {
-    const search = interaction.options.getString("search", true);
+  async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
+    const search = interaction.options.getString('search', true);
     await interaction.deferReply();
 
     try {
       const results = await findMentionsInPatchnotes(search);
 
       if (results.length === 0) {
-        await interaction.editReply(
-          t("commands.evolution.no_results", { search })
-        );
+        await interaction.editReply(t('commands.evolution.no_results', { search }));
         return;
       }
 
@@ -78,9 +68,7 @@ export default class Evolution extends Command {
       };
 
       const paginatedResponse = createPaginationSession(sessionId, context);
-      await interaction.editReply(
-        paginatedResponse as InteractionEditReplyOptions
-      );
+      await interaction.editReply(paginatedResponse as InteractionEditReplyOptions);
     } catch (error) {
       logger.error({
         error,
@@ -89,12 +77,8 @@ export default class Evolution extends Command {
       });
 
       const errorEmbed = new EmbedBuilder()
-        .setColor("Red")
-        .setDescription(
-          error instanceof CommandError
-            ? error.message
-            : t("errors.generic_error")
-        );
+        .setColor('Red')
+        .setDescription(error instanceof CommandError ? error.message : t('errors.generic_error'));
 
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ embeds: [errorEmbed] });
@@ -113,34 +97,30 @@ function createEmbedPage(
   search: string
 ): EmbedBuilder {
   return new EmbedBuilder()
-    .setTitle(t("commands.evolution.embed_title", { search }))
+    .setTitle(t('commands.evolution.embed_title', { search }))
     .setDescription(`[${result.patchTitle}](${result.url})`)
     .addFields({
-      name: "Changes",
+      name: 'Changes',
       value:
         result.matchedChanges
           .map((c) => `- ${c}`)
-          .join("\n")
-          .slice(0, 1024) || t("commands.evolution.no_details"),
+          .join('\n')
+          .slice(0, 1024) || t('commands.evolution.no_details'),
     })
     .setFooter({
-      text: t("commands.evolution.footer_page", { current: index + 1, total }),
+      text: t('commands.evolution.footer_page', { current: index + 1, total }),
     })
     .setTimestamp(result.date)
     .setColor(0x2ecc71);
 }
 
-async function findMentionsInPatchnotes(
-  searchTerm: string
-): Promise<PatchChange[]> {
-  const patchnotes: IPatchnote[] = await PatchnoteSchema.find({})
-    .sort({ date: -1 })
-    .lean();
+async function findMentionsInPatchnotes(searchTerm: string): Promise<PatchChange[]> {
+  const patchnotes: IPatchnote[] = await PatchnoteSchema.find({}).sort({ date: -1 }).lean();
 
   const results: PatchChange[] = [];
 
   // Build a regex to match the search term as a full word (case-insensitive)
-  const wordRegex = new RegExp(`\\b${escapeRegex(searchTerm)}\\b`, "i");
+  const wordRegex = new RegExp(`\\b${escapeRegex(searchTerm)}\\b`, 'i');
 
   for (const patch of patchnotes) {
     for (const section of patch.changes) {
@@ -173,5 +153,5 @@ async function findMentionsInPatchnotes(
 
 // Utility: Escapes special characters for regex input
 function escapeRegex(input: string): string {
-  return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

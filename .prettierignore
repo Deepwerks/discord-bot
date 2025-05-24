@@ -1,0 +1,14 @@
+build
+
+node_modules
+
+.env
+dev.env
+
+*.tsbuildinfo
+
+data/config.json
+
+logs
+
+.idea

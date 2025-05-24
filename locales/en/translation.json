@@ -12,14 +12,14 @@
       "fail": "Failed to emit event"
     },
     "history": {
-      "view_on_statlocker": "🔗 View on Statlocker",
+      "view_on_statlocker": "View on Statlocker",
       "match_details_placeholder": "📊 Match Details",
       "steam_auth_required_title": "⚠️ Steam Authentication Required",
       "steam_auth_required_description": "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\nThis method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, please re-link your account using the `/store` command.\n\nThank you for your understanding!"
     },
     "match": {
-      "view_on_statlocker": "🔗 View on Statlocker",
-      "show_players": "👥 Show Players",
+      "view_on_statlocker": "View on Statlocker",
+      "show_players": "Show Players",
       "steam_auth_required_title": "⚠️ Steam Authentication Required",
       "steam_auth_required_description": "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\nThis method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, please re-link your account using the `/store` command.\n\nThank you for your understanding!",
       "generated_in": "Generated in {{duration}}ms"
@@ -60,6 +60,10 @@
     "top": {
       "steam_auth_required_title": "⚠️ Steam Authentication Required",
       "steam_auth_required_description": "Your Steam account is linked but not authenticated due to being connected using an outdated method.\n\nThis method will soon be deprecated. To ensure continued access to the `me` shortcut and related features, please re-link your account using the `/store` command.\n\nThank you for your understanding!"
+    },
+    "create_lobby": {
+      "max_players": "Max players",
+      "placeholder": "e.g., 12"
     }
   },
   "warnings": {

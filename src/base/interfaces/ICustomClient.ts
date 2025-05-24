@@ -1,10 +1,10 @@
-import { Collection } from "discord.js";
-import IConfig from "./IConfig";
-import Command from "../classes/Command";
-import SubCommand from "../classes/SubCommand";
-import IModalHandler from "./IModalHandler";
-import ButtonAction from "../classes/ButtonAction";
-import SelectMenu from "../classes/SelectMenu";
+import { Collection } from 'discord.js';
+import IConfig from './IConfig';
+import Command from '../classes/Command';
+import SubCommand from '../classes/SubCommand';
+import IModalHandler from './IModalHandler';
+import ButtonAction from '../classes/ButtonAction';
+import SelectMenu from '../classes/SelectMenu';
 
 export default interface ICustomClient {
   config: IConfig;

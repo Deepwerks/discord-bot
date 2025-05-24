@@ -1,11 +1,8 @@
-import {
-  AutocompleteInteraction,
-  StringSelectMenuInteraction,
-} from "discord.js";
-import CustomClient from "./CustomClient";
-import { TFunction } from "i18next";
-import ISelectMenu from "../interfaces/ISelectMenu";
-import ISelectMenuOptions from "../interfaces/ISelectMenuOptions";
+import { AutocompleteInteraction, StringSelectMenuInteraction } from 'discord.js';
+import CustomClient from './CustomClient';
+import { TFunction } from 'i18next';
+import ISelectMenu from '../interfaces/ISelectMenu';
+import ISelectMenuOptions from '../interfaces/ISelectMenuOptions';
 
 export default abstract class SelectMenu implements ISelectMenu {
   client: CustomClient;
@@ -22,9 +19,10 @@ export default abstract class SelectMenu implements ISelectMenu {
 
   abstract Execute(
     interaction: StringSelectMenuInteraction,
-    t: TFunction<"translation", undefined>
+    t: TFunction<'translation', undefined>
   ): Promise<void>;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   AutoComplete(_interaction: AutocompleteInteraction): Promise<void> | void {
     /* default no-op – can be overridden */
   }

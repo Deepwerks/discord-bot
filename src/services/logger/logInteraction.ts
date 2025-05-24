@@ -1,8 +1,8 @@
-import { logger } from "../..";
+import { logger } from '../..';
 import UserInteractionSchema, {
   InteractionType,
   IUserInteractionSchema,
-} from "../../base/schemas/UserInteractionSchema";
+} from '../../base/schemas/UserInteractionSchema';
 
 const usageBuffer: IUserInteractionSchema[] = [];
 
@@ -35,19 +35,19 @@ async function flush() {
     await UserInteractionSchema.insertMany(usageBuffer);
     usageBuffer.length = 0;
   } catch (err) {
-    logger.error("Failed to insert command usage:", err);
+    logger.error('Failed to insert command usage:', err);
   }
 }
 
 setInterval(flush, FLUSH_INTERVAL);
 
 async function shutdownHandler() {
-  logger.info("Flushing usage logs before shutdown...");
+  logger.info('Flushing usage logs before shutdown...');
   await flush();
   process.exit(0);
 }
 
-process.on("SIGINT", shutdownHandler);
-process.on("SIGTERM", shutdownHandler);
+process.on('SIGINT', shutdownHandler);
+process.on('SIGTERM', shutdownHandler);
 
 export default logInteraction;
