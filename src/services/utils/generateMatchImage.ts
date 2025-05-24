@@ -215,6 +215,9 @@ function drawLabels(ctx: SKRSContext2D) {
 
 export async function generateMatchImage(options: IGenerateMatchImageOptions): Promise<Buffer> {
   const { match } = options;
+
+  await match.loadPlayerProfiles();
+
   const { team0Players: sapphireTeam, team1Players: amberTeam } = match;
   const allPlayers = [...sapphireTeam, ...amberTeam];
   const bestStats = getBestStats(allPlayers);

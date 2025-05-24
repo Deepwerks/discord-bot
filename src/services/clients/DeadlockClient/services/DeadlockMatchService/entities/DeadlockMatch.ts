@@ -1,6 +1,6 @@
 import dayjs, { Dayjs } from 'dayjs';
 import { DeadlockMatchDTO } from '../validators/DeadlockMatch.validator';
-import { useAssetsClient } from '../../../../../..';
+import { useAssetsClient, useStatlockerClient } from '../../../../../..';
 import DeadlockMatchPlayer from './DeadlockMatchPlayer';
 
 export default class DeadlockMatch {
@@ -50,6 +50,12 @@ export default class DeadlockMatch {
 
   get averageBadgeTeam1(): number {
     return this.data.match_info.average_badge_team1;
+  }
+
+  async loadPlayerProfiles(): Promise<void> {
+    await useStatlockerClient.ProfileService.GetProfiles([
+      ...this.data.match_info.players.map((p) => p.account_id),
+    ]);
   }
 
   async getAverageBadgeTeam0Url(): Promise<string> {
