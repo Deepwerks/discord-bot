@@ -1,11 +1,9 @@
 import dayjs, { Dayjs } from 'dayjs';
 import { DeadlockMatchHistoryRecordDTO } from '../validators/DeadlockMatchHistoryRecord.validator';
-import { useAssetsClient, useDeadlockClient } from '../../../../../..';
-import DeadlockMMRHistoryRecord from './DeadlockMMRHistoryRecord';
+import { useAssetsClient } from '../../../../../..';
 import DeadlockHero from '../../../../DeadlockAssetsClient/services/HeroService/entities/DeadlockHero';
 
 export default class DeadlockMatchHistoryRecord {
-  private mmrRecordCache?: DeadlockMMRHistoryRecord | null;
   private heroCache?: DeadlockHero | null;
 
   constructor(private data: DeadlockMatchHistoryRecordDTO) {}
@@ -92,16 +90,6 @@ export default class DeadlockMatchHistoryRecord {
 
   get objectivesMaskTeam1(): number {
     return this.data.objectives_mask_team1;
-  }
-
-  async getMMRRecord(): Promise<DeadlockMMRHistoryRecord | null> {
-    if (this.mmrRecordCache === undefined) {
-      this.mmrRecordCache = await useDeadlockClient.PlayerService.GetMMRRecord(
-        this.accountId,
-        this.matchId
-      );
-    }
-    return this.mmrRecordCache;
   }
 
   async getHero(): Promise<DeadlockHero | null> {

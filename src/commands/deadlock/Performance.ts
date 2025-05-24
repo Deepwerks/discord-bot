@@ -62,7 +62,7 @@ export default class Performance extends Command {
     try {
       const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction, t);
 
-      const matches = await useDeadlockClient.PlayerService.GetMatchHistory(
+      const matches = await useDeadlockClient.PlayerService.fetchMatchHistory(
         steamProfile.accountId,
         matchHistoryLimit
       );

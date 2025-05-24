@@ -1,5 +1,4 @@
 import { logger } from '../../../../..';
-import CustomCache from '../../../../cache';
 import { hasMiscProperty } from '../../../../utils/guards';
 import BaseClientService from '../../../base/classes/BaseClientService';
 import { VariableRequestParams, VariableResponse } from './entities/CommandResponse';
@@ -11,9 +10,6 @@ import DeadlockMMRHistorySchema from './validators/DeadlockMMRHistory.validator'
 import DeadlockPlayerHeroesStatsSchema from './validators/DeadlockPlayerHeroesStats.validator';
 
 export default class DeadlockPlayerService extends BaseClientService {
-  private matchHistoryCache = new CustomCache<DeadlockMatchHistoryRecord[]>(60);
-  private mmrHistoryCache = new CustomCache<DeadlockMMRHistoryRecord[]>(60);
-
   async FetchHeroStats(
     account_id: number,
     hero_id?: number
@@ -39,7 +35,7 @@ export default class DeadlockPlayerService extends BaseClientService {
     }
   }
 
-  private async fetchMatchHistory(
+  async fetchMatchHistory(
     account_id: number,
     limit: number
   ): Promise<DeadlockMatchHistoryRecord[]> {
@@ -50,10 +46,7 @@ export default class DeadlockPlayerService extends BaseClientService {
         schema: DeadlockMatchHistorySchema,
       });
 
-      const history = response.slice(0, limit).map((r) => new DeadlockMatchHistoryRecord(r));
-      this.matchHistoryCache.set(account_id, history);
-
-      return history;
+      return response.slice(0, limit).map((r) => new DeadlockMatchHistoryRecord(r));
     } catch (error) {
       logger.error('Failed to fetch player match history', {
         account_id,
@@ -66,22 +59,7 @@ export default class DeadlockPlayerService extends BaseClientService {
     }
   }
 
-  async GetMatchHistory(
-    account_id: number,
-    limit: number = 15
-  ): Promise<DeadlockMatchHistoryRecord[]> {
-    const cached = this.matchHistoryCache.get(account_id);
-
-    if (cached) return cached;
-
-    const fetchedHistory = await this.fetchMatchHistory(account_id, limit);
-    return fetchedHistory;
-  }
-
-  private async fetchMMRHistory(
-    account_id: number,
-    limit: number
-  ): Promise<DeadlockMMRHistoryRecord[]> {
+  async fetchMMRHistory(account_id: number, limit: number): Promise<DeadlockMMRHistoryRecord[]> {
     try {
       logger.info('[API CALL] Fetching player mmr history...');
 
@@ -89,13 +67,10 @@ export default class DeadlockPlayerService extends BaseClientService {
         schema: DeadlockMMRHistorySchema,
       });
 
-      const mmrHistory = response
+      return response
         .reverse()
         .slice(0, limit)
         .map((h) => new DeadlockMMRHistoryRecord(h));
-      this.mmrHistoryCache.set(account_id, mmrHistory);
-
-      return mmrHistory;
     } catch (error) {
       logger.error('Failed to fetch player mmr history', {
         account_id,
@@ -106,43 +81,6 @@ export default class DeadlockPlayerService extends BaseClientService {
 
       return [];
     }
-  }
-
-  async GetMMRHistory(account_id: number, limit: number = 15): Promise<DeadlockMMRHistoryRecord[]> {
-    const cached = this.mmrHistoryCache.get(account_id);
-
-    if (cached) return cached;
-
-    const fetchedHistory = await this.fetchMMRHistory(account_id, limit);
-    return fetchedHistory;
-  }
-
-  async GetMMRRecord(
-    account_id: number,
-    match_id: number
-  ): Promise<DeadlockMMRHistoryRecord | null> {
-    let mmrHistory = this.mmrHistoryCache.get(account_id);
-
-    if (!mmrHistory) {
-      mmrHistory = await this.fetchMMRHistory(account_id, 15);
-    }
-
-    const record = mmrHistory.find((r) => r.matchId === match_id);
-    return record || null;
-  }
-
-  async GetMatchHistoryRecord(
-    account_id: number,
-    match_id: number
-  ): Promise<DeadlockMatchHistoryRecord | null> {
-    let matchHistory = this.matchHistoryCache.get(account_id);
-
-    if (!matchHistory) {
-      matchHistory = await this.fetchMatchHistory(account_id, 15);
-    }
-
-    const record = matchHistory.find((r) => r.matchId === match_id);
-    return record || null;
   }
 
   async FetchStats(

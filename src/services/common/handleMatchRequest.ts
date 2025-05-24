@@ -39,7 +39,7 @@ export async function handleMatchRequest({
       steamID64 = await resolveToSteamID64(id);
     }
 
-    const history = await useDeadlockClient.PlayerService.GetMatchHistory(Number(steamID64), 1);
+    const history = await useDeadlockClient.PlayerService.fetchMatchHistory(Number(steamID64), 1);
     if (!history.length) throw new CommandError('Player do not have a match history.');
 
     _matchId = history[0].matchId;

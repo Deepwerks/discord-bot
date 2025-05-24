@@ -57,11 +57,13 @@ export default class DeadlockDefaultService extends BaseClientService {
     return rank;
   }
 
-  async GetRankName(rank: number, subrank: number): Promise<string> {
+  async GetRankName(rank?: number, subrank?: number): Promise<string> {
+    if (!rank) return 'Unknown';
+
     const tierData = await this.GetRank(rank);
     if (!tierData) return 'Unknown';
 
-    return `${tierData.name}${subrank > 0 ? ` ${subrank}` : ''}`;
+    return `${tierData.name}${(subrank ?? 0 > 0) ? ` ${subrank}` : ''}`;
   }
 
   async GetRankImage(rank: number, subrank: number) {
