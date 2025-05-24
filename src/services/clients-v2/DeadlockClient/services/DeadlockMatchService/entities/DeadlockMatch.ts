@@ -27,4 +27,6 @@ export default class DeadlockMatch {
       .filter((p) => p.team === 1)
       .sort((a, b) => a.player_slot - b.player_slot);
   }
+
+  //todo: finish getters
 }

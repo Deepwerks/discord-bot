@@ -6,4 +6,8 @@ export default class DeadlockMatchId {
   get matchId(): number {
     return this.data.match_id;
   }
+
+  async getMatch() {
+    //todo: call deadlock client to get match
+  }
 }

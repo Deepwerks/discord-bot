@@ -22,4 +22,8 @@ export default class DeadlockMMRHistoryRecord {
   get divisionTier(): number {
     return this.data.division_tier;
   }
+
+  async getRank() {
+    //todo: call assets client to get rank
+  }
 }

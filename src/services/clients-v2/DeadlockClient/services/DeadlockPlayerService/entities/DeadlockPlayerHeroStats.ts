@@ -86,4 +86,8 @@ export default class DeadlockPlayerHeroStats {
   get matches(): number[] {
     return this.data.matches;
   }
+
+  async getHero() {
+    //todo: call assets client to get hero
+  }
 }

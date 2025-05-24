@@ -87,4 +87,8 @@ export default class DeadlockMatchHistoryRecord {
   get objectivesMaskTeam1(): number {
     return this.data.objectives_mask_team1;
   }
+
+  async getMMRRecord() {
+    //todo: call deadlock client to get mmr history record
+  }
 }
