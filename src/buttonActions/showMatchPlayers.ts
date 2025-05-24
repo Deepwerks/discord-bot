@@ -19,7 +19,7 @@ export default class ShowMatchPlayersButtonAction extends ButtonAction {
     const [action, matchId] = interaction.customId.split(':');
 
     try {
-      const deadlockMatch = await useDeadlockClient.MatchService.GetMatch(Number());
+      const deadlockMatch = await useDeadlockClient.MatchService.GetMatch(Number(matchId));
 
       const allPlayers = [
         ...(deadlockMatch?.team0Players ?? []),

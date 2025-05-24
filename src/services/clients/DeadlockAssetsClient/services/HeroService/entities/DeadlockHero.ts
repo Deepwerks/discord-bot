@@ -1,5 +1,5 @@
 import { DeadlockHeroDTO } from '../validators/DeadlockHero.validator';
-import { DeadlockHeroDescriptionDTO } from '../validators/DeadlockHeroDescription';
+import { DeadlockHeroDescriptionDTO } from '../validators/DeadlockHeroDescription.validator';
 import { DeadlockHeroImagesDTO } from '../validators/DeadlockHeroImages.validator';
 
 export default class DeadlockHero {

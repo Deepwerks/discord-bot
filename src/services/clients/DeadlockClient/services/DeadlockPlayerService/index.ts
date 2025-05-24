@@ -155,8 +155,8 @@ export default class DeadlockPlayerService extends BaseClientService {
 
   async FetchStats(
     account_id: number,
-    hero_name: string,
-    variables: string[]
+    variables: string[],
+    hero_name?: string
   ): Promise<VariableResponse | null> {
     try {
       logger.info('[API CALL] Fetching player stats...');

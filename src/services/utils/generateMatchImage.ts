@@ -226,8 +226,8 @@ export async function generateMatchImage(options: IGenerateMatchImageOptions): P
   ctx.fillRect(0, 0, Layout.canvasWidth, Layout.canvasHeight);
   ctx.textBaseline = 'middle';
 
-  const team0BadgeUrl = await match.getaverageBadgeTeam0Url();
-  const team1BadgeUrl = await match.getaverageBadgeTeam1Url();
+  const team0BadgeUrl = await match.getAverageBadgeTeam0Url();
+  const team1BadgeUrl = await match.getAverageBadgeTeam1Url();
 
   const [team0Badge, team1Badge] = await Promise.all([
     safeLoadImage(team0BadgeUrl),

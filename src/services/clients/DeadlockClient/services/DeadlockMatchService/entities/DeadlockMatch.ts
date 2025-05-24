@@ -52,14 +52,14 @@ export default class DeadlockMatch {
     return this.data.match_info.average_badge_team1;
   }
 
-  async getaverageBadgeTeam0Url(): Promise<string> {
+  async getAverageBadgeTeam0Url(): Promise<string> {
     const rank = Math.floor(this.averageBadgeTeam0 / 10);
     const subrank = this.averageBadgeTeam0 % 10;
 
     return await useAssetsClient.DefaultService.GetRankImage(rank, subrank);
   }
 
-  async getaverageBadgeTeam1Url(): Promise<string> {
+  async getAverageBadgeTeam1Url(): Promise<string> {
     const rank = Math.floor(this.averageBadgeTeam1 / 10);
     const subrank = this.averageBadgeTeam1 % 10;
 

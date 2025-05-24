@@ -44,7 +44,7 @@ export default class DeadlockDefaultService extends BaseClientService {
   async GetRanks(): Promise<DeadlockRank[]> {
     const cached = this.cache.getAll().map((rank) => rank);
 
-    if (cached) {
+    if (cached.length > 0) {
       return cached;
     }
 

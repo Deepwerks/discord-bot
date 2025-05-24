@@ -93,12 +93,11 @@ export default class Stats extends Command {
 
       const heroSpecificStats = heroName ? HeroSpecificStats[hero!.name] || [] : [];
 
-      const stats = await useDeadlockClient.PlayerService.FetchStats(accountId, hero?.name || '', [
-        ...globalStats,
-        ...additionalStats,
-        ...heroStats,
-        ...heroSpecificStats,
-      ]);
+      const stats = await useDeadlockClient.PlayerService.FetchStats(
+        accountId,
+        [...globalStats, ...additionalStats, ...heroStats, ...heroSpecificStats],
+        hero?.name
+      );
 
       if (!stats) {
         throw new CommandError('Failed to get player stats');

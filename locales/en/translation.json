@@ -64,6 +64,11 @@
     "create_lobby": {
       "max_players": "Max players",
       "placeholder": "e.g., 12"
+    },
+    "feedback": {
+      "title": "Submit Your Feedback (Anonymous)",
+      "label": "Please enter your feedback here",
+      "placeholder": "e.g., I love this bot!"
     }
   },
   "warnings": {

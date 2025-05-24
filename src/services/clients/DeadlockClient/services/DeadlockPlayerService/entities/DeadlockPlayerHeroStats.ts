@@ -81,7 +81,7 @@ export default class DeadlockPlayerHeroStats {
     return this.data.accuracy;
   }
 
-  get crit_shot_rate(): number {
+  get critShotRate(): number {
     return this.data.crit_shot_rate;
   }
 

@@ -89,10 +89,12 @@ export default class SteamProfileService extends BaseClientService {
 
   async GetIdFromUsername(username: string): Promise<string | null> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response = await this.client.request<any>(
-      'GET',
-      `/ISteamUser/ResolveVanityURL/v1/?key=${this.client.config.steam_api_key}&vanityurl=${username}`
-    );
+    const response = await this.client.request<any>('GET', `/ISteamUser/ResolveVanityURL/v1/`, {
+      params: {
+        key: this.client.config.steam_api_key,
+        vanityurl: username,
+      },
+    });
 
     if (response.response.success !== 1) {
       return null;

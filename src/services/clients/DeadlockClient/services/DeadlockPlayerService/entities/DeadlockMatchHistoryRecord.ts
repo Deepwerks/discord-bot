@@ -5,6 +5,9 @@ import DeadlockMMRHistoryRecord from './DeadlockMMRHistoryRecord';
 import DeadlockHero from '../../../../DeadlockAssetsClient/services/HeroService/entities/DeadlockHero';
 
 export default class DeadlockMatchHistoryRecord {
+  private mmrRecordCache?: DeadlockMMRHistoryRecord | null;
+  private heroCache?: DeadlockHero | null;
+
   constructor(private data: DeadlockMatchHistoryRecordDTO) {}
 
   get accountId(): number {
@@ -92,10 +95,19 @@ export default class DeadlockMatchHistoryRecord {
   }
 
   async getMMRRecord(): Promise<DeadlockMMRHistoryRecord | null> {
-    return await useDeadlockClient.PlayerService.GetMMRRecord(this.accountId, this.matchId);
+    if (this.mmrRecordCache === undefined) {
+      this.mmrRecordCache = await useDeadlockClient.PlayerService.GetMMRRecord(
+        this.accountId,
+        this.matchId
+      );
+    }
+    return this.mmrRecordCache;
   }
 
   async getHero(): Promise<DeadlockHero | null> {
-    return await useAssetsClient.HeroService.GetHero(this.heroId);
+    if (this.heroCache === undefined) {
+      this.heroCache = await useAssetsClient.HeroService.GetHero(this.heroId);
+    }
+    return this.heroCache;
   }
 }
