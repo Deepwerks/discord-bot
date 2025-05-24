@@ -5,8 +5,6 @@ import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
 import { logger } from '../..';
-import { DeadlockClient } from '../../services/clients-v2/DeadlockClient';
-import CommandError from '../../base/errors/CommandError';
 import { getBotVersion } from '../../services/utils/getBotVersion';
 
 export default class Test extends Command {
