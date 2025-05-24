@@ -4,8 +4,7 @@ import Command from '../../base/classes/Command';
 import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
-import { logger, useAssetsClient } from '../..';
-import { getBotVersion } from '../../services/utils/getBotVersion';
+import { logger } from '../..';
 
 export default class Test extends Command {
   constructor(client: CustomClient) {
@@ -24,9 +23,6 @@ export default class Test extends Command {
   async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
     try {
       await interaction.deferReply();
-
-      const firstRank = useAssetsClient.DefaultService.cache.get('0');
-      console.log(JSON.stringify(firstRank, null, 2));
 
       await interaction.editReply({
         content: 'awdd',

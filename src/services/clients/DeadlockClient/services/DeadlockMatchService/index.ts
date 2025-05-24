@@ -13,7 +13,7 @@ export default class DeadlockMatchService extends BaseClientService {
   private cache = new CustomCache<DeadlockMatch>(60);
 
   async GetMatch(matchId: number): Promise<DeadlockMatch | null> {
-    const cached = this.cache.get(matchId);
+    const cached = this.cache.get(String(matchId));
 
     if (cached) {
       return cached;
@@ -32,7 +32,7 @@ export default class DeadlockMatchService extends BaseClientService {
       });
 
       const fetchedMatch = new DeadlockMatch(response);
-      this.cache.set(matchId, fetchedMatch);
+      this.cache.set(String(matchId), fetchedMatch);
 
       return fetchedMatch;
     } catch (error) {

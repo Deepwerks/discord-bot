@@ -21,7 +21,7 @@ export default class DeadlockHeroService extends BaseClientService {
 
       const hero = new DeadlockHero(response);
 
-      this.cache.set(hero.id, hero);
+      this.cache.set(String(hero.id), hero);
       return hero;
     } catch (error) {
       logger.error('Failed to fetch deadlock hero', {
@@ -36,7 +36,7 @@ export default class DeadlockHeroService extends BaseClientService {
   }
 
   async GetHero(heroId: number): Promise<DeadlockHero | null> {
-    const cached = this.cache.get(heroId);
+    const cached = this.cache.get(String(heroId));
 
     if (cached) return cached;
 
@@ -56,7 +56,7 @@ export default class DeadlockHeroService extends BaseClientService {
         .map((hero) => new DeadlockHero(hero));
 
       for (const hero of accessableHeroes) {
-        this.cache.set(hero.id, hero);
+        this.cache.set(String(hero.id), hero);
       }
     } catch (error) {
       logger.error('Failed to fetch all deadlock heroes', {
