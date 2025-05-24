@@ -7,6 +7,7 @@ import { TFunction } from 'i18next';
 import { logger } from '../..';
 import { DeadlockClient } from '../../services/clients-v2/DeadlockClient';
 import CommandError from '../../base/errors/CommandError';
+import { getBotVersion } from '../../services/utils/getBotVersion';
 
 export default class Test extends Command {
   constructor(client: CustomClient) {
@@ -26,18 +27,10 @@ export default class Test extends Command {
     try {
       await interaction.deferReply();
 
-      const useDeadlockClientV2 = new DeadlockClient({
-        config: this.client.config,
-        apiKey: this.client.config.deadlock_api_key,
-        baseURL: this.client.config.deadlock_api_url,
-      });
-
-      const match = await useDeadlockClientV2.MatchService.GetMatch(36017246);
-
-      if (!match) throw new CommandError();
+      const botVersion = getBotVersion();
 
       await interaction.editReply({
-        content: match.startDate.format(),
+        content: botVersion,
       });
     } catch (error) {
       logger.error(error);

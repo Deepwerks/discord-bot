@@ -3,10 +3,12 @@ dotenv.config();
 
 import IConfig from './base/interfaces/IConfig';
 import { logger } from '.';
+import { getBotVersion } from './services/utils/getBotVersion';
 
 let config: IConfig | null = null;
 
 const running_env = process.env.NODE_ENV;
+const botVersion = getBotVersion() || '1.0.0';
 
 if (running_env === undefined) {
   logger.error('NODE_ENV is undefined. Shutting down...');
@@ -35,6 +37,7 @@ switch (running_env) {
       logtail_endpoint: process.env.LOGTAIL_ENDPOINT!,
       logtail_source_token: process.env.LOGTAIL_SOURCE_TOKEN!,
       secret: process.env.SECRET!,
+      bot_version: botVersion,
     };
     break;
   case 'development':
@@ -60,6 +63,7 @@ switch (running_env) {
       logtail_endpoint: process.env.LOGTAIL_ENDPOINT!,
       logtail_source_token: process.env.LOGTAIL_SOURCE_TOKEN!,
       secret: process.env.SECRET!,
+      bot_version: botVersion,
     };
     break;
   case 'test':
@@ -83,6 +87,7 @@ switch (running_env) {
       logtail_endpoint: '',
       logtail_source_token: '',
       secret: '',
+      bot_version: botVersion,
     };
     break;
 
