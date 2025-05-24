@@ -1,18 +1,12 @@
 import { logger } from '../../../../..';
 import CustomCache from '../../../../cache';
 import { hasMiscProperty } from '../../../../utils/guards';
-import BaseClient from '../../../base/classes/BaseClient';
 import BaseClientService from '../../../base/classes/BaseClientService';
 import DeadlockRank from './entities/DeadlockRank';
 import DeadlockRanksSchema from './validators/DeadlockRanks.validator';
 
 export default class DeadlockDefaultService extends BaseClientService {
-  private cache: CustomCache<DeadlockRank>;
-  constructor(client: BaseClient) {
-    super(client);
-
-    this.cache = new CustomCache<DeadlockRank>(0);
-  }
+  private cache = new CustomCache<DeadlockRank>(0);
 
   private async fetchRanks(): Promise<DeadlockRank[]> {
     try {

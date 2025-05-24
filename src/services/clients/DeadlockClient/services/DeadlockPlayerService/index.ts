@@ -1,7 +1,6 @@
 import { logger } from '../../../../..';
 import CustomCache from '../../../../cache';
 import { hasMiscProperty } from '../../../../utils/guards';
-import BaseClient from '../../../base/classes/BaseClient';
 import BaseClientService from '../../../base/classes/BaseClientService';
 import { VariableRequestParams, VariableResponse } from './entities/CommandResponse';
 import DeadlockMatchHistoryRecord from './entities/DeadlockMatchHistoryRecord';
@@ -12,15 +11,8 @@ import DeadlockMMRHistorySchema from './validators/DeadlockMMRHistory.validator'
 import DeadlockPlayerHeroesStatsSchema from './validators/DeadlockPlayerHeroesStats.validator';
 
 export default class DeadlockPlayerService extends BaseClientService {
-  private matchHistoryCache: CustomCache<DeadlockMatchHistoryRecord[]>;
-  private mmrHistoryCache: CustomCache<DeadlockMMRHistoryRecord[]>;
-
-  constructor(client: BaseClient) {
-    super(client);
-
-    this.matchHistoryCache = new CustomCache<DeadlockMatchHistoryRecord[]>(60);
-    this.mmrHistoryCache = new CustomCache<DeadlockMMRHistoryRecord[]>(60);
-  }
+  private matchHistoryCache = new CustomCache<DeadlockMatchHistoryRecord[]>(60);
+  private mmrHistoryCache = new CustomCache<DeadlockMMRHistoryRecord[]>(60);
 
   async FetchHeroStats(
     account_id: number,

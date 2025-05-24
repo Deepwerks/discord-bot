@@ -1,19 +1,13 @@
 import { logger } from '../../../../..';
 import CustomCache from '../../../../cache';
 import { hasMiscProperty } from '../../../../utils/guards';
-import BaseClient from '../../../base/classes/BaseClient';
 import BaseClientService from '../../../base/classes/BaseClientService';
 import DeadlockHero from './entities/DeadlockHero';
 import DeadlockHeroSchema from './validators/DeadlockHero.validator';
 import DeadlockHeroesSchema from './validators/DeadlockHeroes.validator';
 
 export default class DeadlockHeroService extends BaseClientService {
-  private cache: CustomCache<DeadlockHero>;
-  constructor(client: BaseClient) {
-    super(client);
-
-    this.cache = new CustomCache<DeadlockHero>(0);
-  }
+  private cache = new CustomCache<DeadlockHero>(0);
 
   private async fetchHero(heroId: number): Promise<DeadlockHero | null> {
     try {
