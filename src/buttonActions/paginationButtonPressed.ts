@@ -23,7 +23,6 @@ export default class PaginationButtonPressed extends ButtonAction {
 
   async Execute(interaction: ButtonInteraction, t: TFunction<'translation', undefined>) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, direction, sessionId] = interaction.customId.split(':');
 
       const session = paginationStore.get(sessionId);

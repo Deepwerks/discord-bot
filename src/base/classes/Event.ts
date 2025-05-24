@@ -16,5 +16,6 @@ export default abstract class Event implements IEvent {
     this.once = options.once;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   abstract Execute(...args: any): void;
 }

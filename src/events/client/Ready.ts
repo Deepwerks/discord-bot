@@ -20,7 +20,7 @@ export default class Ready extends Event {
     this.client.user?.setPresence({
       activities: [
         {
-          name: 'your Statlocker 📊',
+          name: `your Statlocker 📊`,
           type: ActivityType.Watching,
         },
       ],
