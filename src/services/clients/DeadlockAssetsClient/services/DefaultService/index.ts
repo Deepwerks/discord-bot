@@ -66,7 +66,7 @@ export default class DeadlockDefaultService extends BaseClientService {
     return `${tierData.name}${(subrank ?? 0 > 0) ? ` ${subrank}` : ''}`;
   }
 
-  async GetRankImage(rank: number, subrank: number) {
+  async GetRankImage(rank?: number, subrank?: number) {
     let unknownImage = (await this.GetRank(0))?.images.large;
 
     if (!unknownImage) {
@@ -74,12 +74,15 @@ export default class DeadlockDefaultService extends BaseClientService {
         'https://assets-bucket.deadlock-api.com/assets-api-res/images/ranks/rank0/badge_lg.png';
     }
 
+    if (!rank)
+      return 'https://assets-bucket.deadlock-api.com/assets-api-res/images/ranks/rank0/badge_lg.png';
+
     const tierData = await this.GetRank(rank);
     if (!tierData) return unknownImage;
 
     const images = tierData.images;
 
-    if (subrank === 0) {
+    if (subrank === 0 || subrank === undefined) {
       return images.large;
     }
 

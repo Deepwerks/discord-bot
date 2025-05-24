@@ -1,9 +1,8 @@
 import { TFunction } from 'i18next';
 import { useDeadlockClient } from '../..';
-import StoredPlayer from '../../base/schemas/StoredPlayerSchema';
 import CommandError from '../../base/errors/CommandError';
-import { resolveToSteamID64 } from '../../services/utils/resolveToSteamID64';
 import { generateMatchImage, IGenerateMatchImageOptions } from '../utils/generateMatchImage';
+import getProfile from './getProfile';
 
 export async function handleMatchRequest({
   id,
@@ -12,37 +11,28 @@ export async function handleMatchRequest({
   t,
 }: {
   id: string;
-  type?: string | null;
+  type: 'player_id' | 'match_id';
   userId: string;
   t: TFunction<'translation', undefined>;
 }): Promise<{
   matchData: IGenerateMatchImageOptions;
   imageBuffer: Buffer;
-  steamAuthNeeded: boolean;
+  _steamAuthNeeded: boolean;
 }> {
-  let steamAuthNeeded = false;
-  let _matchId = Number(id);
+  let _steamAuthNeeded = false;
+  let _matchId: number;
 
-  const finalType = id === 'me' ? 'player_id' : ((type as 'match_id' | 'player_id') ?? 'match_id');
+  if (type === 'player_id') {
+    const { steamProfile, steamAuthNeeded } = await getProfile(id, userId, t);
+    _steamAuthNeeded = steamAuthNeeded;
 
-  if (finalType === 'player_id') {
-    let steamID64 = id;
-
-    if (id === 'me') {
-      const storedPlayer = await StoredPlayer.findOne({ discordId: userId });
-      if (!storedPlayer) throw new CommandError(t('errors.steam_not_yet_stored'));
-
-      steamAuthNeeded =
-        storedPlayer.authenticated === undefined || storedPlayer.authenticated === false;
-      steamID64 = storedPlayer.steamId;
-    } else {
-      steamID64 = await resolveToSteamID64(id);
-    }
-
-    const history = await useDeadlockClient.PlayerService.fetchMatchHistory(Number(steamID64), 1);
-    if (!history.length) throw new CommandError('Player do not have a match history.');
-
-    _matchId = history[0].matchId;
+    const matchHistory = await useDeadlockClient.PlayerService.fetchMatchHistory(
+      steamProfile.accountId,
+      1
+    );
+    _matchId = matchHistory[0].matchId;
+  } else {
+    _matchId = Number(id);
   }
 
   const deadlockMatch = await useDeadlockClient.MatchService.GetMatch(_matchId);
@@ -57,5 +47,5 @@ export async function handleMatchRequest({
 
   const imageBuffer = await generateMatchImage(matchData);
 
-  return { matchData, imageBuffer, steamAuthNeeded };
+  return { matchData, imageBuffer, _steamAuthNeeded };
 }

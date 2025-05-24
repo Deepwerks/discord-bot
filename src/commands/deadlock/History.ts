@@ -52,7 +52,7 @@ export default class History extends Command {
     const ephemeral = interaction.options.getBoolean('private', false);
 
     try {
-      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction, t);
+      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction.user.id, t);
 
       const matchHistory = await useDeadlockClient.PlayerService.fetchMatchHistory(
         steamProfile.accountId,

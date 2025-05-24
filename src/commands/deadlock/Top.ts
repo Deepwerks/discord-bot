@@ -82,7 +82,7 @@ export default class Top extends Command {
     await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
 
     try {
-      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction, t);
+      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction.user.id, t);
 
       const stats = await useDeadlockClient.PlayerService.FetchHeroStats(steamProfile.accountId);
 

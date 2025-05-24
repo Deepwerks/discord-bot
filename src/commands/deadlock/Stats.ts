@@ -61,7 +61,7 @@ export default class Stats extends Command {
 
     try {
       await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
-      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction, t);
+      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction.user.id, t);
 
       if (!steamProfile) {
         throw new CommandError(t('errors.steam_profile_not_found'));
