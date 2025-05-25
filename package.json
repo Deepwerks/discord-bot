@@ -1,6 +1,6 @@
 {
   "name": "discord-bot",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -49,6 +49,7 @@
     "node-cache": "^5.1.2",
     "node-cron": "^3.0.3",
     "node-steam-openid": "^2.0.0",
+    "openid-client": "^6.5.0",
     "steamid": "^2.1.0",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0",
