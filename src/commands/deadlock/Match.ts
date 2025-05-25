@@ -50,6 +50,12 @@ export default class Match extends Command {
           ],
         },
         {
+          name: 'use_generic_names',
+          description: 'Use generic names instead of player info (anonymized output)',
+          required: false,
+          type: ApplicationCommandOptionType.Boolean,
+        },
+        {
           name: 'private',
           description: 'Only show result to you',
           required: false,
@@ -67,6 +73,7 @@ export default class Match extends Command {
         : interaction.options.getString('type')
           ? (interaction.options.getString('type') as 'player_id' | 'match_id')
           : 'match_id';
+    const useGenericNames = interaction.options.getBoolean('use_generic_names', false) ?? false;
     const ephemeral = interaction.options.getBoolean('private', false);
     const startTime = performance.now();
 
@@ -78,6 +85,7 @@ export default class Match extends Command {
         type,
         userId: interaction.user.id,
         t,
+        useGenericNames,
       });
       const match = matchData.match;
 
