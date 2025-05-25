@@ -1,6 +1,11 @@
 ## [1.8.2](https://github.com/Deepwerks/discord-bot/compare/v1.8.1-release...v1.8.2) (2025-05-25)
 
 
+### Features
+
+* introduced a new command to get user info ([7f76285](https://github.com/Deepwerks/discord-bot/commit/7f762850247c47b42cd5ed2924a3a5d6fc6476e3))
+
+
 
 ## [1.8.1-release](https://github.com/Deepwerks/discord-bot/compare/v1.8.0-release...v1.8.1-release) (2025-05-24)
 
