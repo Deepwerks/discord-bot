@@ -1,11 +1,14 @@
 import SteamOpenID from 'node-steam-openid';
-import config from '../../../config';
+import config from '../../../../config';
 import express from 'express';
 import SteamID from 'steamid';
-import { logger } from '../../..';
-import { consumeToken } from '../../stores/SteamLinkTokenStore';
-import limiter from '../middlewares/rateLimit';
-import StoredPlayerSchema from '../../../base/schemas/StoredPlayerSchema';
+import { logger } from '../../../..';
+import { consumeToken } from '../../../stores/SteamLinkTokenStore';
+import limiter from '../../middlewares/rateLimit';
+import StoredPlayerSchema from '../../../../base/schemas/StoredPlayerSchema';
+import Bottleneck from 'bottleneck';
+
+const steamLimiter = new Bottleneck({ maxConcurrent: 1, minTime: 4000 });
 
 const steam = new SteamOpenID({
   realm: config.deadlock_assistant_url,
@@ -53,7 +56,7 @@ router.get('/auth/steam/authenticate', limiter, async (req, res, next) => {
       route: '/auth/steam/authenticate',
     });
 
-    const steamAccount = await steam.authenticate(req);
+    const steamAccount = await steamLimiter.schedule(() => steam.authenticate(req));
     const steamId64 = steamAccount.steamid;
 
     const sid = new SteamID(steamId64);

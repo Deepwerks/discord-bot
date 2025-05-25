@@ -5,6 +5,7 @@ interface IStoredPlayerSchema {
   steamIdType: 'steamID3' | 'steamID' | 'steamID64';
   discordId: string;
   authenticated?: boolean;
+  reauthenticateAfter?: Date;
 }
 
 export default model<IStoredPlayerSchema>(
@@ -21,6 +22,10 @@ export default model<IStoredPlayerSchema>(
       authenticated: {
         type: Boolean,
         default: false,
+      },
+      reauthenticateAfter: {
+        type: Date,
+        required: false,
       },
     },
     {

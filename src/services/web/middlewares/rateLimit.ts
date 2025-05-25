@@ -3,8 +3,8 @@ import { logger } from '../../..';
 import RateLimitError from '../../../base/errors/RateLimitError';
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 3,
+  windowMs: 10 * 60 * 1000,
+  max: 5,
   message: 'Too many requests, please try again later.',
   keyGenerator: (req) => req.ip || 'unknown',
   handler: (req, res, next) => {

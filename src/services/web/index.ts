@@ -2,7 +2,7 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import IConfig from '../../base/interfaces/IConfig';
 import { logger } from '../..';
 import cookieParser from 'cookie-parser';
-import steamAuthRouter from './routes/SteamAuthRouter';
+import steamAuthRouter from './routes/v2/SteamAuthRouter';
 import errorHandler from './middlewares/errorHandler';
 import { cleanUpTokens } from '../stores/SteamLinkTokenStore';
 import limiter from './middlewares/rateLimit';
