@@ -9,11 +9,13 @@ export async function handleMatchRequest({
   type,
   userId,
   t,
+  useGenericNames = false,
 }: {
   id: string;
   type: 'player_id' | 'match_id';
   userId: string;
   t: TFunction<'translation', undefined>;
+  useGenericNames: boolean;
 }): Promise<{
   matchData: IGenerateMatchImageOptions;
   imageBuffer: Buffer;
@@ -43,6 +45,7 @@ export async function handleMatchRequest({
 
   const matchData = {
     match: deadlockMatch,
+    useGenericNames,
   };
 
   const imageBuffer = await generateMatchImage(matchData);

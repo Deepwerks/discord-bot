@@ -6,6 +6,7 @@ import { Canvas, loadImage, SKRSContext2D, Image } from '@napi-rs/canvas';
 
 export interface IGenerateMatchImageOptions {
   match: DeadlockMatch;
+  useGenericNames: boolean;
 }
 
 // --- Constants ---
@@ -115,7 +116,9 @@ async function drawPlayer(
   player: DeadlockMatchPlayer,
   x: number,
   heroImages: Map<number, string>,
-  bestStats: Record<string, number>
+  heroNames: Map<number, string>,
+  bestStats: Record<string, number>,
+  useGenericNames: boolean
 ) {
   const { startY, labelGap, nameStatGap, playerSpacing } = Layout;
 
@@ -148,7 +151,13 @@ async function drawPlayer(
   ctx.fillStyle = Colors.white;
   ctx.font = Fonts.playerName;
   ctx.textAlign = 'center';
-  ctx.fillText(await shortenPlayerName(player), x, startY + 10);
+  ctx.fillText(
+    useGenericNames
+      ? (heroNames.get(player.heroId) ?? 'Unknown Hero')
+      : await shortenPlayerName(player),
+    x,
+    startY + 10
+  );
 
   // Party icon
   if (player.party !== 0) {
@@ -188,10 +197,20 @@ async function drawTeam(
   team: DeadlockMatchPlayer[],
   startX: number,
   heroImages: Map<number, string>,
-  bestStats: Record<string, number>
+  heroNames: Map<number, string>,
+  bestStats: Record<string, number>,
+  useGenericNames: boolean
 ) {
   const promises = team.map((player, i) =>
-    drawPlayer(ctx, player, startX + i * Layout.playerSpacing, heroImages, bestStats)
+    drawPlayer(
+      ctx,
+      player,
+      startX + i * Layout.playerSpacing,
+      heroImages,
+      heroNames,
+      bestStats,
+      useGenericNames
+    )
   );
   await Promise.all(promises);
 }
@@ -214,7 +233,7 @@ function drawLabels(ctx: SKRSContext2D) {
 // --- Main Function ---
 
 export async function generateMatchImage(options: IGenerateMatchImageOptions): Promise<Buffer> {
-  const { match } = options;
+  const { match, useGenericNames } = options;
 
   await match.loadPlayerProfiles();
 
@@ -242,9 +261,13 @@ export async function generateMatchImage(options: IGenerateMatchImageOptions): P
   );
   const resolvedHeroes = await Promise.all(heroPromises);
   const heroImages = new Map<number, string>();
+  const heroNames = new Map<number, string>();
   for (const hero of resolvedHeroes) {
-    if (hero?.images.icon_hero_card) {
-      heroImages.set(hero.id, hero.images.icon_hero_card);
+    if (hero) {
+      if (hero.images.icon_hero_card) {
+        heroImages.set(hero.id, hero.images.icon_hero_card);
+      }
+      heroNames.set(hero.id, hero.name);
     }
   }
 
@@ -286,8 +309,8 @@ export async function generateMatchImage(options: IGenerateMatchImageOptions): P
   const amberStartX = Layout.canvasWidth / 2 + Layout.playerSpacing;
 
   await Promise.all([
-    drawTeam(ctx, sapphireTeam, sapphireStartX, heroImages, bestStats),
-    drawTeam(ctx, amberTeam, amberStartX, heroImages, bestStats),
+    drawTeam(ctx, sapphireTeam, sapphireStartX, heroImages, heroNames, bestStats, useGenericNames),
+    drawTeam(ctx, amberTeam, amberStartX, heroImages, heroNames, bestStats, useGenericNames),
   ]);
 
   // Badges
@@ -372,12 +395,18 @@ export async function generateMatchImage(options: IGenerateMatchImageOptions): P
   ctx.font = Fonts.label;
   ctx.fillStyle = Colors.grey;
   ctx.textAlign = 'right';
-  ctx.fillText(match.matchId.toString(), Layout.canvasWidth - 75, Layout.canvasHeight - 45);
   ctx.fillText(
-    match.startDate.format('D MMMM, YYYY'),
+    useGenericNames ? 'Hidden due to privacy settings' : match.matchId.toString(),
     Layout.canvasWidth - 75,
-    Layout.canvasHeight - 25
+    Layout.canvasHeight - 45
   );
+  if (!useGenericNames) {
+    ctx.fillText(
+      match.startDate.format('D MMMM, YYYY'),
+      Layout.canvasWidth - 75,
+      Layout.canvasHeight - 25
+    );
+  }
 
   return canvas.toBuffer('image/png');
 }
