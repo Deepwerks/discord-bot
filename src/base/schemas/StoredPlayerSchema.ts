@@ -26,7 +26,6 @@ export default model<IStoredPlayerSchema>(
       },
       reauthenticateAfter: {
         type: Date,
-        required: false,
       },
       authenticationCount: {
         type: Number,

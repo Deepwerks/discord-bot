@@ -18,7 +18,7 @@ router.get('/auth/steam', limiter, async (req, res, next) => {
 
   const storedProfile = await StoredPlayerSchema.findOne({ discordId }).lean();
 
-  if (storedProfile && storedProfile.authenticated) {
+  if (storedProfile?.authenticated) {
     if (
       storedProfile.reauthenticateAfter &&
       dayjs().isBefore(dayjs(storedProfile.reauthenticateAfter)) &&

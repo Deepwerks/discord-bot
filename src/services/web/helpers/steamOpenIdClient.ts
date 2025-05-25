@@ -7,10 +7,10 @@ const STEAM_OPENID_ENDPOINT = 'https://steamcommunity.com/openid/login';
 const steamRealm = config.deadlock_assistant_url;
 const steamReturnUrl = config.deadlock_assistant_url + '/auth/steam/authenticate';
 
-// Enforce rate limit (1 request every 3 seconds)
+// Enforce rate limit (1 request every 4 seconds)
 const limiter = new Bottleneck({
   maxConcurrent: 1,
-  minTime: 3000,
+  minTime: 4000,
 });
 
 export async function authenticateSteamOpenID(req: Request): Promise<{ steamId64: string }> {
