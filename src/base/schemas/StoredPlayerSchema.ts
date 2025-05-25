@@ -6,6 +6,7 @@ interface IStoredPlayerSchema {
   discordId: string;
   authenticated?: boolean;
   reauthenticateAfter?: Date;
+  authenticationCount?: number;
 }
 
 export default model<IStoredPlayerSchema>(
@@ -26,6 +27,10 @@ export default model<IStoredPlayerSchema>(
       reauthenticateAfter: {
         type: Date,
         required: false,
+      },
+      authenticationCount: {
+        type: Number,
+        default: 0,
       },
     },
     {

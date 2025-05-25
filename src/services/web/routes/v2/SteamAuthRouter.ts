@@ -21,8 +21,17 @@ router.get('/auth/steam', limiter, async (req, res, next) => {
   if (storedProfile && storedProfile.authenticated) {
     if (
       storedProfile.reauthenticateAfter &&
-      dayjs().isBefore(dayjs(storedProfile.reauthenticateAfter))
+      dayjs().isBefore(dayjs(storedProfile.reauthenticateAfter)) &&
+      (storedProfile.authenticationCount ?? 0) > 5
     ) {
+      logger.warn('Reauthentication blocked due to cooldown', {
+        discordId: storedProfile.discordId,
+        steamId: storedProfile.steamId,
+        ip: req.ip,
+        authenticationCount: storedProfile.authenticationCount,
+        reauthenticateAfter: storedProfile.reauthenticateAfter.toISOString(),
+        route: '/auth/steam',
+      });
       return next(
         `🕒 You can reauthenticate after ${dayjs(storedProfile.reauthenticateAfter).format('YYYY-MM-DD HH:mm:ss')}`
       );
@@ -47,7 +56,10 @@ router.get('/auth/steam', limiter, async (req, res, next) => {
 router.get('/auth/steam/authenticate', limiter, async (req, res, next) => {
   try {
     const discordId = req.cookies?.discordId;
-    if (!discordId) return next('Missing discordId in session');
+    if (!discordId) {
+      res.clearCookie('discordId');
+      return next('Missing discordId in session');
+    }
 
     const { steamId64 } = await authenticateSteamOpenID(req);
 
@@ -61,13 +73,19 @@ router.get('/auth/steam/authenticate', limiter, async (req, res, next) => {
         steamIdType: 'steamID3',
         authenticated: true,
         reauthenticateAfter: dayjs().add(24, 'hours').toDate(),
+        $inc: { authenticationCount: 1 },
       },
       { upsert: true }
     );
 
     res.status(200).send("✅ Steam account linked! You're all set — this window can be closed.");
   } catch (err) {
-    logger.error('Steam OpenID auth failed', { error: err });
+    logger.error('Steam OpenID auth failed', {
+      error: err,
+      ip: req.ip,
+      discordId: req.cookies?.discordId,
+      route: '/auth/steam/authenticate',
+    });
     next(err);
   }
 });
