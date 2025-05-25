@@ -3,7 +3,7 @@
 
 ### Features
 
-* introduced a new command to get user info ([7f76285](https://github.com/Deepwerks/discord-bot/commit/7f762850247c47b42cd5ed2924a3a5d6fc6476e3))
+* added optional option in match command to hide player names from generated image ([d24cb58](https://github.com/Deepwerks/discord-bot/commit/d24cb58f099e4a5b4e63bb5ba9334ee0d3e69180))
 
 
 

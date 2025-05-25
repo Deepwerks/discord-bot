@@ -72,7 +72,10 @@ export default class FinishMatchButtonAction extends ButtonAction {
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(linkButton);
 
-      const imageBuffer = await generateMatchImage({ match: deadlockMatch });
+      const imageBuffer = await generateMatchImage({
+        match: deadlockMatch,
+        useGenericNames: false,
+      });
       const attachment = new AttachmentBuilder(imageBuffer, {
         name: 'match.png',
       });

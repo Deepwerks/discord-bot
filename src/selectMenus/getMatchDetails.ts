@@ -38,6 +38,7 @@ export default class GetMatchDetails extends SelectMenu {
         type: 'match_id',
         userId: interaction.user.id,
         t,
+        useGenericNames: false,
       });
       const match = matchData.match;
 
