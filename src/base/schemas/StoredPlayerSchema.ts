@@ -29,7 +29,7 @@ export default model<IStoredPlayerSchema>(
       },
       authenticationCount: {
         type: Number,
-        default: 0,
+        default: 1,
       },
     },
     {
