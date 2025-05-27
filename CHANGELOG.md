@@ -1,9 +1,13 @@
-## [1.8.2](https://github.com/Deepwerks/discord-bot/compare/v1.8.1-release...v1.8.2) (2025-05-25)
+## [1.8.3](https://github.com/Deepwerks/discord-bot/compare/v1.8.2-release...v1.8.3) (2025-05-27)
+
+
+
+## [1.8.2-release](https://github.com/Deepwerks/discord-bot/compare/v1.8.1-release...v1.8.2-release) (2025-05-25)
 
 
 ### Features
 
-* added optional option in match command to hide player names from generated image ([d24cb58](https://github.com/Deepwerks/discord-bot/commit/d24cb58f099e4a5b4e63bb5ba9334ee0d3e69180))
+* added optional option in match command to hide player names fro… ([#192](https://github.com/Deepwerks/discord-bot/issues/192)) ([0a05464](https://github.com/Deepwerks/discord-bot/commit/0a05464b30023b6cc12a154bd9398ae61d1abd87))
 
 
 
