@@ -12,25 +12,25 @@ export interface IGenerateMatchImageOptions {
 // --- Constants ---
 
 const Layout = {
-  canvasWidth: 1800,
-  canvasHeight: 850,
-  avatarWidth: 80,
-  playerSpacing: 130,
-  labelGap: 60,
-  startY: 300,
-  nameStatGap: 20,
+  canvasWidth: 1920,
+  canvasHeight: 1080,
+  avatarWidth: 85,
+  playerSpacing: 140,
+  labelGap: 76,
+  startY: 380,
+  nameStatGap: 25,
   marginX: 50,
-  badgeDesiredWidth: 120,
+  badgeDesiredWidth: 128,
 };
 
 const Fonts = {
-  title: 'bold 28px Arial',
-  point: '22px Arial',
-  playerName: 'bold 16px Arial',
-  stat: '16px Arial',
-  label: 'bold 16px Arial',
-  victory: "italic bold 48px 'Georgia', 'Times New Roman', serif",
-  team: 'bold 22px Arial',
+  title: 'bold 34px Arial',
+  point: '28px Arial',
+  playerName: 'bold 20px Arial',
+  stat: '20px Arial',
+  label: 'bold 20px Arial',
+  victory: "italic bold 58px 'Georgia', 'Times New Roman', serif",
+  team: 'bold 28px Arial',
 };
 
 const Colors = {
@@ -140,10 +140,17 @@ async function drawPlayer(
       ctx.drawImage(
         img,
         x - Layout.avatarWidth / 2,
-        startY - avatarHeight,
+        startY - avatarHeight - 10,
         Layout.avatarWidth,
         avatarHeight
       );
+
+      ctx.beginPath();
+      ctx.strokeStyle = '#c1c1d7';
+      ctx.lineWidth = 2;
+      ctx.moveTo(x - Layout.avatarWidth / 2 - 5, startY - 10);
+      ctx.lineTo(x - Layout.avatarWidth / 2 + Layout.avatarWidth + 5, startY - 10);
+      ctx.stroke();
     }
   }
 
@@ -161,10 +168,19 @@ async function drawPlayer(
 
   // Party icon
   if (player.party !== 0) {
+    const color = partyColors.get(player.party)!;
+    const lineWidth = 4;
+    const bracketWidth = 60;
+    const bracketHeight = 20;
+    const centerY = startY + 35;
+    const startX = x - bracketWidth / 2;
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
     ctx.beginPath();
-    ctx.arc(x, startY + 30, 10, 0, Math.PI * 2);
-    ctx.fillStyle = partyColors.get(player.party)!;
-    ctx.fill();
+    ctx.moveTo(startX, centerY - bracketHeight / 2);
+    ctx.lineTo(startX + bracketWidth, centerY - bracketHeight / 2);
+    ctx.stroke();
   }
 
   // Stats
@@ -183,7 +199,7 @@ async function drawPlayer(
     const isBest = key && bestStats[key] === value;
 
     ctx.fillStyle = isBest ? bestStatColors.get(key!)! : Colors.white;
-    ctx.font = isBest ? `bold 16px Arial` : Fonts.stat;
+    ctx.font = isBest ? `bold 20px Arial` : Fonts.stat;
     ctx.fillText(
       typeof value === 'number' ? value.toLocaleString() : value,
       x,
@@ -241,8 +257,13 @@ export async function generateMatchImage(options: IGenerateMatchImageOptions): P
   const allPlayers = [...sapphireTeam, ...amberTeam];
   const bestStats = getBestStats(allPlayers);
 
-  const canvas = new Canvas(Layout.canvasWidth, Layout.canvasHeight);
+  const scale = 2;
+  const canvas = new Canvas(Layout.canvasWidth * scale, Layout.canvasHeight * scale);
   const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.textBaseline = 'middle';
 
   ctx.fillStyle = Colors.background;
   ctx.fillRect(0, 0, Layout.canvasWidth, Layout.canvasHeight);
