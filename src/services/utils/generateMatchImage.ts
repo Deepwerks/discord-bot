@@ -19,18 +19,18 @@ const Layout = {
   labelGap: 76,
   startY: 380,
   nameStatGap: 25,
-  marginX: 50, // opcionális finomhangolás
+  marginX: 50,
   badgeDesiredWidth: 128,
 };
 
 const Fonts = {
-  title: 'bold 34px Arial', // 28 → 34
-  point: '28px Arial', // 22 → 28
-  playerName: 'bold 20px Arial', // 16 → 20
-  stat: '20px Arial', // 16 → 20
-  label: 'bold 20px Arial', // 16 → 20
-  victory: "italic bold 58px 'Georgia', 'Times New Roman', serif", // 48 → 58
-  team: 'bold 28px Arial', // 22 → 28
+  title: 'bold 34px Arial',
+  point: '28px Arial',
+  playerName: 'bold 20px Arial',
+  stat: '20px Arial',
+  label: 'bold 20px Arial',
+  victory: "italic bold 58px 'Georgia', 'Times New Roman', serif",
+  team: 'bold 28px Arial',
 };
 
 const Colors = {
@@ -170,9 +170,9 @@ async function drawPlayer(
   if (player.party !== 0) {
     const color = partyColors.get(player.party)!;
     const lineWidth = 4;
-    const bracketWidth = 60; // hosszabb vízszintes vonal
-    const bracketHeight = 20; // függőleges szár hossza
-    const centerY = startY + 35; // alapközéppont
+    const bracketWidth = 60;
+    const bracketHeight = 20;
+    const centerY = startY + 35;
     const startX = x - bracketWidth / 2;
 
     ctx.strokeStyle = color;
