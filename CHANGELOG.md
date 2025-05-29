@@ -1,4 +1,9 @@
-## [1.8.3](https://github.com/Deepwerks/discord-bot/compare/v1.8.2-release...v1.8.3) (2025-05-27)
+## [1.8.3](https://github.com/Deepwerks/discord-bot/compare/v1.8.2-release...v1.8.3) (2025-05-29)
+
+
+### Features
+
+* implemented ItemService in AssetsClient ([fd3ecc9](https://github.com/Deepwerks/discord-bot/commit/fd3ecc9923a077a5f8de0b0f12c888df74d480c2))
 
 
 
