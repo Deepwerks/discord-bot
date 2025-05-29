@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import DeadlockMatchPlayerStatSchema from './DeadlockMatchPlayerStat.validator';
+import DeadlockMatchPlayerItemsSchema from './DeadlockMatchPlayerItems.validator';
 
 const DeadlockMatchPlayerSchema = z.object({
   account_id: z.number(),
@@ -10,6 +11,7 @@ const DeadlockMatchPlayerSchema = z.object({
   party: z.number(),
 
   stats: z.array(DeadlockMatchPlayerStatSchema),
+  items: DeadlockMatchPlayerItemsSchema,
 
   kills: z.number(),
   deaths: z.number(),
