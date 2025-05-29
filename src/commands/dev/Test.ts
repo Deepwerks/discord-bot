@@ -4,7 +4,7 @@ import Command from '../../base/classes/Command';
 import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
-import { logger } from '../..';
+import { logger, useAssetsClient } from '../..';
 
 export default class Test extends Command {
   constructor(client: CustomClient) {
@@ -24,8 +24,10 @@ export default class Test extends Command {
     try {
       await interaction.deferReply();
 
+      const item = await useAssetsClient.ItemService.GetItem(1009965641);
+
       await interaction.editReply({
-        content: 'awdd',
+        content: item?.name,
       });
     } catch (error) {
       logger.error(error);
