@@ -73,6 +73,7 @@ export default class CustomClient extends Client implements ICustomClient {
       await Promise.all([
         useAssetsClient.DefaultService.LoadAllRanksToCache(),
         useAssetsClient.HeroService.LoadAllHeroesToCache(),
+        useAssetsClient.ItemService.LoadAllItemsToCache(),
       ]);
     } catch (error) {
       logger.error('Failed to load static deadlock data to cache...', error);
