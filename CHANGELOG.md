@@ -3,7 +3,8 @@
 
 ### Features
 
-* implemented ItemService in AssetsClient ([fd3ecc9](https://github.com/Deepwerks/discord-bot/commit/fd3ecc9923a077a5f8de0b0f12c888df74d480c2))
+* implemented ItemService in AssetsClient ([#198](https://github.com/Deepwerks/discord-bot/issues/198)) ([f2e6b9a](https://github.com/Deepwerks/discord-bot/commit/f2e6b9a894fbdf7152bcfbac1984f8b1b5c01621))
+* introduced items in DeadlockMatchService ([085c1e1](https://github.com/Deepwerks/discord-bot/commit/085c1e1e01b51e7a52bbe0082a27bd3a02c33d36))
 
 
 

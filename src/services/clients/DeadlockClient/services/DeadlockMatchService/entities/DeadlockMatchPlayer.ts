@@ -2,6 +2,7 @@ import { useAssetsClient, useStatlockerClient } from '../../../../../..';
 import DeadlockHero from '../../../../DeadlockAssetsClient/services/HeroService/entities/DeadlockHero';
 import StatlockerProfile from '../../../../StatlockerClient/services/StatlockerProfileService/entities/StatlockerProfile';
 import { DeadlockMatchPlayerDTO } from '../validators/DeadlockMatchPlayer.validator';
+import { DeadlockMatchPlayerItemsDTO } from '../validators/DeadlockMatchPlayerItems.validator';
 import { DeadlockMatchPlayerStatDTO } from '../validators/DeadlockMatchPlayerStat.validator';
 
 export default class DeadlockMatchPlayer {
@@ -61,6 +62,10 @@ export default class DeadlockMatchPlayer {
 
   get assignedLane(): number {
     return this.data.assigned_lane;
+  }
+
+  get items(): DeadlockMatchPlayerItemsDTO {
+    return this.data.items;
   }
 
   async getHero(): Promise<DeadlockHero | null> {

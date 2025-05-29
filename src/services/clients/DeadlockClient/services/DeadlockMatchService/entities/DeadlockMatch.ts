@@ -30,6 +30,10 @@ export default class DeadlockMatch {
     return this.data.match_info.winning_team;
   }
 
+  get players() {
+    return this.data.match_info.players;
+  }
+
   get team0Players() {
     return this.data.match_info.players
       .filter((p) => p.team === 0)
