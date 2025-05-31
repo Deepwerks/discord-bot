@@ -1,11 +1,17 @@
 ## [1.8.3](https://github.com/Deepwerks/discord-bot/compare/v1.8.2-release...v1.8.3) (2025-05-31)
 
 
+### Bug Fixes
+
+* opened a webservice port for inner usage ([757d774](https://github.com/Deepwerks/discord-bot/commit/757d7744df127aa31adb33865d06e0d325f22b8d))
+
+
 ### Features
 
 * implemented ItemService in AssetsClient ([#198](https://github.com/Deepwerks/discord-bot/issues/198)) ([f2e6b9a](https://github.com/Deepwerks/discord-bot/commit/f2e6b9a894fbdf7152bcfbac1984f8b1b5c01621))
 * introduced items in DeadlockMatchService ([#199](https://github.com/Deepwerks/discord-bot/issues/199)) ([17812f7](https://github.com/Deepwerks/discord-bot/commit/17812f7bfd7472039d8f11b72a46be500e63af4b))
 * metics setup ([ded7162](https://github.com/Deepwerks/discord-bot/commit/ded7162a56bf0ec536d5970bdb53d76f2b09b02f))
+* metics setup ([#204](https://github.com/Deepwerks/discord-bot/issues/204)) ([6faf9b8](https://github.com/Deepwerks/discord-bot/commit/6faf9b8d8a9413649f32dfac955c7d4ecd1be02b))
 
 
 
