@@ -7,7 +7,7 @@ import DeadlockHeroSchema from './validators/DeadlockHero.validator';
 import DeadlockHeroesSchema from './validators/DeadlockHeroes.validator';
 
 export default class DeadlockHeroService extends BaseClientService {
-  private cache = new CustomCache<DeadlockHero>(0);
+  private cache = new CustomCache<DeadlockHero>('DeadlockHeroCache', 0);
 
   private async fetchHero(heroId: number): Promise<DeadlockHero | null> {
     try {

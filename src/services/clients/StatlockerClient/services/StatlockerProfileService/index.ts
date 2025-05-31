@@ -13,7 +13,7 @@ export default class StatlockerProfileService extends BaseClientService {
   constructor(client: BaseClient) {
     super(client);
 
-    this.cache = new CustomCache<StatlockerProfile>(60 * 10);
+    this.cache = new CustomCache<StatlockerProfile>('StatlockerProfileCache', 60 * 10);
   }
 
   private async fetchProfile(account_id: number): Promise<StatlockerProfile> {
