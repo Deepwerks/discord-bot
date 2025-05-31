@@ -5,6 +5,7 @@
 
 * implemented ItemService in AssetsClient ([#198](https://github.com/Deepwerks/discord-bot/issues/198)) ([f2e6b9a](https://github.com/Deepwerks/discord-bot/commit/f2e6b9a894fbdf7152bcfbac1984f8b1b5c01621))
 * introduced items in DeadlockMatchService ([#199](https://github.com/Deepwerks/discord-bot/issues/199)) ([17812f7](https://github.com/Deepwerks/discord-bot/commit/17812f7bfd7472039d8f11b72a46be500e63af4b))
+* metics setup ([ded7162](https://github.com/Deepwerks/discord-bot/commit/ded7162a56bf0ec536d5970bdb53d76f2b09b02f))
 
 
 
