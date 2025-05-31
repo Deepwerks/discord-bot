@@ -21,6 +21,11 @@ export default class WebService implements IWebService {
   }
 
   Init(): void {
+    this.InitPublic();
+    this.InitPrivate();
+  }
+
+  InitPublic(): void {
     const app: Application = express();
 
     app.use(express.json());
@@ -39,12 +44,24 @@ export default class WebService implements IWebService {
     });
 
     app.use(steamAuthRouter);
-    app.use(metricsRouter);
 
     app.use(errorHandler);
 
     app.listen(this.config.port, () => {
       logger.info(`Server is running on port: ${this.config.port}`);
+    });
+  }
+
+  InitPrivate(): void {
+    const app: Application = express();
+
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+
+    app.use(metricsRouter);
+
+    app.listen(9050, () => {
+      logger.info(`Server is running on port: 9050`);
     });
   }
 }
