@@ -7,7 +7,7 @@ import DeadlockItemSchema from './validators/DeadlockItem.validator';
 import DeadlockItemsSchema from './validators/DeadlockItems.validator';
 
 export default class DeadlockItemService extends BaseClientService {
-  private cache = new CustomCache<DeadlockItem>(0);
+  private cache = new CustomCache<DeadlockItem>('DeadlockItemCache', 0);
 
   async LoadAllItemsToCache() {
     try {

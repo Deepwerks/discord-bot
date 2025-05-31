@@ -6,7 +6,7 @@ import DeadlockRank from './entities/DeadlockRank';
 import DeadlockRanksSchema from './validators/DeadlockRanks.validator';
 
 export default class DeadlockDefaultService extends BaseClientService {
-  private cache = new CustomCache<DeadlockRank>(0);
+  private cache = new CustomCache<DeadlockRank>('DeadlockRankCache', 0);
 
   private async fetchRanks(): Promise<DeadlockRank[]> {
     try {

@@ -10,7 +10,7 @@ import DeadlockMatchIdSchema from './validators/DeadlockMatchId.validator';
 import DeadlockMatchId from './entities/DeadlockMatchId';
 
 export default class DeadlockMatchService extends BaseClientService {
-  private cache = new CustomCache<DeadlockMatch>(60);
+  private cache = new CustomCache<DeadlockMatch>('DeadlockMatchCache', 60);
 
   async GetMatch(matchId: number): Promise<DeadlockMatch | null> {
     const cached = this.cache.get(String(matchId));
