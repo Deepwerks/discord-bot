@@ -6,6 +6,8 @@ import steamAuthRouter from './routes/v2/SteamAuthRouter';
 import errorHandler from './middlewares/errorHandler';
 import { cleanUpTokens } from '../stores/SteamLinkTokenStore';
 import limiter from './middlewares/rateLimit';
+import { handleMatchRequest } from '../common/handleMatchRequest';
+import { t } from 'i18next';
 // import metricsRouter from './routes/v2/MetricsRouter';
 
 export interface IWebService {
@@ -36,6 +38,28 @@ export default class WebService implements IWebService {
         invite:
           'https://discord.com/oauth2/authorize?client_id=1361785119374835984&permissions=8&integration_type=0&scope=bot',
       });
+    });
+
+    app.get('/webhook/match', async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const matchID = req.query.id as string | undefined;
+
+        if (!matchID) return next('No matchID');
+
+        const match = await handleMatchRequest({
+          id: matchID,
+          t: t,
+          type: 'match_id',
+          userId: '',
+          useGenericNames: false,
+        });
+
+        res.set('Content-Type', 'image/png');
+        res.send(Buffer.from(match.imageBuffer));
+      } catch (error) {
+        logger.error(error);
+        next(error);
+      }
     });
 
     app.use(steamAuthRouter);
