@@ -13,7 +13,7 @@ const limiter = rateLimit({
       route: req.originalUrl,
     });
 
-    next(new RateLimitError('Too many Steam auth attempts. Please wait a bit and try again.'));
+    next(new RateLimitError('Too many attempts. Please wait a bit and try again.'));
   },
 });
 
