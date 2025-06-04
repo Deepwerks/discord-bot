@@ -51,6 +51,8 @@ export default class History extends Command {
     const player = interaction.options.getString('player', true);
     const ephemeral = interaction.options.getBoolean('private', false);
 
+    await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
+
     try {
       const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction.user.id, t);
 
@@ -142,10 +144,9 @@ ${matchesString.join('\n')}
         selectMatchButton
       );
 
-      await interaction.reply({
+      await interaction.editReply({
         content: response,
         components: [buttonRow, interactiveRow],
-        flags: ephemeral ? ['Ephemeral'] : [],
       });
 
       if (steamAuthNeeded) {
