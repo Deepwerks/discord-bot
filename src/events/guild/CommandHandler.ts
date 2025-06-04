@@ -90,11 +90,10 @@ export default class CommandHandler extends Event {
         const subCommandHandler = this.client.subCommands.get(subCommand);
 
         if (subCommandHandler) {
-          await subCommandHandler.Execute(interaction, t);
+          return await subCommandHandler.Execute(interaction, t);
         } else {
-          await command.Execute(interaction, t);
+          return await command.Execute(interaction, t);
         }
-        return;
       } catch (error) {
         logger.error({
           error,
@@ -111,7 +110,7 @@ export default class CommandHandler extends Event {
         if (interaction.deferred || interaction.replied) {
           await interaction.editReply({ embeds: [errorEmbed] });
         } else {
-          await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+          await interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
         }
       }
     }

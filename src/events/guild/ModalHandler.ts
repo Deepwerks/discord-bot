@@ -44,7 +44,7 @@ export default class ModalHandler extends Event implements IModalHandler {
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
       }
     }
   }
