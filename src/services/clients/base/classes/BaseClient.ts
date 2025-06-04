@@ -6,7 +6,6 @@ import NotFoundError from '../../../../base/errors/NotFoundError';
 import { RequestMethod } from '../../../../base/types/RequestMethod';
 import IConfig from '../../../../base/interfaces/IConfig';
 import ValidationError from '../../../../base/errors/ValidationError';
-import promClient from 'prom-client';
 
 export interface IBaseApiOptions {
   baseURL?: string;
@@ -16,20 +15,6 @@ export interface IBaseApiOptions {
   enableRetry?: boolean;
   retryAttempts?: number;
 }
-
-const apiRequestCounter = new promClient.Counter({
-  name: 'api_requests_total',
-  help: 'Total number of outbound API requests',
-  labelNames: ['endpoint', 'status'] as const,
-});
-
-const apiRequestLatency = new promClient.Histogram({
-  name: 'api_request_duration_seconds',
-  help: 'Outbound API request latency in seconds',
-  labelNames: ['endpoint', 'status'] as const,
-  // Például: [0.1s, 0.5s, 1s, 2s, 5s]
-  buckets: [0.1, 0.5, 1, 2, 5],
-});
 
 export default class BaseClient {
   protected client: AxiosInstance;
@@ -77,9 +62,6 @@ export default class BaseClient {
     } = {}
   ): Promise<T> {
     const { data, params, headers, schema } = options;
-
-    const endpoint = `${this.client.defaults.baseURL}${url}`;
-    const endTimer = apiRequestLatency.startTimer({ endpoint, status: 'unknown' });
     try {
       const response = await this.limiter.schedule(() =>
         this.client.request<T>({
@@ -97,17 +79,11 @@ export default class BaseClient {
           throw new ValidationError(`Response validation failed for ${url}`, parsed.error.format());
         }
 
-        apiRequestCounter.inc({ endpoint, status: response.status });
         return parsed.data;
       }
 
-      apiRequestCounter.inc({ endpoint, status: response.status });
-      endTimer({ status: response.status });
       return response.data;
     } catch (err) {
-      apiRequestCounter.inc({ endpoint, status: 'error' });
-      endTimer({ status: 'error' });
-
       throw this.handleError(err, url);
     }
   }

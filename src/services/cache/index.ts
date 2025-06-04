@@ -1,17 +1,5 @@
 import { LRUCache } from 'lru-cache';
 import { Collection } from 'discord.js';
-import promClient from 'prom-client';
-
-const cacheHitCounter = new promClient.Counter({
-  name: 'cache_hits_total',
-  help: 'Number of all cache hits',
-  labelNames: ['cache_name'] as const,
-});
-const cacheMissCounter = new promClient.Counter({
-  name: 'cache_misses_total',
-  help: 'Number of all missed caches',
-  labelNames: ['cache_name'] as const,
-});
 
 export default class CustomCache<T extends object> {
   private cache: LRUCache<string, T>;
@@ -34,10 +22,8 @@ export default class CustomCache<T extends object> {
     const value = this.cache.get(key) ?? null;
 
     if (value !== null) {
-      cacheHitCounter.labels(this.cacheName).inc();
       return value;
     } else {
-      cacheMissCounter.labels(this.cacheName).inc();
       return null;
     }
   }
