@@ -8,19 +8,6 @@ import { logger } from '../..';
 import logInteraction from '../../services/logger/logInteraction';
 import { InteractionType } from '../../base/schemas/UserInteractionSchema';
 import CommandError from '../../base/errors/CommandError';
-import promClient from 'prom-client';
-
-const commandCounter = new promClient.Counter({
-  name: 'discord_commands_total',
-  help: 'Total number of Discord commands executed',
-  labelNames: ['command'] as const,
-});
-const commandLatency = new promClient.Histogram({
-  name: 'discord_command_latency_seconds',
-  help: 'Command execution time',
-  labelNames: ['command'] as const,
-  buckets: [0.01, 0.1, 0.5, 1, 2],
-});
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -102,16 +89,11 @@ export default class CommandHandler extends Event {
       try {
         const subCommandHandler = this.client.subCommands.get(subCommand);
 
-        const endTimer = commandLatency.startTimer({ command: command.name });
-        commandCounter.labels(command.name).inc();
-
         if (subCommandHandler) {
           await subCommandHandler.Execute(interaction, t);
         } else {
           await command.Execute(interaction, t);
         }
-        endTimer();
-
         return;
       } catch (error) {
         logger.error({
