@@ -19,13 +19,7 @@ export default class CustomCache<T extends object> {
 
   get(key: string | null): T | null {
     if (!key) return null;
-    const value = this.cache.get(key) ?? null;
-
-    if (value !== null) {
-      return value;
-    } else {
-      return null;
-    }
+    return this.cache.get(key) ?? null;
   }
 
   delete(key: string): void {
