@@ -1,9 +1,11 @@
-## [1.8.3](https://github.com/Deepwerks/discord-bot/compare/v1.8.2-release...v1.8.3) (2025-05-31)
+## [1.8.4](https://github.com/Deepwerks/discord-bot/compare/v1.8.2-release...v1.8.4) (2025-06-04)
 
 
 ### Bug Fixes
 
-* removed metrics endpoint ([52dd652](https://github.com/Deepwerks/discord-bot/commit/52dd6524d12c51dc63a34e54249d82bf2a3c7487))
+* fixed flags in interaction handlers ([cf4ed90](https://github.com/Deepwerks/discord-bot/commit/cf4ed90175c9280fb513005f84d5bda19a39b6f0))
+* removed metrics endpoint ([#207](https://github.com/Deepwerks/discord-bot/issues/207)) ([526e966](https://github.com/Deepwerks/discord-bot/commit/526e966cbe26a3c9d275893823b90b27fb279fb8))
+* removed unused metrics functions ([6a160fd](https://github.com/Deepwerks/discord-bot/commit/6a160fdf6d59ed4ee739051f0f3f922122ebef15))
 
 
 ### Features
