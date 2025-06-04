@@ -1,12 +1,10 @@
-## [1.8.4](https://github.com/Deepwerks/discord-bot/compare/v1.8.2-release...v1.8.4) (2025-06-04)
+## [1.8.5](https://github.com/Deepwerks/discord-bot/compare/v1.8.2-release...v1.8.5) (2025-06-04)
 
 
 ### Bug Fixes
 
-* cache get ([dc89bbb](https://github.com/Deepwerks/discord-bot/commit/dc89bbb18688aede350e853ad069d4a7f711f87e))
-* fixed flags in interaction handlers ([cf4ed90](https://github.com/Deepwerks/discord-bot/commit/cf4ed90175c9280fb513005f84d5bda19a39b6f0))
+* fixed an issue where history command would not reply to interaction when the request is taking too long ([cb1e2a3](https://github.com/Deepwerks/discord-bot/commit/cb1e2a3b831a53e0a87ebaa1c3e0c40c8a68bae8))
 * removed metrics endpoint ([#207](https://github.com/Deepwerks/discord-bot/issues/207)) ([526e966](https://github.com/Deepwerks/discord-bot/commit/526e966cbe26a3c9d275893823b90b27fb279fb8))
-* removed unused metrics functions ([6a160fd](https://github.com/Deepwerks/discord-bot/commit/6a160fdf6d59ed4ee739051f0f3f922122ebef15))
 
 
 ### Features
