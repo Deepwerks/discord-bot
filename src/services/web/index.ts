@@ -40,7 +40,7 @@ export default class WebService implements IWebService {
       });
     });
 
-    app.get('/webhook/match', async (req: Request, res: Response, next: NextFunction) => {
+    app.get('/webhook/match', limiter, async (req: Request, res: Response, next: NextFunction) => {
       try {
         const matchID = req.query.id as string | undefined;
 
