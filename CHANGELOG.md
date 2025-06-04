@@ -3,6 +3,7 @@
 
 ### Bug Fixes
 
+* cache get ([dc89bbb](https://github.com/Deepwerks/discord-bot/commit/dc89bbb18688aede350e853ad069d4a7f711f87e))
 * fixed flags in interaction handlers ([cf4ed90](https://github.com/Deepwerks/discord-bot/commit/cf4ed90175c9280fb513005f84d5bda19a39b6f0))
 * removed metrics endpoint ([#207](https://github.com/Deepwerks/discord-bot/issues/207)) ([526e966](https://github.com/Deepwerks/discord-bot/commit/526e966cbe26a3c9d275893823b90b27fb279fb8))
 * removed unused metrics functions ([6a160fd](https://github.com/Deepwerks/discord-bot/commit/6a160fdf6d59ed4ee739051f0f3f922122ebef15))
