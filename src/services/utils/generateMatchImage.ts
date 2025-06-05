@@ -1,4 +1,4 @@
-import { useAssetsClient } from '../..';
+import { logger, useAssetsClient } from '../..';
 import DeadlockMatch from '../clients/DeadlockClient/services/DeadlockMatchService/entities/DeadlockMatch';
 import DeadlockMatchPlayer from '../clients/DeadlockClient/services/DeadlockMatchService/entities/DeadlockMatchPlayer';
 import { getFormattedMatchTime } from './getFormattedMatchTime';
@@ -70,11 +70,13 @@ const shortenPlayerName = async (player: DeadlockMatchPlayer) => {
   return profile.name.length <= 12 ? profile.name : profile.name.slice(0, 9) + '...';
 };
 
-async function safeLoadImage(url: string): Promise<ReturnType<typeof loadImage> | null> {
+async function safeLoadImage(url: string | null): Promise<ReturnType<typeof loadImage> | null> {
+  if (!url) return null;
+
   try {
     return await loadImage(url);
   } catch (error) {
-    console.error('Failed to load image:', url, error);
+    logger.warn('Failed to load image:', url, error);
     return null;
   }
 }
