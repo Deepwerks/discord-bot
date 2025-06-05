@@ -8,12 +8,12 @@ export interface IPerformanceTag {
 }
 
 const averages = {
-  kills: 7.024553,
-  deaths: 6.759147,
-  assists: 9.160868,
-  netWorth: 32050.335539,
-  lastHits: 148.591511,
-  matchDuration: 1970.137647,
+  kills: 6.82,
+  deaths: 6.8,
+  assists: 11.13,
+  netWorth: 37255.24,
+  lastHits: 155.35,
+  matchDuration: 2112.84,
 };
 
 export default class PerformanceTagService {
