@@ -31,4 +31,6 @@ export default interface IConfig {
   secret: string;
 
   bot_version: string;
+
+  metrics_api_key: string;
 }

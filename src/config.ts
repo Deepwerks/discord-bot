@@ -38,6 +38,7 @@ switch (running_env) {
       logtail_source_token: process.env.LOGTAIL_SOURCE_TOKEN!,
       secret: process.env.SECRET!,
       bot_version: botVersion,
+      metrics_api_key: process.env.METRICS_API_KEY!,
     };
     break;
   case 'development':
@@ -64,6 +65,7 @@ switch (running_env) {
       logtail_source_token: process.env.LOGTAIL_SOURCE_TOKEN!,
       secret: process.env.SECRET!,
       bot_version: botVersion,
+      metrics_api_key: process.env.METRICS_API_KEY!,
     };
     break;
   case 'test':
@@ -88,6 +90,7 @@ switch (running_env) {
       logtail_source_token: '',
       secret: '',
       bot_version: botVersion,
+      metrics_api_key: '',
     };
     break;
 
