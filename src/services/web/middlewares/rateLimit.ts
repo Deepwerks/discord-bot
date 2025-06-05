@@ -8,12 +8,12 @@ const limiter = rateLimit({
   message: 'Too many requests, please try again later.',
   keyGenerator: (req) => req.ip || 'unknown',
   handler: (req, res, next) => {
-    logger.warn('Steam auth rate limit hit', {
+    logger.warn('Rate limit hit', {
       ip: req.ip,
       route: req.originalUrl,
     });
 
-    next(new RateLimitError('Too many Steam auth attempts. Please wait a bit and try again.'));
+    next(new RateLimitError('Too many attempts. Please wait a bit and try again.'));
   },
 });
 

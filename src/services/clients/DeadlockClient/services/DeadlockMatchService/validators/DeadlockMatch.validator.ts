@@ -9,8 +9,8 @@ const DeadlockMatchSchema = z.object({
     match_outcome: z.number(),
     winning_team: z.number(),
     players: z.array(DeadlockMatchPlayerSchema),
-    average_badge_team0: z.number(),
-    average_badge_team1: z.number(),
+    average_badge_team0: z.number().nullable(),
+    average_badge_team1: z.number().nullable(),
   }),
 });
 
