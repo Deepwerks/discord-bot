@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 import config from '../../../config';
 
 export const requireMetricsApiKey = (req: Request, res: Response, next: NextFunction) => {
-  const incomingKey = req.header('x-api-key');
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
-  if (!config.metrics_api_key || incomingKey !== config.metrics_api_key) {
+  if (!config.metrics_api_key || token !== config.metrics_api_key) {
     return next(new Error('Unauthorized'));
   }
 
