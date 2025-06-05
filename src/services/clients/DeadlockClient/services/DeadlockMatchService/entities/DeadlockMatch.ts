@@ -48,11 +48,11 @@ export default class DeadlockMatch {
       .map((p) => new DeadlockMatchPlayer(p));
   }
 
-  get averageBadgeTeam0(): number {
+  get averageBadgeTeam0(): number | null {
     return this.data.match_info.average_badge_team0;
   }
 
-  get averageBadgeTeam1(): number {
+  get averageBadgeTeam1(): number | null {
     return this.data.match_info.average_badge_team1;
   }
 
@@ -62,14 +62,18 @@ export default class DeadlockMatch {
     ]);
   }
 
-  async getAverageBadgeTeam0Url(): Promise<string> {
+  async getAverageBadgeTeam0Url(): Promise<string | null> {
+    if (!this.averageBadgeTeam0) return null;
+
     const rank = Math.floor(this.averageBadgeTeam0 / 10);
     const subrank = this.averageBadgeTeam0 % 10;
 
     return await useAssetsClient.DefaultService.GetRankImage(rank, subrank);
   }
 
-  async getAverageBadgeTeam1Url(): Promise<string> {
+  async getAverageBadgeTeam1Url(): Promise<string | null> {
+    if (!this.averageBadgeTeam1) return null;
+
     const rank = Math.floor(this.averageBadgeTeam1 / 10);
     const subrank = this.averageBadgeTeam1 % 10;
 
