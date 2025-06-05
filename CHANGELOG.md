@@ -1,10 +1,14 @@
-## [1.8.6](https://github.com/Deepwerks/discord-bot/compare/v1.8.5...v1.8.6) (2025-06-05)
+## [1.8.9](https://github.com/Deepwerks/discord-bot/compare/v1.8.5...v1.8.9) (2025-06-05)
 
 
 ### Bug Fixes
 
-* averga team badge should be optional now ([5613c0c](https://github.com/Deepwerks/discord-bot/commit/5613c0c345023d5500bd418e6a70ce51fe399e9d))
-* generic rate limit error message ([38ff108](https://github.com/Deepwerks/discord-bot/commit/38ff108e1b0eed9d79fe5d8456be9133240b3d23))
+* fixed bearer token read ([#218](https://github.com/Deepwerks/discord-bot/issues/218)) ([ec97bc5](https://github.com/Deepwerks/discord-bot/commit/ec97bc592d0aa362db902e7eaa140dd2f67cf2c5))
+
+
+### Features
+
+* reintroduced metrics ([#216](https://github.com/Deepwerks/discord-bot/issues/216)) ([8f9f2fb](https://github.com/Deepwerks/discord-bot/commit/8f9f2fbdb68429a596cb48095159b8e4dc32a694))
 
 
 
