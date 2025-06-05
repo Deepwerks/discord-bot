@@ -8,6 +8,7 @@ import { logger } from '../..';
 import logInteraction from '../../services/logger/logInteraction';
 import { InteractionType } from '../../base/schemas/UserInteractionSchema';
 import CommandError from '../../base/errors/CommandError';
+import { commandExecutions } from '../../services/metrics';
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -78,6 +79,10 @@ export default class CommandHandler extends Event {
       }.${interaction.options.getSubcommand(false) || ''}`;
 
       logger.info(`[COMMAND] ${interaction.user.tag} used /${command.name}`);
+
+      commandExecutions.inc({
+        command: command.name,
+      });
 
       logInteraction(
         command.name,

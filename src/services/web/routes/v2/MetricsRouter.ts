@@ -1,18 +1,17 @@
 import express from 'express';
-import promClient from 'prom-client';
+import { register } from '../../../metrics';
+import { requireMetricsApiKey } from '../../middlewares/requireApiKey';
 
-promClient.collectDefaultMetrics();
 const router = express.Router();
 
-router.get('/metrics', async (_req, res) => {
-  res.set('Content-Type', promClient.register.contentType);
-  res.end(await promClient.register.metrics());
+router.get('/metrics', requireMetricsApiKey, async (_req, res, next) => {
+  try {
+    res.setHeader('Content-Type', register.contentType);
+    const metricsPayload = await register.metrics();
+    res.end(metricsPayload);
+  } catch (e) {
+    next(e);
+  }
 });
-
-const uptimeGauge = new promClient.Gauge({
-  name: 'bot_uptime_seconds',
-  help: 'Bot uptime in seconds',
-});
-setInterval(() => uptimeGauge.set(process.uptime()), 5000);
 
 export default router;

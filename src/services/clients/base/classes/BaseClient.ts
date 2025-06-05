@@ -6,6 +6,8 @@ import NotFoundError from '../../../../base/errors/NotFoundError';
 import { RequestMethod } from '../../../../base/types/RequestMethod';
 import IConfig from '../../../../base/interfaces/IConfig';
 import ValidationError from '../../../../base/errors/ValidationError';
+import { apiRequestCounter, apiRequestDuration, apiRequestErrors } from '../../../metrics';
+import { normalizeUrl } from '../../../utils/normalizeUrl';
 
 export interface IBaseApiOptions {
   baseURL?: string;
@@ -62,6 +64,12 @@ export default class BaseClient {
     } = {}
   ): Promise<T> {
     const { data, params, headers, schema } = options;
+
+    const normalizedUrl = normalizeUrl(url);
+    const start = process.hrtime.bigint();
+    let statusCode = 'unknown';
+    let success = 'false';
+
     try {
       const response = await this.limiter.schedule(() =>
         this.client.request<T>({
@@ -73,9 +81,13 @@ export default class BaseClient {
         })
       );
 
+      statusCode = String(response.status);
+      success = 'true';
+
       if (schema) {
         const parsed = schema.safeParse(response.data);
         if (!parsed.success) {
+          apiRequestErrors.inc({ method, url: normalizedUrl, type: 'validation' });
           throw new ValidationError(`Response validation failed for ${url}`, parsed.error.format());
         }
 
@@ -84,7 +96,24 @@ export default class BaseClient {
 
       return response.data;
     } catch (err) {
-      throw this.handleError(err, url);
+      const error = this.handleError(err, url);
+
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status ?? 'unknown';
+        statusCode = String(status);
+        const errorType = err.code ?? (err.response ? `http_${status}` : 'network');
+        apiRequestErrors.inc({ method, url: normalizedUrl, type: errorType });
+      } else if (err instanceof ValidationError) {
+        apiRequestErrors.inc({ method, url: normalizedUrl, type: 'validation' });
+      } else {
+        apiRequestErrors.inc({ method, url: normalizedUrl, type: 'unknown' });
+      }
+
+      throw error;
+    } finally {
+      const duration = Number(process.hrtime.bigint() - start) / 1e9;
+      apiRequestCounter.inc({ method, url: normalizedUrl, status: statusCode, success });
+      apiRequestDuration.observe({ method, url: normalizedUrl, status: statusCode }, duration);
     }
   }
 
