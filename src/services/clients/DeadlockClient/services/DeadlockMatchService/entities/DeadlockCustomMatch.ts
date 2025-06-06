@@ -3,7 +3,7 @@ import { DeadlockCustomMatchDTO } from '../validators/DeadlockCustomMatch.valida
 export default class DeadlockCustomMatch {
   constructor(private data: DeadlockCustomMatchDTO) {}
 
-  get partyId(): number {
+  get partyId(): string {
     return this.data.party_id;
   }
 
