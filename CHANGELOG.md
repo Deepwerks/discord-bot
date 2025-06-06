@@ -1,9 +1,10 @@
-## [1.8.9](https://github.com/Deepwerks/discord-bot/compare/v1.8.5...v1.8.9) (2025-06-05)
+## [1.8.10](https://github.com/Deepwerks/discord-bot/compare/v1.8.5...v1.8.10) (2025-06-06)
 
 
 ### Bug Fixes
 
 * fixed bearer token read ([#218](https://github.com/Deepwerks/discord-bot/issues/218)) ([ec97bc5](https://github.com/Deepwerks/discord-bot/commit/ec97bc592d0aa362db902e7eaa140dd2f67cf2c5))
+* updated schema validator on create-lobby request ([a4c20c6](https://github.com/Deepwerks/discord-bot/commit/a4c20c68b9421d0814c989a48bd3a75546c737c9))
 
 
 ### Features
