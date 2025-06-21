@@ -33,6 +33,7 @@ export default class CreateLobby extends Command {
       .setCustomId('lobby_name_input')
       .setLabel('Lobby name')
       .setPlaceholder(`${interaction.user.displayName}'s lobby`)
+      .setValue(`${interaction.user.displayName}'s lobby`)
       .setStyle(TextInputStyle.Short)
       .setRequired(true);
 
