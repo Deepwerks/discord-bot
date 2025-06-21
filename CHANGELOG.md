@@ -1,14 +1,15 @@
-## [1.8.10](https://github.com/Deepwerks/discord-bot/compare/v1.8.5...v1.8.10) (2025-06-06)
+## [1.8.10](https://github.com/Deepwerks/discord-bot/compare/v1.8.5...v1.8.10) (2025-06-21)
 
 
 ### Bug Fixes
 
 * fixed bearer token read ([#218](https://github.com/Deepwerks/discord-bot/issues/218)) ([ec97bc5](https://github.com/Deepwerks/discord-bot/commit/ec97bc592d0aa362db902e7eaa140dd2f67cf2c5))
-* updated schema validator on create-lobby request ([a4c20c6](https://github.com/Deepwerks/discord-bot/commit/a4c20c68b9421d0814c989a48bd3a75546c737c9))
+* updated schema validator on create-lobby request ([#222](https://github.com/Deepwerks/discord-bot/issues/222)) ([370cee1](https://github.com/Deepwerks/discord-bot/commit/370cee15fb3dcbb0472bca3029d44c6cc60c07ed))
 
 
 ### Features
 
+* randomize players ([48991ce](https://github.com/Deepwerks/discord-bot/commit/48991ce11e7dab619357579ab1070c2927a0727d))
 * reintroduced metrics ([#216](https://github.com/Deepwerks/discord-bot/issues/216)) ([8f9f2fb](https://github.com/Deepwerks/discord-bot/commit/8f9f2fbdb68429a596cb48095159b8e4dc32a694))
 
 
