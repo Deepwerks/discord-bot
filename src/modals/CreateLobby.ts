@@ -21,6 +21,7 @@ export default class CreateLobby extends Modal {
 
   async Execute(interaction: ModalSubmitInteraction) {
     try {
+      const lobbyName = interaction.fields.getTextInputValue('lobby_name_input');
       const maxPlayers = interaction.fields.getTextInputValue('max_players_input');
       const maxPlayersNum = parseInt(maxPlayers);
       if (isNaN(maxPlayersNum) || maxPlayersNum <= 0) {
@@ -75,7 +76,7 @@ export default class CreateLobby extends Modal {
       });
 
       lobbyStore.createLobby(lobbyId, {
-        name: `${interaction.user.displayName}'s lobby`,
+        name: lobbyName,
         creatorId: interaction.user.id,
         maxPlayers: maxPlayersNum,
         players: new Set([interaction.user.id]),

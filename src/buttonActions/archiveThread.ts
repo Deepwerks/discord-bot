@@ -8,8 +8,8 @@ import { TFunction } from 'i18next';
 export default class CloseThreadButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
     super(client, {
-      customId: 'close_thread',
-      description: 'Close private lobby thread',
+      customId: 'archive_thread',
+      description: 'Arhieves private lobby thread',
       cooldown: 5,
     });
   }
@@ -20,7 +20,7 @@ export default class CloseThreadButtonAction extends ButtonAction {
       const [action, threadId, creatorId] = interaction.customId.split(':');
 
       if (interaction.user.id !== creatorId) {
-        throw new CommandError(t('buttons.close_thread.not_creator'));
+        throw new CommandError(t('buttons.archive_thread.not_creator'));
       }
 
       const channel = await this.client.channels.fetch(threadId);
@@ -28,15 +28,14 @@ export default class CloseThreadButtonAction extends ButtonAction {
       if (channel?.isThread()) {
         const thread = channel as ThreadChannel;
 
-        await thread.send({ content: t('buttons.close_thread.closing') });
+        await thread.send({ content: t('buttons.archive_thread.archiving') });
 
         lobbyStore.removeLobby(creatorId);
-
-        await thread.delete('Closed by the private lobby creator.');
+        await thread.setArchived(true, 'Closed by the private lobby creator.');
         return;
       } else {
         await interaction.reply({
-          content: t('buttons.close_thread.close_failed'),
+          content: t('buttons.archive_thread.archive_failed'),
           flags: ['Ephemeral'],
         });
       }
@@ -50,7 +49,7 @@ export default class CloseThreadButtonAction extends ButtonAction {
       const errorEmbed = new EmbedBuilder()
         .setColor('Red')
         .setDescription(
-          error instanceof CommandError ? error.message : t('buttons.close_thread.error_generic')
+          error instanceof CommandError ? error.message : t('buttons.archive_thread.error_generic')
         );
 
       if (interaction.deferred || interaction.replied) {

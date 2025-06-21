@@ -4,6 +4,7 @@ type LobbyState = {
   maxPlayers: number;
   players: Set<string>;
   messageId: string;
+  shuffleMode?: 'Random';
   partyId?: string;
 };
 

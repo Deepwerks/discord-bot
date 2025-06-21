@@ -52,8 +52,16 @@ export default class JoinPartyButtonAction extends ButtonAction {
 
       // Build updated embed
       const embed = new EmbedBuilder()
-        .setTitle(lobby.name)
-        .addFields([
+        .setColor(0x00bcd4)
+        .setTitle('🎮 New Lobby Created')
+        .setDescription('A new lobby has been created with the following settings:')
+        .addFields(
+          { name: 'Max Players', value: String(lobby.maxPlayers), inline: true },
+          {
+            name: 'Created By',
+            value: `<@${interaction.user.id}>`,
+            inline: true,
+          },
           {
             name: t('buttons.join_party.list_players_title', {
               current: lobby.players.size,
@@ -61,11 +69,12 @@ export default class JoinPartyButtonAction extends ButtonAction {
             }),
             value: Array.from(lobby.players)
               .map((id) => `<@${id}>`)
-              .join('\n'),
+              .join(', '),
             inline: false,
-          },
-        ])
-        .setColor(0x00ae86);
+          }
+        )
+        .setFooter({ text: 'Join the lobby by clicking the button below' })
+        .setTimestamp();
 
       // Update message
       await interaction.message.edit({ embeds: [embed] });
