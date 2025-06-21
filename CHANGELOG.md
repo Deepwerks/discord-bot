@@ -3,13 +3,13 @@
 
 ### Bug Fixes
 
+* default lobby name ([dcc6e11](https://github.com/Deepwerks/discord-bot/commit/dcc6e1138b75f2f534cd9e79282863e9678805f2))
 * fixed bearer token read ([#218](https://github.com/Deepwerks/discord-bot/issues/218)) ([ec97bc5](https://github.com/Deepwerks/discord-bot/commit/ec97bc592d0aa362db902e7eaa140dd2f67cf2c5))
 * updated schema validator on create-lobby request ([#222](https://github.com/Deepwerks/discord-bot/issues/222)) ([370cee1](https://github.com/Deepwerks/discord-bot/commit/370cee15fb3dcbb0472bca3029d44c6cc60c07ed))
 
 
 ### Features
 
-* randomize players ([48991ce](https://github.com/Deepwerks/discord-bot/commit/48991ce11e7dab619357579ab1070c2927a0727d))
 * reintroduced metrics ([#216](https://github.com/Deepwerks/discord-bot/issues/216)) ([8f9f2fb](https://github.com/Deepwerks/discord-bot/commit/8f9f2fbdb68429a596cb48095159b8e4dc32a694))
 
 
