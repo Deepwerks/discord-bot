@@ -74,6 +74,10 @@ export default class DeadlockMatchService extends BaseClientService {
 
       const result = await this.client.request('POST', `/v1/matches/custom/create`, {
         schema: DeadlockCustomMatchSchema,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: {},
       });
 
       return new DeadlockCustomMatch(result);

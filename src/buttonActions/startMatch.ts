@@ -120,20 +120,26 @@ export default class StartMatchButtonAction extends ButtonAction {
 
             lobbyStore.setPartId(creatorId, String(match.partyId));
 
-            // Create a "Finish" button
             const finishButton = new ButtonBuilder()
               .setCustomId(`finish_match:${creatorId}`)
               .setLabel('Finish')
               .setStyle(ButtonStyle.Primary);
 
-            // Create a "Finish" button
             const closeThread = new ButtonBuilder()
               .setCustomId(`close_thread:${thread.id}:${creatorId}`)
               .setLabel('Close Thread')
+              .setEmoji('🗑️')
               .setStyle(ButtonStyle.Danger);
+
+            const archiveThread = new ButtonBuilder()
+              .setCustomId(`archive_thread:${thread.id}:${creatorId}`)
+              .setLabel('Archive Thread')
+              .setEmoji('📃')
+              .setStyle(ButtonStyle.Secondary);
 
             const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
               finishButton,
+              archiveThread,
               closeThread
             );
 

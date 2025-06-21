@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const DeadlockCustomMatchSchema = z.object({
-  party_id: z.number(),
+  party_id: z.string(),
   party_code: z.string(),
 });
 
