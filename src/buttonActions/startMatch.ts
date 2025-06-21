@@ -12,11 +12,15 @@ import {
 import ButtonAction from '../base/classes/ButtonAction';
 import CustomClient from '../base/classes/CustomClient';
 import { logger, useDeadlockClient } from '..';
-import dayjs from 'dayjs';
 import { lobbyStore } from '../services/stores/LobbyStore';
 import CommandError from '../base/errors/CommandError';
 import { TFunction } from 'i18next';
 import i18n from '../services/i18n';
+
+enum TeamShuffleMode {
+  Balanced = 'balanced',
+  Random = 'random',
+}
 
 export default class StartMatchButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -45,14 +49,12 @@ export default class StartMatchButtonAction extends ButtonAction {
         throw new CommandError(t('buttons.start_match.not_enough_players'));
       }
 
-      const timeStr = dayjs().format('HH:mm');
-
       const expirationTs = Math.floor(Date.now() / 1000) + 60;
       const relativeTs = `<t:${expirationTs}:R>`;
 
       const channel = interaction.channel as TextChannel;
       const thread = await channel.threads.create({
-        name: `Match-${interaction.user.username}-${timeStr}`,
+        name: lobby.name,
         autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
         type: ChannelType.PrivateThread,
         reason: 'Ready check for match',
@@ -94,10 +96,6 @@ export default class StartMatchButtonAction extends ButtonAction {
         }
 
         readySet.add(btnInteraction.user.id);
-        await btnInteraction.reply({
-          content: t('buttons.start_match.marked_ready'),
-          flags: ['Ephemeral'],
-        });
 
         await statusMessage.edit({
           content: buildReadyMessage(t, Array.from(playerIds), readySet, relativeTs),
@@ -112,42 +110,118 @@ export default class StartMatchButtonAction extends ButtonAction {
       collector.on('end', async (_collected, reason) => {
         if (reason === 'all_ready') {
           try {
-            const match = await useDeadlockClient.MatchService.CreateCustomMatch();
+            const votes = new Map<string, TeamShuffleMode>();
+            let selectedMode: TeamShuffleMode | null = null;
 
-            if (!match) {
-              throw new CommandError('Failed to create match');
-            }
+            await statusMessage.delete();
 
-            lobbyStore.setPartId(creatorId, String(match.partyId));
+            const voteMessage = await thread.send({
+              content: '[@here]\nAll players are ready! Please vote for team shuffle mode:',
+              components: [
+                new ActionRowBuilder<ButtonBuilder>().addComponents(
+                  new ButtonBuilder()
+                    .setCustomId('vote:balanced')
+                    .setLabel('Balanced')
+                    .setDisabled(true)
+                    .setStyle(ButtonStyle.Primary),
+                  new ButtonBuilder()
+                    .setCustomId('vote:random')
+                    .setLabel('Random')
+                    .setStyle(ButtonStyle.Secondary)
+                ),
+              ],
+            });
 
-            // Create a "Finish" button
-            const finishButton = new ButtonBuilder()
-              .setCustomId(`finish_match:${creatorId}`)
-              .setLabel('Finish')
-              .setStyle(ButtonStyle.Primary);
+            const voteCollector = thread.createMessageComponentCollector({
+              componentType: ComponentType.Button,
+              time: 10_000,
+            });
 
-            // Create a "Finish" button
-            const closeThread = new ButtonBuilder()
-              .setCustomId(`close_thread:${thread.id}:${creatorId}`)
-              .setLabel('Close Thread')
-              .setStyle(ButtonStyle.Danger);
+            voteCollector.on('collect', async (btnInt) => {
+              if (!playerIds.has(btnInt.user.id)) return;
 
-            const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-              finishButton,
-              closeThread
-            );
+              const choice =
+                btnInt.customId === 'vote:balanced'
+                  ? TeamShuffleMode.Balanced
+                  : TeamShuffleMode.Random;
 
-            await statusMessage.edit({
-              content: t('buttons.start_match.all_ready', {
-                party_id: match.partyId,
-                party_code: match.party_code,
-              }),
-              components: [row],
+              votes.set(btnInt.user.id, choice);
+
+              // Check if majority or all voted
+              const tally = {
+                balanced: [...votes.values()].filter((v) => v === TeamShuffleMode.Balanced).length,
+                random: [...votes.values()].filter((v) => v === TeamShuffleMode.Random).length,
+              };
+
+              if (
+                votes.size === playerIds.size ||
+                Math.max(tally.balanced, tally.random) > playerIds.size / 2
+              ) {
+                selectedMode =
+                  tally.balanced > tally.random ? TeamShuffleMode.Balanced : TeamShuffleMode.Random;
+                voteCollector.stop('decided');
+              }
+            });
+
+            voteCollector.on('end', async (_, _voteReason) => {
+              if (!selectedMode) {
+                // Default to random
+                selectedMode = TeamShuffleMode.Random;
+              }
+
+              await voteMessage.edit({
+                content: `Voting ended! Team shuffle mode selected: **${selectedMode}**. \nStarting match...`,
+                components: [],
+              });
+
+              const match = await useDeadlockClient.MatchService.CreateCustomMatch();
+
+              if (!match) {
+                throw new CommandError('Failed to create match');
+              }
+
+              lobbyStore.setPartId(creatorId, String(match.partyId));
+              const [teamA, teamB] = shuffleTeams(Array.from(playerIds));
+
+              const finishButton = new ButtonBuilder()
+                .setCustomId(`finish_match:${creatorId}`)
+                .setLabel('Finish')
+                .setStyle(ButtonStyle.Primary);
+
+              const closeThread = new ButtonBuilder()
+                .setCustomId(`close_thread:${thread.id}:${creatorId}`)
+                .setLabel('Close Thread')
+                .setEmoji('🗑️')
+                .setStyle(ButtonStyle.Danger);
+
+              const archiveThread = new ButtonBuilder()
+                .setCustomId(`archive_thread:${thread.id}:${creatorId}`)
+                .setLabel('Archive Thread')
+                .setEmoji('📃')
+                .setStyle(ButtonStyle.Secondary);
+
+              const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+                finishButton,
+                archiveThread,
+                closeThread
+              );
+
+              await sleep(1000);
+
+              const embed = buildMatchEmbed(match.partyId, match.party_code, teamA, teamB);
+              await thread.send({
+                content: '@here',
+                embeds: [embed],
+                components: [row],
+              });
             });
           } catch (err) {
-            logger.error('Match creation failed:', err);
+            logger.warn('Match creation failed:', err);
             await thread.send(t('buttons.start_match.match_creation_failed'));
             await thread.setArchived(true);
+
+            await sleep(3000);
+            await thread.delete();
             lobbyStore.removeLobby(creatorId);
           }
         } else {
@@ -174,10 +248,48 @@ export default class StartMatchButtonAction extends ButtonAction {
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
       }
     }
   }
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function buildMatchEmbed(
+  partyId: string,
+  partyCode: string,
+  teamA: string[],
+  teamB: string[]
+): EmbedBuilder {
+  return new EmbedBuilder()
+    .setColor('Green')
+    .setTitle('✅ All players are ready!')
+    .setDescription('GLHF!')
+    .addFields(
+      {
+        name: 'Party ID',
+        value: `\`${partyId}\``,
+        inline: true,
+      },
+      {
+        name: 'Party Code',
+        value: `\`${partyCode}\``,
+        inline: true,
+      },
+      {
+        name: 'Team A',
+        value: teamA.length > 0 ? teamA.map((id) => `<@${id}>`).join('\n') : 'None',
+        inline: false,
+      },
+      {
+        name: 'Team B',
+        value: teamB.length > 0 ? teamB.map((id) => `<@${id}>`).join('\n') : 'None',
+        inline: false,
+      }
+    );
 }
 
 function buildReadyMessage(
@@ -203,4 +315,14 @@ function buildReadyMessage(
     readyList,
     notReadyList,
   });
+}
+
+function shuffleTeams(playerIds: string[]): [string[], string[]] {
+  const shuffled = [...playerIds].sort(() => Math.random() - 0.5);
+
+  const mid = Math.ceil(shuffled.length / 2);
+  const teamA = shuffled.slice(0, mid);
+  const teamB = shuffled.slice(mid);
+
+  return [teamA, teamB];
 }

@@ -20,7 +20,7 @@ export default class ButtonHandler extends Event {
   async Execute(interaction: ButtonInteraction) {
     if (!interaction.isButton()) return;
     const [action] = interaction.customId.split(':');
-    if (action === 'ready_up') return;
+    if (['ready_up', 'vote'].includes(action)) return;
 
     const guildLang = await GuildConfig.findOne({
       guildId: interaction.guildId!,

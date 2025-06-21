@@ -87,9 +87,15 @@
   "buttons": {
     "close_thread": {
       "not_creator": "❌ Only the player who started this lobby can close the thread.",
-      "archiving": "📁 Archiving this thread...",
-      "archive_failed": "❌ Couldn't archive this channel. Is it a thread?",
+      "closing": "📁 Deleting this thread...",
+      "close_failed": "❌ Couldn't delete this channel.",
       "error_generic": "❌ Something went wrong while closing the thread."
+    },
+    "archive_thread": {
+      "not_creator": "❌ Only the player who started this lobby can close the thread.",
+      "archiving": "📁 Archiving this thread...",
+      "archive_failed": "❌ Couldn't archive this channel.",
+      "error_generic": "❌ Something went wrong while archiving the thread."
     },
     "finish_match": {
       "no_party_id": "❌ Couldn't find an active lobby for this match.",
@@ -104,7 +110,7 @@
       "lobby_full": "🚫 This lobby is full ({{current}}/{{max}} players).",
       "success": "✅ You've successfully joined the lobby!",
       "error_generic": "❌ Couldn't join the lobby. Please try again later.",
-      "list_players_title": "Players (({{current}}/{{max}})"
+      "list_players_title": "Players ({{current}}/{{max}})"
     },
     "pagination": {
       "session_invalid": "❌ This pagination session is no longer valid or doesn't belong to you.",
