@@ -87,13 +87,13 @@
   "buttons": {
     "close_thread": {
       "not_creator": "❌ Only the player who started this lobby can close the thread.",
-      "closing": "📁 Deleting this thread...",
+      "closing": "📁 Deleting thread...",
       "close_failed": "❌ Couldn't delete this channel.",
       "error_generic": "❌ Something went wrong while closing the thread."
     },
     "archive_thread": {
       "not_creator": "❌ Only the player who started this lobby can close the thread.",
-      "archiving": "📁 Archiving this thread...",
+      "archiving": "📁 Archiving thread...",
       "archive_failed": "❌ Couldn't archive this channel.",
       "error_generic": "❌ Something went wrong while archiving the thread."
     },

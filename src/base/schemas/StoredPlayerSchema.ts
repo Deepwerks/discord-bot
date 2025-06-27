@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 
-interface IStoredPlayerSchema {
+export interface IStoredPlayerSchema {
   steamId: string;
   steamIdType: 'steamID3' | 'steamID' | 'steamID64';
   discordId: string;

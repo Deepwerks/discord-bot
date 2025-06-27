@@ -16,6 +16,8 @@ import { lobbyStore } from '../services/stores/LobbyStore';
 import CommandError from '../base/errors/CommandError';
 import { TFunction } from 'i18next';
 import i18n from '../services/i18n';
+import { getStoredPlayersByDiscordIds } from '../services/database/repository';
+import { IStoredPlayerSchema } from '../base/schemas/StoredPlayerSchema';
 
 enum TeamShuffleMode {
   Balanced = 'balanced',
@@ -96,6 +98,10 @@ export default class StartMatchButtonAction extends ButtonAction {
         }
 
         readySet.add(btnInteraction.user.id);
+        await btnInteraction.reply({
+          content: 'You are now ready! ✅',
+          flags: ['Ephemeral'],
+        });
 
         await statusMessage.edit({
           content: buildReadyMessage(t, Array.from(playerIds), readySet, relativeTs),
@@ -113,6 +119,12 @@ export default class StartMatchButtonAction extends ButtonAction {
             const votes = new Map<string, TeamShuffleMode>();
             let selectedMode: TeamShuffleMode | null = null;
 
+            const players = await getStoredPlayersByDiscordIds(Array.from(playerIds));
+            const isEveryPlayerAuthenticated =
+              players.length === playerIds.size
+                ? players.every((p) => p.authenticated === true)
+                : false;
+
             await statusMessage.delete();
 
             const voteMessage = await thread.send({
@@ -122,7 +134,7 @@ export default class StartMatchButtonAction extends ButtonAction {
                   new ButtonBuilder()
                     .setCustomId('vote:balanced')
                     .setLabel('Balanced')
-                    .setDisabled(true)
+                    .setDisabled(!isEveryPlayerAuthenticated)
                     .setStyle(ButtonStyle.Primary),
                   new ButtonBuilder()
                     .setCustomId('vote:random')
@@ -131,6 +143,13 @@ export default class StartMatchButtonAction extends ButtonAction {
                 ),
               ],
             });
+
+            if (!isEveryPlayerAuthenticated) {
+              await thread.send({
+                content:
+                  '⚠️ **Balanced** Option is disabled: *Not all players were authenticated. Use `/store` to authenticate!*',
+              });
+            }
 
             const voteCollector = thread.createMessageComponentCollector({
               componentType: ComponentType.Button,
@@ -146,6 +165,10 @@ export default class StartMatchButtonAction extends ButtonAction {
                   : TeamShuffleMode.Random;
 
               votes.set(btnInt.user.id, choice);
+              await btnInt.reply({
+                content: 'You have voted...',
+                flags: ['Ephemeral'],
+              });
 
               // Check if majority or all voted
               const tally = {
@@ -181,7 +204,12 @@ export default class StartMatchButtonAction extends ButtonAction {
               }
 
               lobbyStore.setPartId(creatorId, String(match.partyId));
-              const [teamA, teamB] = shuffleTeams(Array.from(playerIds));
+
+              const playersArray = Array.from(playerIds);
+              const [teamA, teamB] =
+                selectedMode === TeamShuffleMode.Random
+                  ? shuffleTeamsRandom(playersArray)
+                  : await shuffleTeamsBalanced(players);
 
               const finishButton = new ButtonBuilder()
                 .setCustomId(`finish_match:${creatorId}`)
@@ -317,7 +345,7 @@ function buildReadyMessage(
   });
 }
 
-function shuffleTeams(playerIds: string[]): [string[], string[]] {
+function shuffleTeamsRandom(playerIds: string[]): [string[], string[]] {
   const shuffled = [...playerIds].sort(() => Math.random() - 0.5);
 
   const mid = Math.ceil(shuffled.length / 2);
@@ -325,4 +353,57 @@ function shuffleTeams(playerIds: string[]): [string[], string[]] {
   const teamB = shuffled.slice(mid);
 
   return [teamA, teamB];
+}
+
+async function shuffleTeamsBalanced(players: IStoredPlayerSchema[]): Promise<[string[], string[]]> {
+  const NOISE_FACTOR = 0.01;
+
+  const playersWithMMR = await Promise.all(
+    players.map(async (player) => {
+      const mmr = await estimateMMR(Number(player.steamId));
+      return {
+        id: player.discordId,
+        mmr,
+        noisyMMR: mmr + (Math.random() - 0.5) * NOISE_FACTOR * mmr,
+      };
+    })
+  );
+
+  playersWithMMR.sort((a, b) => b.noisyMMR - a.noisyMMR);
+
+  const teamA: string[] = [];
+  const teamB: string[] = [];
+
+  let sumA = 0;
+  let sumB = 0;
+
+  for (const player of playersWithMMR) {
+    if (sumA <= sumB) {
+      teamA.push(player.id);
+      sumA += player.mmr;
+    } else {
+      teamB.push(player.id);
+      sumB += player.mmr;
+    }
+  }
+
+  console.log(`TeamA: ${sumA}`);
+  console.log(`TeamB: ${sumB}`);
+
+  return [teamA, teamB];
+}
+
+async function estimateMMR(playerId: number) {
+  const mmrHistory = await useDeadlockClient.PlayerService.fetchMMRHistory(playerId, 10);
+
+  if (mmrHistory.length === 0) return 0;
+
+  const weights = mmrHistory.map((_, i) => i + 1);
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+
+  const weightedSum = mmrHistory.reduce((sum, match, i) => {
+    return sum + match.playerScore * weights[i];
+  }, 0);
+
+  return weightedSum / totalWeight;
 }
