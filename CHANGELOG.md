@@ -10,7 +10,7 @@
 
 ### Features
 
-* added balanced shuffle option ([b48266d](https://github.com/Deepwerks/discord-bot/commit/b48266d087719b0da63a9a9cd31d1517ded52ad8))
+* added balanced shuffle option ([#231](https://github.com/Deepwerks/discord-bot/issues/231)) ([71e3883](https://github.com/Deepwerks/discord-bot/commit/71e38830e7b19be25e45dafac7f74c480a5450ca))
 * reintroduced metrics ([#216](https://github.com/Deepwerks/discord-bot/issues/216)) ([8f9f2fb](https://github.com/Deepwerks/discord-bot/commit/8f9f2fbdb68429a596cb48095159b8e4dc32a694))
 
 
