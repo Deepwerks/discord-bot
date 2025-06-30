@@ -1,0 +1,58 @@
+name: PR CI
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  update_changelog:
+    name: Update Changelog
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install conventional-changelog-cli
+        run: npm install -g conventional-changelog-cli
+
+      - name: Generate CHANGELOG.md
+        run: conventional-changelog -p angular -i CHANGELOG.md -s -r 0
+
+      - name: Commit & push CHANGELOG.md
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add CHANGELOG.md
+          git commit -m "chore: update CHANGELOG.md [skip ci]" || echo "No changes to commit"
+          git push origin HEAD:${{ github.head_ref }}
+
+  lint:
+    name: Lint with ESLint & Prettier
+    needs: update_changelog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint & Prettier
+        run: npm run lint
