@@ -21,7 +21,7 @@ export default class Ready extends Event {
       activities: [
         {
           name: `New command: /create-lobby`,
-          type: ActivityType.Watching,
+          type: ActivityType.Custom,
         },
       ],
       status: 'online', // online | idle | dnd | invisible
