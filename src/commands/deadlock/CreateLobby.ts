@@ -21,7 +21,6 @@ export default class CreateLobby extends Command {
       dm_permission: false,
       cooldown: 10,
       dev: false,
-      limitedServers: ['1116312943584354374', '1369999947050778665', '1347992407291068497'],
       options: [],
     });
   }
