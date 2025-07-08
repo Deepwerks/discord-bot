@@ -35,10 +35,6 @@ It fetches real-time match data, player stats, and full match history directly f
         link: 'https://discord.gg/C968DEVs6j',
       },
       {
-        text: '💖 Support us on Patreon',
-        link: 'https://patreon.com/deadlock_assistant?utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_creator&utm_content=copyLink',
-      },
-      {
         text: '🌍 Join us in making the bot multilingual',
         link: 'https://github.com/Deepwerks/discord-bot/discussions/48',
       },
