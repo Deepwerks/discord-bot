@@ -81,7 +81,7 @@ export default class PostFeedback extends ButtonAction {
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ content: errorMessage });
       } else {
-        await interaction.reply({ content: errorMessage, ephemeral: true });
+        await interaction.reply({ content: errorMessage, flags: ['Ephemeral'] });
       }
     }
   }

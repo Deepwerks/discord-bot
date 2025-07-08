@@ -10,6 +10,7 @@ import {
   TextChannel,
   ThreadAutoArchiveDuration,
   ChannelType,
+  Attachment,
 } from 'discord.js';
 import Command from '../../base/classes/Command';
 import CustomClient from '../../base/classes/CustomClient';
@@ -32,12 +33,6 @@ export default class MatchFeedback extends Command {
       dev: false,
       options: [
         {
-          name: 'video',
-          description: 'Upload your match video file',
-          required: true,
-          type: ApplicationCommandOptionType.Attachment,
-        },
-        {
           name: 'match_id',
           description: 'The match ID for this video',
           required: true,
@@ -51,6 +46,12 @@ export default class MatchFeedback extends Command {
           max_length: 100,
         },
         {
+          name: 'video',
+          description: 'Upload your match video file',
+          required: false,
+          type: ApplicationCommandOptionType.Attachment,
+        },
+        {
           name: 'rank',
           description: 'Your current rank (optional)',
           required: false,
@@ -62,7 +63,7 @@ export default class MatchFeedback extends Command {
   }
 
   async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
-    const videoAttachment = interaction.options.getAttachment('video', true);
+    const videoAttachment = interaction.options.getAttachment('video');
     const matchId = interaction.options.getInteger('match_id', true);
     const title = interaction.options.getString('title', true);
     const rank = interaction.options.getString('rank', false);
@@ -71,13 +72,13 @@ export default class MatchFeedback extends Command {
 
     try {
       // Validate video file
-      if (!videoAttachment.contentType?.startsWith('video/')) {
+      if (videoAttachment && !videoAttachment.contentType?.startsWith('video/')) {
         throw new CommandError(t('commands.match_feedback.error_invalid_video'));
       }
 
       // Validate file size (Discord limit is 25MB for regular users, 100MB for Nitro)
       const maxSize = 100 * 1024 * 1024; // 100MB
-      if (videoAttachment.size > maxSize) {
+      if (videoAttachment && videoAttachment.size > maxSize) {
         throw new CommandError(t('commands.match_feedback.error_file_too_large'));
       }
 
@@ -138,10 +139,14 @@ export default class MatchFeedback extends Command {
         })
         .setTimestamp();
 
+      const files: (AttachmentBuilder | Attachment)[] = [matchImageAttachment];
+      if (videoAttachment) files.push(videoAttachment);
+
       // Post in public channel
       const publicMessage = await interaction.editReply({
+        content: `${interaction.user.displayName} is looking for some feedback to level up their game! Check out their match and hit the Post Feedback button to share your thoughts.\n\nRealtime map for the match: https://statlocker.gg/match/${matchId}/map`,
         embeds: [embed],
-        files: [videoAttachment, matchImageAttachment],
+        files: files,
         components: [row],
       });
 
@@ -150,7 +155,7 @@ export default class MatchFeedback extends Command {
         matchId,
         title,
         rank: rank || undefined,
-        videoUrl: videoAttachment.url,
+        videoUrl: videoAttachment?.url,
         creatorId: interaction.user.id,
         threadId: thread.id,
         channelId: channel.id,
@@ -175,7 +180,7 @@ export default class MatchFeedback extends Command {
               t('commands.match_feedback.thread_initial_description', {
                 title,
                 matchId,
-                videoUrl: videoAttachment.url,
+                videoUrl: videoAttachment?.url,
               })
             )
             .setTimestamp(),
@@ -198,7 +203,7 @@ export default class MatchFeedback extends Command {
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
       }
     }
   }

@@ -2,7 +2,7 @@ type MatchFeedbackState = {
   matchId: number;
   title: string;
   rank?: string;
-  videoUrl: string;
+  videoUrl?: string;
   creatorId: string;
   threadId: string;
   channelId: string;
