@@ -1,3 +1,21 @@
+## [1.8.11](https://github.com/Deepwerks/discord-bot/compare/v1.8.10...v1.8.11) (2025-07-08)
+
+
+### Bug Fixes
+
+* made video upload optional ([78af22a](https://github.com/Deepwerks/discord-bot/commit/78af22ac4bc5e0f36c21a109c9e2dbbb5ff7f9a7))
+* removed player name from command descirption ([e467532](https://github.com/Deepwerks/discord-bot/commit/e46753274b7f869292661e04a3867523af6c7a4d))
+* use flags ([d93308a](https://github.com/Deepwerks/discord-bot/commit/d93308a77ab57ef9ce35375263607b4c95245987))
+* use translation file ([1cb2650](https://github.com/Deepwerks/discord-bot/commit/1cb26508195cd24c8d7a0a6d02bb995da037b63a))
+
+
+### Features
+
+* add optional submitter rank field to feedback modal and embed ([#241](https://github.com/Deepwerks/discord-bot/issues/241)) ([3e57f45](https://github.com/Deepwerks/discord-bot/commit/3e57f4598b30d4f7dc9c498559b97bdc8b094edb))
+* unlocker create lobby cmd ([#235](https://github.com/Deepwerks/discord-bot/issues/235)) ([d07e014](https://github.com/Deepwerks/discord-bot/commit/d07e014c2d5e025a8c60ce7e58809a5f27551a24))
+
+
+
 ## [1.8.10](https://github.com/Deepwerks/discord-bot/compare/v1.8.5...v1.8.10) (2025-06-27)
 
 
