@@ -38,7 +38,7 @@ export default class Performance extends Command {
       options: [
         {
           name: 'player',
-          description: 'Player\'s name or SteamID | Use "me" to get your match history!',
+          description: 'Player\'s SteamID | Use "me" to get your match history!',
           required: true,
           type: ApplicationCommandOptionType.String,
         },
