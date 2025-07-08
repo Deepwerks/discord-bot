@@ -16,7 +16,7 @@ export default class StatlockerProfileService extends BaseClientService {
     this.cache = new CustomCache<StatlockerProfile>('StatlockerProfileCache', 60 * 10);
   }
 
-  private async fetchProfile(account_id: number): Promise<StatlockerProfile> {
+  private async fetchProfile(account_id: number): Promise<StatlockerProfile | null> {
     try {
       logger.info('[API CALL] Fetching a statlocker profile...');
 
@@ -36,13 +36,7 @@ export default class StatlockerProfileService extends BaseClientService {
         misc: hasMiscProperty(error) ? error.misc : undefined,
       });
 
-      return new StatlockerProfile({
-        accountId: account_id,
-        avatarUrl:
-          'https://avatars.steamstatic.com/b5bd56c1aa4644a474a2e4972be27ef9e82e517e_full.jpg',
-        name: 'Unknown',
-        performanceRankMessage: null,
-      });
+      return null;
     }
   }
 
@@ -79,12 +73,14 @@ export default class StatlockerProfileService extends BaseClientService {
               'https://avatars.steamstatic.com/b5bd56c1aa4644a474a2e4972be27ef9e82e517e_full.jpg',
             name: 'Unknown',
             performanceRankMessage: null,
+            lastUpdated: null,
+            ppScore: null,
           })
       );
     }
   }
 
-  async GetProfile(account_id: number): Promise<StatlockerProfile> {
+  async GetProfile(account_id: number): Promise<StatlockerProfile | null> {
     const cached = this.cache.get(String(account_id));
 
     if (cached) return cached;
@@ -118,5 +114,37 @@ export default class StatlockerProfileService extends BaseClientService {
       const profile = cachedProfiles[id];
       return profile;
     });
+  }
+
+  async SearchProfile(username: string) {
+    try {
+      logger.info(`[API CALL] Searching for statlocker profiles...`);
+
+      const response = await this.client.request(
+        'GET',
+        `/api/profile/search-profiles/${username}`,
+        {
+          schema: StatlockerProfilesSchema,
+        }
+      );
+
+      const profiles = response.map((profile) => {
+        const _profile = new StatlockerProfile(profile);
+
+        this.cache.set(String(_profile.accountId), _profile);
+        return _profile;
+      });
+
+      return profiles;
+    } catch (error) {
+      logger.error('Failed to fetch statlocker profile', {
+        username,
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        misc: hasMiscProperty(error) ? error.misc : undefined,
+      });
+
+      return null;
+    }
   }
 }

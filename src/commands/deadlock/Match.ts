@@ -29,7 +29,7 @@ export default class Match extends Command {
       options: [
         {
           name: 'id',
-          description: 'Match ID (default) or Steam ID — use "me" for your latest match',
+          description: `Match ID (default) or player's name or Steam ID — use "me" for your latest match`,
           required: true,
           type: ApplicationCommandOptionType.String,
         },

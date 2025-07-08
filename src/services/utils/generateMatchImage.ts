@@ -68,7 +68,11 @@ const rowLabels = ['Souls', 'Kills', 'Deaths', 'Assists', 'Player Damage', 'Obj 
 const shortenPlayerName = async (player: DeadlockMatchPlayer) => {
   const profile = await player.getProfile();
 
-  return profile.name.length <= 12 ? profile.name : profile.name.slice(0, 9) + '...';
+  return profile
+    ? profile.name.length <= 12
+      ? profile.name
+      : profile.name.slice(0, 9) + '...'
+    : 'Unknown';
 };
 
 async function safeLoadImage(url: string | null): Promise<ReturnType<typeof loadImage> | null> {
