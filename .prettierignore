@@ -12,3 +12,6 @@ data/config.json
 logs
 
 .idea
+
+CHANGELOG.md
+.github/workflows/
