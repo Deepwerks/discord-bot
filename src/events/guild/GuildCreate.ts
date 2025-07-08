@@ -21,12 +21,16 @@ export default class GuildCreate extends Event {
         where: {
           guildId: guild.id,
         },
+        paranoid: false,
       });
+
       if (!storedGuild) {
         await Guilds.create({
           guildId: guild.id,
           ownerDiscordId: owner.user.id,
         });
+      } else if (storedGuild.isSoftDeleted()) {
+        await storedGuild.restore();
       }
 
       const author = await this.client.users.fetch(this.client.config.developer_user_ids[0]);
