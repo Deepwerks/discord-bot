@@ -157,6 +157,14 @@ export default class MatchFeedback extends Command {
         messageId: publicMessage.id,
       });
 
+      // Create delete session button for private thread
+      const closeButton = new ButtonBuilder()
+        .setCustomId(`close_feedback_session:${sessionId}`)
+        .setLabel(t('commands.match_feedback.button_close_session'))
+        .setStyle(ButtonStyle.Danger);
+
+      const threadRow = new ActionRowBuilder<ButtonBuilder>().addComponents(closeButton);
+
       // Send initial message to private thread
       await thread.send({
         embeds: [
@@ -172,6 +180,7 @@ export default class MatchFeedback extends Command {
             )
             .setTimestamp(),
         ],
+        components: [threadRow],
       });
     } catch (error) {
       logger.error({
