@@ -69,6 +69,26 @@
       "title": "Submit Your Feedback (Anonymous)",
       "label": "Please enter your feedback here",
       "placeholder": "e.g., I love this bot!"
+    },
+    "match_feedback": {
+      "description": "Share a match video and collect feedback from the community",
+      "option_video": "Upload your match video file",
+      "option_match_id": "The match ID for this video",
+      "option_title": "Title for your match video",
+      "option_rank": "Your current rank (optional)",
+      "error_invalid_video": "Please upload a valid video file.",
+      "error_file_too_large": "Video file is too large. Please upload a file smaller than 100MB.",
+      "error_match_not_found": "Match not found. Please check the match ID and try again.",
+      "error_generic": "An error occurred while processing your request.",
+      "thread_name": "Match Feedback - {{title}}",
+      "thread_reason": "Private feedback collection thread",
+      "button_post_feedback": "Post Feedback",
+      "embed_title": "🎥 {{title}}",
+      "embed_description": "**Match ID:** {{matchId}}\n**Rank:** {{rank}}",
+      "embed_footer": "Shared by {{displayName}}",
+      "thread_initial_title": "📝 Feedback Collection Started",
+      "thread_initial_description": "Your match video \"{{title}}\" has been posted publicly. Feedback from community members will appear here.\n\n**Match ID:** {{matchId}}\n**Video:** [View Video]({{videoUrl}})",
+      "button_close_session": "🗑️ Close Session"
     }
   },
   "warnings": {
@@ -140,6 +160,32 @@
       "start_failed": "❌ Failed to start match",
       "ready_check": "# ✅ Ready Check\nClick the button below to mark yourself as ready. Check in will close {{relativeTs}}.\n\n**Ready:** {{readyList}}\n**Not Ready:** {{notReadyList}}",
       "player_ready_label": "✅ I'm Ready"
+    },
+    "post_feedback": {
+      "error_invalid_session": "Invalid feedback session.",
+      "error_session_not_found": "Feedback session not found or has expired.",
+      "modal_title": "Feedback for: {{title}}",
+      "modal_label": "Your Feedback",
+      "modal_placeholder": "Share your thoughts, tips, or analysis about this match...",
+      "error_generic": "An error occurred while opening the feedback form."
+    },
+    "close_feedback_session": {
+      "error_invalid_session": "Invalid feedback session.",
+      "error_session_not_found": "Feedback session not found or has expired.",
+      "error_not_creator": "❌ Only the creator of this feedback session can close it.",
+      "closing_message": "🗑️ Closing feedback session and cleaning up...",
+      "error_delete_public_message": "⚠️ Could not delete the public message, but the session has been cleaned up.",
+      "error_generic": "❌ Something went wrong while closing the feedback session."
+    }
+  },
+  "modals": {
+    "match_feedback": {
+      "error_invalid_session": "Invalid feedback session.",
+      "error_session_not_found": "Feedback session not found or has expired.",
+      "error_thread_not_found": "Feedback thread not found.",
+      "feedback_footer": "Feedback for: {{title}}",
+      "success_message": "✅ Thank you for your feedback! It has been sent to the video creator.",
+      "error_generic": "An error occurred while submitting your feedback."
     }
   }
 }
