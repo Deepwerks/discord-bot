@@ -54,8 +54,18 @@ export default class PostFeedback extends ButtonAction {
         .setStyle(TextInputStyle.Paragraph)
         .setRequired(true);
 
-      const actionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(feedbackInput);
-      modal.addComponents(actionRow);
+      const rankInput = new TextInputBuilder()
+        .setCustomId('submitter_rank')
+        .setLabel(t('buttons.post_feedback.modal_rank_label'))
+        .setPlaceholder(t('buttons.post_feedback.modal_rank_placeholder'))
+        .setMaxLength(50)
+        .setStyle(TextInputStyle.Short)
+        .setRequired(false);
+
+      const feedbackRow = new ActionRowBuilder<TextInputBuilder>().addComponents(feedbackInput);
+      const rankRow = new ActionRowBuilder<TextInputBuilder>().addComponents(rankInput);
+
+      modal.addComponents(feedbackRow, rankRow);
 
       await interaction.showModal(modal);
     } catch (error) {

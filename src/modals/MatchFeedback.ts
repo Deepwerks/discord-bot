@@ -34,6 +34,7 @@ export default class MatchFeedback extends Modal {
       }
 
       const feedbackMessage = interaction.fields.getTextInputValue('feedback_message');
+      const submitterRank = interaction.fields.getTextInputValue('submitter_rank') || null;
 
       // Get the private thread
       const thread = (await this.client.channels.fetch(session.threadId)) as ThreadChannel;
@@ -53,6 +54,15 @@ export default class MatchFeedback extends Modal {
         .setFooter({
           text: t('modals.match_feedback.feedback_footer', { title: session.title }),
         });
+
+      // Add rank field if provided
+      if (submitterRank) {
+        feedbackEmbed.addFields({
+          name: t('modals.match_feedback.feedback_rank_field'),
+          value: submitterRank,
+          inline: true,
+        });
+      }
 
       // Post feedback to private thread
       await thread.send({

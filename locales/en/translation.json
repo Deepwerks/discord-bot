@@ -167,6 +167,8 @@
       "modal_title": "Feedback for: {{title}}",
       "modal_label": "Your Feedback",
       "modal_placeholder": "Share your thoughts, tips, or analysis about this match...",
+      "modal_rank_label": "Your Current Rank (Optional)",
+      "modal_rank_placeholder": "e.g., Phantom, Ascendant, etc.",
       "error_generic": "An error occurred while opening the feedback form."
     },
     "close_feedback_session": {
@@ -184,6 +186,7 @@
       "error_session_not_found": "Feedback session not found or has expired.",
       "error_thread_not_found": "Feedback thread not found.",
       "feedback_footer": "Feedback for: {{title}}",
+      "feedback_rank_field": "Submitter Rank",
       "success_message": "✅ Thank you for your feedback! It has been sent to the video creator.",
       "error_generic": "An error occurred while submitting your feedback."
     }
