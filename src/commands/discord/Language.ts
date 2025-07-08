@@ -9,10 +9,10 @@ import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { supportedLanguages } from '../../services/i18n';
 import CommandError from '../../base/errors/CommandError';
-import GuildConfig from '../../base/schemas/GuildConfigSchema';
 import { TFunction } from 'i18next';
 import i18next from '../../services/i18n';
 import { logger } from '../..';
+import { Guilds } from '../../services/database/orm/init';
 
 export default class Language extends Command {
   constructor(client: CustomClient) {
@@ -49,11 +49,21 @@ export default class Language extends Command {
 
       const newT = i18next.getFixedT(selectedLanguage!);
 
-      await GuildConfig.findOneAndUpdate(
-        { guildId: interaction.guildId },
-        { lang: selectedLanguage },
-        { upsert: true }
-      );
+      const storedGuild = await Guilds.findOne({
+        where: { guildId: interaction.guildId },
+      });
+
+      if (storedGuild) {
+        await storedGuild.update({
+          preferedLanguage: selectedLanguage,
+        });
+      } else {
+        await Guilds.create({
+          guildId: interaction.guildId,
+          ownerDiscordId: interaction.guild?.ownerId,
+          preferedLanguage: selectedLanguage,
+        });
+      }
 
       await interaction.reply({
         embeds: [
@@ -79,7 +89,7 @@ export default class Language extends Command {
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
       }
     }
   }

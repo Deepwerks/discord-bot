@@ -20,7 +20,7 @@ import { logger, useAssetsClient, useDeadlockClient } from '../..';
 import CommandError from '../../base/errors/CommandError';
 import { generateMatchImage } from '../../services/utils/generateMatchImage';
 import { matchFeedbackStore } from '../../services/stores/MatchFeedbackStore';
-import StoredPlayerSchema from '../../base/schemas/StoredPlayerSchema';
+import { StoredPlayers } from '../../services/database/orm/init';
 
 export default class MatchFeedback extends Command {
   constructor(client: CustomClient) {
@@ -89,9 +89,11 @@ export default class MatchFeedback extends Command {
         throw new CommandError(t('commands.match_feedback.error_match_not_found'));
       }
 
-      const player = await StoredPlayerSchema.findOne({
-        discordId: interaction.user.id,
-      }).lean();
+      const player = await StoredPlayers.findOne({
+        where: {
+          discordId: interaction.user.id,
+        },
+      });
 
       let playedCharacter: string | null = null;
       if (player) {

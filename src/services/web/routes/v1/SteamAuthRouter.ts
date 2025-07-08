@@ -5,8 +5,8 @@ import SteamID from 'steamid';
 import { logger } from '../../../..';
 import { consumeToken } from '../../../stores/SteamLinkTokenStore';
 import limiter from '../../middlewares/rateLimit';
-import StoredPlayerSchema from '../../../../base/schemas/StoredPlayerSchema';
 import Bottleneck from 'bottleneck';
+import { StoredPlayers } from '../../../database/orm/init';
 
 const steamLimiter = new Bottleneck({ maxConcurrent: 1, minTime: 4000 });
 
@@ -62,13 +62,7 @@ router.get('/auth/steam/authenticate', limiter, async (req, res, next) => {
     const sid = new SteamID(steamId64);
     const statlockerId = sid.getSteam3RenderedID().replace('[', '').replace(']', '').split(':')[2];
 
-    await StoredPlayerSchema.updateOne(
-      { discordId },
-      { steamId: statlockerId, steamIdType: 'steamID3', authenticated: true },
-      {
-        upsert: true,
-      }
-    );
+    await StoredPlayers.upsert({ discordId, steamId: statlockerId, authenticated: true });
 
     res.status(200).send("✅ Steam account linked! You're all set — this window can be closed.");
   } catch (error) {

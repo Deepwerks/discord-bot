@@ -1,7 +1,7 @@
-import StoredPlayer from '../../base/schemas/StoredPlayerSchema';
 import CommandError from '../../base/errors/CommandError';
 import { TFunction } from 'i18next';
 import { useStatlockerClient } from '../..';
+import { StoredPlayers } from '../database/orm/init';
 
 export default async function getProfile(
   player: string,
@@ -12,8 +12,10 @@ export default async function getProfile(
   let steamAuthNeeded: boolean = false;
 
   if (player === 'me') {
-    const storedPlayer = await StoredPlayer.findOne({
-      discordId: discordUserId,
+    const storedPlayer = await StoredPlayers.findOne({
+      where: {
+        discordId: discordUserId,
+      },
     });
 
     if (!storedPlayer) throw new CommandError(t('errors.steam_not_yet_stored'));

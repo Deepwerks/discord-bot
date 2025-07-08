@@ -3,10 +3,10 @@ import CustomClient from '../../base/classes/CustomClient';
 import Event from '../../base/classes/Event';
 import { logger } from '../..';
 import i18next from '../../services/i18n';
-import GuildConfig from '../../base/schemas/GuildConfigSchema';
 import logInteraction from '../../services/logger/logInteraction';
-import { InteractionType } from '../../base/schemas/UserInteractionSchema';
 import CommandError from '../../base/errors/CommandError';
+import { Guilds } from '../../services/database/orm/init';
+import { InteractionType } from '../../services/database/orm/models/UserInteractions.model';
 
 export default class SelectMenuHandler extends Event {
   constructor(client: CustomClient) {
@@ -22,10 +22,12 @@ export default class SelectMenuHandler extends Event {
 
     const [action] = interaction.customId.split(':');
 
-    const guildLang = await GuildConfig.findOne({
-      guildId: interaction.guildId!,
+    const guildLang = await Guilds.findOne({
+      where: {
+        guildId: interaction.guildId!,
+      },
     });
-    const t = i18next.getFixedT(guildLang?.lang ?? 'en');
+    const t = i18next.getFixedT(guildLang?.preferedLanguage ?? 'en');
 
     try {
       const selectMenuHandler = this.client.selectMenus.get(action);
@@ -64,18 +66,19 @@ export default class SelectMenuHandler extends Event {
       timestamps.set(interaction.user.id, now);
       setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
 
-      logInteraction(
-        selectMenuHandler.customId,
-        InteractionType.SelectMenu,
-        interaction.user.id,
-        interaction.guildId
-      );
+      logInteraction({
+        id: interaction.id,
+        guildId: interaction.inGuild() ? interaction.guildId : null,
+        name: action,
+        type: InteractionType.SelectMenu,
+        userId: interaction.user.id,
+        options: null,
+      });
       return await selectMenuHandler.Execute(interaction, t);
     } catch (error) {
       logger.error({
         error,
-        user: interaction.user.id,
-        interaction: this.name,
+        interaction: interaction.id,
       });
 
       const errorEmbed = new EmbedBuilder()

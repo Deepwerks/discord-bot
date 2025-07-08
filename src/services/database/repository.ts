@@ -1,8 +1,13 @@
-import StoredPlayerSchema from '../../base/schemas/StoredPlayerSchema';
+import { Op } from 'sequelize';
+import { StoredPlayers } from './orm/init';
 
 export const getStoredPlayersByDiscordIds = async (ids: string[]) => {
-  const players = await StoredPlayerSchema.find({
-    discordId: { $in: ids },
-  }).lean();
+  const players = await StoredPlayers.findAll({
+    where: {
+      discordId: {
+        [Op.in]: ids,
+      },
+    },
+  });
   return players;
 };
