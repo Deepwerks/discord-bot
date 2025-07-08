@@ -59,7 +59,7 @@ export default class JoinPartyButtonAction extends ButtonAction {
           { name: 'Max Players', value: String(lobby.maxPlayers), inline: true },
           {
             name: 'Created By',
-            value: `<@${interaction.user.id}>`,
+            value: `<@${creatorId}>`,
             inline: true,
           },
           {
