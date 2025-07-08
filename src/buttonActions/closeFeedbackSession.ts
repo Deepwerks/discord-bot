@@ -42,7 +42,7 @@ export default class CloseFeedbackSession extends ButtonAction {
       // Send confirmation message before deletion
       await interaction.reply({
         content: t('buttons.close_feedback_session.closing_message'),
-        ephemeral: true,
+        flags: ['Ephemeral'],
       });
 
       let publicMessageDeleteError = false;
@@ -99,7 +99,7 @@ export default class CloseFeedbackSession extends ButtonAction {
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply({ content: errorMessage });
       } else {
-        await interaction.reply({ content: errorMessage, ephemeral: true });
+        await interaction.reply({ content: errorMessage, flags: ['Ephemeral'] });
       }
     }
   }
