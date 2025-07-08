@@ -18,4 +18,12 @@ export default class StatlockerProfile {
   get performanceRankMessage(): string | null {
     return this.data.performanceRankMessage;
   }
+
+  get lastUpdated(): Date | null {
+    return this.data.lastUpdated ? new Date(this.data.lastUpdated) : null;
+  }
+
+  get ppScore(): number | null {
+    return this.ppScore;
+  }
 }

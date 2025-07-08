@@ -72,7 +72,7 @@ export default class DeadlockMatchPlayer {
     return await useAssetsClient.HeroService.GetHero(this.heroId);
   }
 
-  async getProfile(): Promise<StatlockerProfile> {
+  async getProfile(): Promise<StatlockerProfile | null> {
     return await useStatlockerClient.ProfileService.GetProfile(this.accountId);
   }
 }
