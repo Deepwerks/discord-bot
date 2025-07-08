@@ -82,8 +82,7 @@ export default class ButtonHandler extends Event {
     } catch (error) {
       logger.error({
         error,
-        user: interaction.user.id,
-        interaction: this.name,
+        interaction: interaction.id,
       });
 
       const errorEmbed = new EmbedBuilder()
