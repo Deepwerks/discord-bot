@@ -5,6 +5,8 @@ const StatlockerProfileSchema = z.object({
   name: z.string(),
   avatarUrl: z.string(),
   performanceRankMessage: z.string().nullable(),
+  lastUpdated: z.string().nullable(),
+  ppScore: z.number().nullable(),
 });
 
 export type StatlockerProfileDTO = z.infer<typeof StatlockerProfileSchema>;

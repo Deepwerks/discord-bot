@@ -31,7 +31,7 @@ export default class Top extends Command {
       options: [
         {
           name: 'player',
-          description: 'Player\'s SteamID | Use "me" to get your statistics!',
+          description: 'Player\'s name or SteamID | Use "me" to get your statistics!',
           required: true,
           type: ApplicationCommandOptionType.String,
         },
