@@ -39,6 +39,11 @@ switch (running_env) {
       secret: process.env.SECRET!,
       bot_version: botVersion,
       metrics_api_key: process.env.METRICS_API_KEY!,
+      db_host: process.env.DB_HOST!,
+      db_port: +process.env.DB_PORT!,
+      db_name: process.env.DB_NAME!,
+      db_user: process.env.DB_USER!,
+      db_password: process.env.DB_PASSWORD!,
     };
     break;
   case 'development':
@@ -66,6 +71,11 @@ switch (running_env) {
       secret: process.env.SECRET!,
       bot_version: botVersion,
       metrics_api_key: process.env.METRICS_API_KEY!,
+      db_host: process.env.DB_HOST!,
+      db_port: +process.env.DB_PORT!,
+      db_name: process.env.DB_NAME!,
+      db_user: process.env.DB_USER!,
+      db_password: process.env.DB_PASSWORD!,
     };
     break;
   case 'test':
@@ -91,6 +101,11 @@ switch (running_env) {
       secret: '',
       bot_version: botVersion,
       metrics_api_key: '',
+      db_host: '',
+      db_port: 5432,
+      db_name: '',
+      db_user: '',
+      db_password: '',
     };
     break;
 

@@ -1,8 +1,8 @@
 import { EmbedBuilder, Events, Guild } from 'discord.js';
 import CustomClient from '../../base/classes/CustomClient';
 import Event from '../../base/classes/Event';
-import GuildConfig from '../../base/schemas/GuildConfigSchema';
 import { logger } from '../..';
+import { Guilds } from '../../services/database/orm/init';
 
 export default class GuildCreate extends Event {
   constructor(client: CustomClient) {
@@ -15,11 +15,20 @@ export default class GuildCreate extends Event {
 
   async Execute(guild: Guild) {
     try {
-      if (!(await GuildConfig.exists({ guildId: guild.id }))) {
-        await GuildConfig.create({ guildId: guild.id });
+      const owner = await guild.fetchOwner();
+
+      const storedGuild = await Guilds.findOne({
+        where: {
+          guildId: guild.id,
+        },
+      });
+      if (!storedGuild) {
+        await Guilds.create({
+          guildId: guild.id,
+          ownerDiscordId: owner.user.id,
+        });
       }
 
-      const owner = await guild.fetchOwner();
       const author = await this.client.users.fetch(this.client.config.developer_user_ids[0]);
 
       await owner
@@ -45,7 +54,7 @@ export default class GuildCreate extends Event {
         guildOwnerId: guild.ownerId,
       });
     } catch (error) {
-      logger.error(error);
+      logger.error('Error: ', error);
     }
   }
 }
