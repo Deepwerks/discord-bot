@@ -18,10 +18,11 @@ export default class ModalHandler extends Event implements IModalHandler {
     if (!interaction.isModalSubmit()) return;
 
     const modalId = interaction.customId;
+    const [action, _id] = modalId.split(':');
 
-    const modalHandler = this.client.modals.get(modalId);
+    const modalHandler = this.client.modals.get(action);
     if (!modalHandler) {
-      throw new CommandError(`No modal handler found for ID: ${modalId}`);
+      throw new CommandError(`No modal handler found for ID: ${action}`);
     }
 
     try {
