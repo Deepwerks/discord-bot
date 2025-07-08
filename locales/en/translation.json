@@ -84,7 +84,7 @@
       "thread_reason": "Private feedback collection thread",
       "button_post_feedback": "Post Feedback",
       "embed_title": "🎥 {{title}}",
-      "embed_description": "**Match ID:** {{matchId}}\n**Rank:** {{rank}}",
+      "embed_description": "**Match ID:** {{matchId}}\n**Character:** {{playedCharacter}}\n**Rank:** {{rank}}",
       "embed_footer": "Shared by {{displayName}}",
       "thread_initial_title": "📝 Feedback Collection Started",
       "thread_initial_description": "Your match video \"{{title}}\" has been posted publicly. Feedback from community members will appear here.\n\n**Match ID:** {{matchId}}{{video}}",
