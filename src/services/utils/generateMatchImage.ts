@@ -7,6 +7,7 @@ import { Canvas, loadImage, SKRSContext2D, Image } from '@napi-rs/canvas';
 export interface IGenerateMatchImageOptions {
   match: DeadlockMatch;
   useGenericNames: boolean;
+  highlightedPlayerId?: number;
 }
 
 // --- Constants ---
@@ -120,12 +121,16 @@ async function drawPlayer(
   heroImages: Map<number, string>,
   heroNames: Map<number, string>,
   bestStats: Record<string, number>,
-  useGenericNames: boolean
+  useGenericNames: boolean,
+  highlightedPlayerId?: number
 ) {
   const { startY, labelGap, nameStatGap, playerSpacing } = Layout;
 
   // Background
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+  ctx.fillStyle =
+    highlightedPlayerId && player.accountId === highlightedPlayerId
+      ? 'rgba(255, 255, 255, 0.10)'
+      : 'rgba(255, 255, 255, 0.03)';
   ctx.fillRect(
     x - playerSpacing / 2 + 10,
     startY - Layout.avatarWidth + 10,
@@ -217,7 +222,8 @@ async function drawTeam(
   heroImages: Map<number, string>,
   heroNames: Map<number, string>,
   bestStats: Record<string, number>,
-  useGenericNames: boolean
+  useGenericNames: boolean,
+  highlightedPlayerId?: number
 ) {
   const promises = team.map((player, i) =>
     drawPlayer(
@@ -227,7 +233,8 @@ async function drawTeam(
       heroImages,
       heroNames,
       bestStats,
-      useGenericNames
+      useGenericNames,
+      highlightedPlayerId
     )
   );
   await Promise.all(promises);
@@ -251,7 +258,7 @@ function drawLabels(ctx: SKRSContext2D) {
 // --- Main Function ---
 
 export async function generateMatchImage(options: IGenerateMatchImageOptions): Promise<Buffer> {
-  const { match, useGenericNames } = options;
+  const { match, useGenericNames, highlightedPlayerId } = options;
 
   await match.loadPlayerProfiles();
 
@@ -332,8 +339,26 @@ export async function generateMatchImage(options: IGenerateMatchImageOptions): P
   const amberStartX = Layout.canvasWidth / 2 + Layout.playerSpacing;
 
   await Promise.all([
-    drawTeam(ctx, sapphireTeam, sapphireStartX, heroImages, heroNames, bestStats, useGenericNames),
-    drawTeam(ctx, amberTeam, amberStartX, heroImages, heroNames, bestStats, useGenericNames),
+    drawTeam(
+      ctx,
+      sapphireTeam,
+      sapphireStartX,
+      heroImages,
+      heroNames,
+      bestStats,
+      useGenericNames,
+      highlightedPlayerId
+    ),
+    drawTeam(
+      ctx,
+      amberTeam,
+      amberStartX,
+      heroImages,
+      heroNames,
+      bestStats,
+      useGenericNames,
+      highlightedPlayerId
+    ),
   ]);
 
   // Badges

@@ -16,10 +16,11 @@ import Command from '../../base/classes/Command';
 import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
-import { logger, useDeadlockClient } from '../..';
+import { logger, useAssetsClient, useDeadlockClient } from '../..';
 import CommandError from '../../base/errors/CommandError';
 import { generateMatchImage } from '../../services/utils/generateMatchImage';
 import { matchFeedbackStore } from '../../services/stores/MatchFeedbackStore';
+import StoredPlayerSchema from '../../base/schemas/StoredPlayerSchema';
 
 export default class MatchFeedback extends Command {
   constructor(client: CustomClient) {
@@ -88,10 +89,25 @@ export default class MatchFeedback extends Command {
         throw new CommandError(t('commands.match_feedback.error_match_not_found'));
       }
 
+      const player = await StoredPlayerSchema.findOne({
+        discordId: interaction.user.id,
+      }).lean();
+
+      let playedCharacter: string | null = null;
+      if (player) {
+        const playerInMatch = match.players.find((p) => p.account_id === +player.steamId);
+
+        if (playerInMatch) {
+          const hero = await useAssetsClient.HeroService.GetHero(playerInMatch.hero_id);
+          playedCharacter = hero ? hero.name : null;
+        }
+      }
+
       // Generate match image
       const imageBuffer = await generateMatchImage({
         match,
         useGenericNames: false,
+        highlightedPlayerId: player ? +player.steamId : undefined,
       });
 
       // Create private thread first
@@ -129,6 +145,7 @@ export default class MatchFeedback extends Command {
           t('commands.match_feedback.embed_description', {
             matchId,
             rank,
+            playedCharacter,
           })
         )
         .setFooter({
