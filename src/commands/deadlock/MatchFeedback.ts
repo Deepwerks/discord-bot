@@ -144,7 +144,10 @@ export default class MatchFeedback extends Command {
 
       // Post in public channel
       const publicMessage = await interaction.editReply({
-        content: `${interaction.user.displayName} is looking for some feedback to level up their game! Check out their match and hit the Post Feedback button to share your thoughts.\n\nRealtime map for the match: https://statlocker.gg/match/${matchId}/map`,
+        content: t('commands.match_feedback.public_message_content', {
+          displayName: interaction.user.displayName,
+          matchId,
+        }),
         embeds: [embed],
         files: files,
         components: [row],
@@ -180,7 +183,7 @@ export default class MatchFeedback extends Command {
               t('commands.match_feedback.thread_initial_description', {
                 title,
                 matchId,
-                videoUrl: videoAttachment?.url,
+                video: videoAttachment ? `\n**Video:** [View Video](${videoAttachment.url})` : '',
               })
             )
             .setTimestamp(),
