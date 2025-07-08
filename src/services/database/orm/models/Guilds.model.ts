@@ -5,9 +5,9 @@ class Guilds extends Model {
   declare ownerDiscordId: string;
   declare preferedLanguage: string;
 
-  declare created_at: Date;
-  declare updated_at: Date | null;
-  declare deleted_at: Date | null;
+  declare createdAt: Date;
+  declare updatedAt: Date | null;
+  declare deletedAt: Date | null;
 
   public static initialize(sequelize: Sequelize) {
     this.init(
@@ -15,13 +15,16 @@ class Guilds extends Model {
         guildId: {
           type: DataTypes.STRING,
           primaryKey: true,
+          allowNull: false,
         },
         ownerDiscordId: {
           type: DataTypes.STRING,
+          allowNull: false,
         },
         preferedLanguage: {
           type: DataTypes.STRING,
           defaultValue: 'en',
+          allowNull: false,
         },
       },
       {
@@ -34,9 +37,6 @@ class Guilds extends Model {
         },
         timestamps: true,
         paranoid: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
-        deletedAt: 'deleted_at',
       }
     );
   }

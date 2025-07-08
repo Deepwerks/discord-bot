@@ -3,6 +3,7 @@ import { logger } from '../../..';
 
 import config from '../../../config';
 import Guilds from './models/Guilds.model';
+import { UserInteractions } from './models/UserInteractions.model';
 
 const sequelize = new Sequelize(config.db_name, config.db_user, config.db_password, {
   port: config.db_port,
@@ -21,7 +22,7 @@ const sequelize = new Sequelize(config.db_name, config.db_user, config.db_passwo
   timezone: 'Europe/Budapest',
 });
 
-const models = [Guilds];
+const models = [Guilds, UserInteractions];
 models.forEach((model) => model.initialize(sequelize));
 
-export { sequelize, Guilds };
+export { sequelize, Guilds, UserInteractions };

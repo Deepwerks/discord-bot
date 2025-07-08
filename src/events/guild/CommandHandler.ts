@@ -5,10 +5,10 @@ import Command from '../../base/classes/Command';
 import i18next from '../../services/i18n';
 import { logger } from '../..';
 import logInteraction from '../../services/logger/logInteraction';
-import { InteractionType } from '../../base/schemas/UserInteractionSchema';
 import CommandError from '../../base/errors/CommandError';
 import { commandExecutions } from '../../services/metrics';
 import { Guilds } from '../../services/database/orm/init';
+import { InteractionType } from '../../services/database/orm/models/UserInteractions.model';
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -86,12 +86,14 @@ export default class CommandHandler extends Event {
         command: command.name,
       });
 
-      logInteraction(
-        command.name,
-        InteractionType.Command,
-        interaction.user.id,
-        interaction.guildId
-      );
+      logInteraction({
+        id: interaction.id,
+        guildId: interaction.inGuild() ? interaction.guildId : null,
+        name: command.name,
+        type: InteractionType.Command,
+        userId: interaction.user.id,
+        options: interaction.options.data,
+      });
 
       try {
         const subCommandHandler = this.client.subCommands.get(subCommand);
