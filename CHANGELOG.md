@@ -5,6 +5,7 @@
 
 * made video upload optional ([78af22a](https://github.com/Deepwerks/discord-bot/commit/78af22ac4bc5e0f36c21a109c9e2dbbb5ff7f9a7))
 * removed player name from command descirption ([e467532](https://github.com/Deepwerks/discord-bot/commit/e46753274b7f869292661e04a3867523af6c7a4d))
+* use translation file ([1cb2650](https://github.com/Deepwerks/discord-bot/commit/1cb26508195cd24c8d7a0a6d02bb995da037b63a))
 
 
 ### Features
