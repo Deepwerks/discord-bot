@@ -1,27 +1,14 @@
 import { logger } from '../..';
-import UserInteractionSchema, {
-  InteractionType,
-  IUserInteractionSchema,
-} from '../../base/schemas/UserInteractionSchema';
+import { UserInteractions } from '../database/orm/init';
+import { IUserInteractions } from '../database/orm/models/UserInteractions.model';
 
-const usageBuffer: IUserInteractionSchema[] = [];
+const usageBuffer: IUserInteractions[] = [];
 
-const FLUSH_INTERVAL = 10 * 1000; // flush every 10s
+const FLUSH_INTERVAL = 10 * 1000; // every 10s
 const MAX_BUFFER_SIZE = 50;
 
-function logInteraction(
-  interactionName: string,
-  interactionType: InteractionType,
-  userId: string,
-  guildId: string | null
-) {
-  usageBuffer.push({
-    interactionName,
-    interactionType,
-    userId,
-    guildId,
-    timestamp: new Date(),
-  });
+function logInteraction(options: IUserInteractions) {
+  usageBuffer.push(options);
 
   if (usageBuffer.length >= MAX_BUFFER_SIZE) {
     flush();
@@ -32,17 +19,17 @@ async function flush() {
   if (usageBuffer.length === 0) return;
 
   try {
-    await UserInteractionSchema.insertMany(usageBuffer);
+    await UserInteractions.bulkCreate(usageBuffer.map((item) => ({ ...item })));
     usageBuffer.length = 0;
   } catch (err) {
-    logger.error('Failed to insert command usage:', err);
+    logger.error('Failed to insert user interaction:', err);
   }
 }
 
 setInterval(flush, FLUSH_INTERVAL);
 
 async function shutdownHandler() {
-  logger.info('Flushing usage logs before shutdown...');
+  logger.info('Flushing interaction logs before shutdown...');
   await flush();
   process.exit(0);
 }

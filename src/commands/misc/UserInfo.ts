@@ -10,8 +10,8 @@ import Category from '../../base/enums/Category';
 import { logger, useStatlockerClient } from '../..';
 import { TFunction } from 'i18next';
 import CommandError from '../../base/errors/CommandError';
-import StoredPlayerSchema from '../../base/schemas/StoredPlayerSchema';
 import StatlockerProfile from '../../services/clients/StatlockerClient/services/StatlockerProfileService/entities/StatlockerProfile';
+import { StoredPlayers } from '../../services/database/orm/init';
 
 export default class UserInfo extends Command {
   constructor(client: CustomClient) {
@@ -41,7 +41,7 @@ export default class UserInfo extends Command {
     try {
       const discordId = user.id;
 
-      const storedUser = await StoredPlayerSchema.findOne({ discordId }).lean();
+      const storedUser = await StoredPlayers.findOne({ where: { discordId } });
       let statlockerProfile: StatlockerProfile | null = null;
 
       if (storedUser) {
@@ -61,7 +61,7 @@ export default class UserInfo extends Command {
               `\n### 🎮 Linked Steam Account`,
               `**Steam Id** (use this in commands): \`${storedUser.steamId}\``,
               `**Authenticated**: ${storedUser.authenticated ? '✅ Yes' : '❌ No'}`,
-              `**Authentication Count**: ${storedUser.authenticationCount ?? 0}`,
+              `**Authentication Count**: ${storedUser.authCount ?? 0}`,
             ]
               .filter(Boolean)
               .join('\n')

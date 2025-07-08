@@ -17,7 +17,7 @@ import CommandError from '../base/errors/CommandError';
 import { TFunction } from 'i18next';
 import i18n from '../services/i18n';
 import { getStoredPlayersByDiscordIds } from '../services/database/repository';
-import { IStoredPlayerSchema } from '../base/schemas/StoredPlayerSchema';
+import { StoredPlayers } from '../services/database/orm/init';
 
 enum TeamShuffleMode {
   Balanced = 'balanced',
@@ -355,7 +355,7 @@ function shuffleTeamsRandom(playerIds: string[]): [string[], string[]] {
   return [teamA, teamB];
 }
 
-async function shuffleTeamsBalanced(players: IStoredPlayerSchema[]): Promise<[string[], string[]]> {
+async function shuffleTeamsBalanced(players: StoredPlayers[]): Promise<[string[], string[]]> {
   const NOISE_FACTOR = 0.01;
 
   const playersWithMMR = await Promise.all(

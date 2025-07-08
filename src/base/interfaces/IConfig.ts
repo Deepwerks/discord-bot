@@ -33,4 +33,10 @@ export default interface IConfig {
   bot_version: string;
 
   metrics_api_key: string;
+
+  db_host: string;
+  db_port: number;
+  db_name: string;
+  db_user: string;
+  db_password: string;
 }

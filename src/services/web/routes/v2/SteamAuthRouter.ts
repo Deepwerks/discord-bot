@@ -4,8 +4,8 @@ import { consumeToken } from '../../../stores/SteamLinkTokenStore';
 import { authenticateSteamOpenID, getSteamRedirectUrl } from '../../helpers/steamOpenIdClient';
 import { logger } from '../../../..';
 import SteamID from 'steamid';
-import StoredPlayerSchema from '../../../../base/schemas/StoredPlayerSchema';
 import dayjs from 'dayjs';
+import { StoredPlayers } from '../../../database/orm/init';
 
 const router = express.Router();
 
@@ -16,24 +16,24 @@ router.get('/auth/steam', limiter, async (req, res, next) => {
   const discordId = consumeToken(token);
   if (!discordId) return next('Invalid or expired token');
 
-  const storedProfile = await StoredPlayerSchema.findOne({ discordId }).lean();
+  const storedProfile = await StoredPlayers.findOne({ where: { discordId } });
 
   if (storedProfile?.authenticated) {
     if (
-      storedProfile.reauthenticateAfter &&
-      dayjs().isBefore(dayjs(storedProfile.reauthenticateAfter)) &&
-      (storedProfile.authenticationCount ?? 0) > 5
+      storedProfile.reauthAfter &&
+      dayjs().isBefore(dayjs(storedProfile.reauthAfter)) &&
+      (storedProfile.authCount ?? 0) > 5
     ) {
       logger.warn('Reauthentication blocked due to cooldown', {
         discordId: storedProfile.discordId,
         steamId: storedProfile.steamId,
         ip: req.ip,
-        authenticationCount: storedProfile.authenticationCount,
-        reauthenticateAfter: storedProfile.reauthenticateAfter.toISOString(),
+        authenticationCount: storedProfile.authCount,
+        reauthenticateAfter: storedProfile.reauthAfter.toISOString(),
         route: '/auth/steam',
       });
       return next(
-        `🕒 You can reauthenticate after ${dayjs(storedProfile.reauthenticateAfter).format('YYYY-MM-DD HH:mm:ss')}`
+        `🕒 You can reauthenticate after ${dayjs(storedProfile.reauthAfter).format('YYYY-MM-DD HH:mm:ss')}`
       );
     }
   }
@@ -66,17 +66,24 @@ router.get('/auth/steam/authenticate', limiter, async (req, res, next) => {
     const sid = new SteamID(steamId64);
     const statlockerId = sid.getSteam3RenderedID().replace('[', '').replace(']', '').split(':')[2];
 
-    await StoredPlayerSchema.updateOne(
-      { discordId },
-      {
+    const [player, created] = await StoredPlayers.findOrCreate({
+      where: { discordId },
+      defaults: {
         steamId: statlockerId,
-        steamIdType: 'steamID3',
         authenticated: true,
-        reauthenticateAfter: dayjs().add(24, 'hours').toDate(),
-        $inc: { authenticationCount: 1 },
+        reauthAfter: dayjs().add(24, 'hours').toDate(),
+        authCount: 1,
       },
-      { upsert: true }
-    );
+    });
+
+    if (!created) {
+      await player.increment('authCount');
+      await player.update({
+        steamId: statlockerId,
+        authenticated: true,
+        reauthAfter: dayjs().add(24, 'hours').toDate(),
+      });
+    }
 
     res.status(200).send("✅ Steam account linked! You're all set — this window can be closed.");
   } catch (err) {

@@ -3,12 +3,12 @@ import CustomClient from '../../base/classes/CustomClient';
 import Event from '../../base/classes/Event';
 import Command from '../../base/classes/Command';
 import i18next from '../../services/i18n';
-import GuildConfig from '../../base/schemas/GuildConfigSchema';
 import { logger } from '../..';
 import logInteraction from '../../services/logger/logInteraction';
-import { InteractionType } from '../../base/schemas/UserInteractionSchema';
 import CommandError from '../../base/errors/CommandError';
 import { commandExecutions } from '../../services/metrics';
+import { Guilds } from '../../services/database/orm/init';
+import { InteractionType } from '../../services/database/orm/models/UserInteractions.model';
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -22,10 +22,12 @@ export default class CommandHandler extends Event {
   async Execute(interaction: Interaction) {
     // Check if the interaction is a command or autocomplete
     if (interaction.isChatInputCommand()) {
-      const guildLang = await GuildConfig.findOne({
-        guildId: interaction.guildId!,
+      const guildLang = await Guilds.findOne({
+        where: {
+          guildId: interaction.guildId!,
+        },
       });
-      const t = i18next.getFixedT(guildLang?.lang ?? 'en');
+      const t = i18next.getFixedT(guildLang?.preferedLanguage ?? 'en');
 
       const command: Command = this.client.commands.get(interaction.commandName)!;
 
@@ -84,12 +86,14 @@ export default class CommandHandler extends Event {
         command: command.name,
       });
 
-      logInteraction(
-        command.name,
-        InteractionType.Command,
-        interaction.user.id,
-        interaction.guildId
-      );
+      logInteraction({
+        id: interaction.id,
+        guildId: interaction.inGuild() ? interaction.guildId : null,
+        name: command.name,
+        type: InteractionType.Command,
+        userId: interaction.user.id,
+        options: interaction.options.data,
+      });
 
       try {
         const subCommandHandler = this.client.subCommands.get(subCommand);
@@ -102,8 +106,7 @@ export default class CommandHandler extends Event {
       } catch (error) {
         logger.error({
           error,
-          user: interaction.user.id,
-          interaction: this.name,
+          interaction: interaction.id,
         });
 
         const errorEmbed = new EmbedBuilder()

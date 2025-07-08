@@ -1,13 +1,15 @@
-## [1.8.11](https://github.com/Deepwerks/discord-bot/compare/v1.8.10...v1.8.11) (2025-07-08)
+# [1.9.0](https://github.com/Deepwerks/discord-bot/compare/v1.8.10...v1.9.0) (2025-07-08)
 
 
 ### Bug Fixes
 
-* updated embed now displays the correct creator ([868ccb1](https://github.com/Deepwerks/discord-bot/commit/868ccb14cc58fbf1559be2fdfb84e750d90759a3))
+* on error log interaction id ([9e829d9](https://github.com/Deepwerks/discord-bot/commit/9e829d965a429f51ff9ff222447e8871db8e2c6e))
+* updated embed now displays the correct creator ([#247](https://github.com/Deepwerks/discord-bot/issues/247)) ([c02ae24](https://github.com/Deepwerks/discord-bot/commit/c02ae246a1bd91f8dd83a96a6439608e08bbc21a))
 
 
 ### Features
 
+* basic sequelize init ([7920b31](https://github.com/Deepwerks/discord-bot/commit/7920b3137be107687973add037e3e5b68298f492))
 * highlight user ([#245](https://github.com/Deepwerks/discord-bot/issues/245)) ([4f9fe5f](https://github.com/Deepwerks/discord-bot/commit/4f9fe5f701a84cd1ce21f5359ddb0467afc5bbba))
 * unlocker create lobby cmd ([#235](https://github.com/Deepwerks/discord-bot/issues/235)) ([d07e014](https://github.com/Deepwerks/discord-bot/commit/d07e014c2d5e025a8c60ce7e58809a5f27551a24))
 
