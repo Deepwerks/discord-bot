@@ -3,10 +3,10 @@ import config from '../../../../config';
 import express from 'express';
 import SteamID from 'steamid';
 import { logger } from '../../../..';
-import { consumeToken } from '../../../stores/SteamLinkTokenStore';
 import limiter from '../../middlewares/rateLimit';
 import Bottleneck from 'bottleneck';
 import { StoredPlayers } from '../../../database/orm/init';
+import { tokenStore } from '../../../redis/stores/SteamLinkTokenStore';
 
 const steamLimiter = new Bottleneck({ maxConcurrent: 1, minTime: 4000 });
 
@@ -22,7 +22,7 @@ router.get('/auth/steam', limiter, async (req, res, next) => {
   const token = req.query.token as string;
   if (!token) return next('Missing token');
 
-  const discordId = consumeToken(token);
+  const discordId = await tokenStore.consumeToken(token);
   if (!discordId) return next('Invalid or expired token');
 
   res.cookie('discordId', discordId, {

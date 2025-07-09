@@ -9,7 +9,7 @@ import ButtonAction from '../base/classes/ButtonAction';
 import CustomClient from '../base/classes/CustomClient';
 import CommandError from '../base/errors/CommandError';
 import { TFunction } from 'i18next';
-import { matchFeedbackStore } from '../services/stores/MatchFeedbackStore';
+import { matchFeedbackStore } from '../services/redis/stores/MatchFeedbackStore';
 
 export default class PostFeedback extends ButtonAction {
   constructor(client: CustomClient) {
@@ -33,7 +33,7 @@ export default class PostFeedback extends ButtonAction {
     }
 
     // Get session data
-    const session = matchFeedbackStore.getSession(sessionId);
+    const session = await matchFeedbackStore.getSession(sessionId);
     if (!session) {
       throw new CommandError(t('buttons.post_feedback.error_session_not_found'));
     }

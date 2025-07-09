@@ -1,11 +1,11 @@
 import express from 'express';
 import limiter from '../../middlewares/rateLimit';
-import { consumeToken } from '../../../stores/SteamLinkTokenStore';
 import { authenticateSteamOpenID, getSteamRedirectUrl } from '../../helpers/steamOpenIdClient';
 import { logger } from '../../../..';
 import SteamID from 'steamid';
 import dayjs from 'dayjs';
 import { StoredPlayers } from '../../../database/orm/init';
+import { tokenStore } from '../../../redis/stores/SteamLinkTokenStore';
 
 const router = express.Router();
 
@@ -13,7 +13,7 @@ router.get('/auth/steam', limiter, async (req, res, next) => {
   const token = req.query.token as string;
   if (!token) return next('Missing token');
 
-  const discordId = consumeToken(token);
+  const discordId = await tokenStore.consumeToken(token);
   if (!discordId) return next('Invalid or expired token');
 
   const storedProfile = await StoredPlayers.findOne({ where: { discordId } });

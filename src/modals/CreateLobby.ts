@@ -8,7 +8,7 @@ import {
 import CustomClient from '../base/classes/CustomClient';
 import Modal from '../base/classes/CustomModal';
 import CommandError from '../base/errors/CommandError';
-import { lobbyStore } from '../services/stores/LobbyStore';
+import { lobbyStore } from '../services/redis/stores/LobbyStore';
 
 export default class CreateLobby extends Modal {
   constructor(client: CustomClient) {
@@ -73,11 +73,11 @@ export default class CreateLobby extends Modal {
       components: [row],
     });
 
-    lobbyStore.createLobby(lobbyId, {
+    await lobbyStore.createLobby(lobbyId, {
       name: lobbyName,
       creatorId: interaction.user.id,
       maxPlayers: maxPlayersNum,
-      players: new Set([interaction.user.id]),
+      players: [interaction.user.id],
       messageId: replyMessage.id,
     });
   }
