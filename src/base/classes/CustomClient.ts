@@ -12,6 +12,7 @@ import ModalHandler from '../interfaces/IModalHandler';
 import { logger, useAssetsClient, useRedditClient } from '../..';
 import ButtonAction from './ButtonAction';
 import SelectMenu from './SelectMenu';
+import { initRedis } from '../../services/redis';
 
 export default class CustomClient extends Client implements ICustomClient {
   config: IConfig;
@@ -45,6 +46,7 @@ export default class CustomClient extends Client implements ICustomClient {
       `Starting the bot in ${this.developmentMode ? 'development' : 'production'} mode...`
     );
 
+    await initRedis();
     await initI18n();
     await useRedditClient.Init();
 

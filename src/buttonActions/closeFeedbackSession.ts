@@ -4,7 +4,7 @@ import CustomClient from '../base/classes/CustomClient';
 import { logger } from '..';
 import CommandError from '../base/errors/CommandError';
 import { TFunction } from 'i18next';
-import { matchFeedbackStore } from '../services/stores/MatchFeedbackStore';
+import { matchFeedbackStore } from '../services/redis/stores/MatchFeedbackStore';
 
 export default class CloseFeedbackSession extends ButtonAction {
   constructor(client: CustomClient) {
@@ -28,7 +28,7 @@ export default class CloseFeedbackSession extends ButtonAction {
     }
 
     // Get session data
-    const session = matchFeedbackStore.getSession(sessionId);
+    const session = await matchFeedbackStore.getSession(sessionId);
     if (!session) {
       throw new CommandError(t('buttons.close_feedback_session.error_session_not_found'));
     }

@@ -1,3 +1,12 @@
+## [1.10.1](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.1) (2025-07-09)
+
+
+### Features
+
+* implemented redis caching ([a1f8db9](https://github.com/Deepwerks/discord-bot/commit/a1f8db958d09c5ada8cd2631482407baab364033))
+
+
+
 # [1.10.0](https://github.com/Deepwerks/discord-bot/compare/v1.9.0...v1.10.0) (2025-07-09)
 
 
@@ -5,7 +14,7 @@
 
 * implemented back to the start and to the end buttons & removed … ([#260](https://github.com/Deepwerks/discord-bot/issues/260)) ([65cf20b](https://github.com/Deepwerks/discord-bot/commit/65cf20bce2df779c47856d56e8f03252af6124ee))
 * implemented setActivity command ([#255](https://github.com/Deepwerks/discord-bot/issues/255)) ([11c479b](https://github.com/Deepwerks/discord-bot/commit/11c479b06038fdf4653fd63b05cf4b91e02bf8ec))
-* option too choose your character ([e66e7c8](https://github.com/Deepwerks/discord-bot/commit/e66e7c836f06eee74fcfa359134374e2f4c71b32))
+* option too choose your character ([#261](https://github.com/Deepwerks/discord-bot/issues/261)) ([0bbf6f6](https://github.com/Deepwerks/discord-bot/commit/0bbf6f61f978e869b69a12eed9ebc95a2c4d8469))
 
 
 

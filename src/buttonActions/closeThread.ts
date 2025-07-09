@@ -1,9 +1,9 @@
 import { ButtonInteraction, ThreadChannel } from 'discord.js';
 import ButtonAction from '../base/classes/ButtonAction';
 import CustomClient from '../base/classes/CustomClient';
-import { lobbyStore } from '../services/stores/LobbyStore';
 import CommandError from '../base/errors/CommandError';
 import { TFunction } from 'i18next';
+import { lobbyStore } from '../services/redis/stores/LobbyStore';
 export default class CloseThreadButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
     super(client, {
@@ -28,7 +28,7 @@ export default class CloseThreadButtonAction extends ButtonAction {
 
       await thread.send({ content: t('buttons.close_thread.closing') });
 
-      lobbyStore.removeLobby(creatorId);
+      await lobbyStore.removeLobby(creatorId);
 
       await thread.delete('Closed by the private lobby creator.');
       return;

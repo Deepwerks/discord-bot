@@ -20,8 +20,8 @@ import { TFunction } from 'i18next';
 import { useAssetsClient, useDeadlockClient } from '../..';
 import CommandError from '../../base/errors/CommandError';
 import { generateMatchImage } from '../../services/utils/generateMatchImage';
-import { matchFeedbackStore } from '../../services/stores/MatchFeedbackStore';
 import { StoredPlayers } from '../../services/database/orm/init';
+import { matchFeedbackStore } from '../../services/redis/stores/MatchFeedbackStore';
 
 export default class MatchFeedback extends Command {
   constructor(client: CustomClient) {
@@ -183,7 +183,7 @@ export default class MatchFeedback extends Command {
     });
 
     // Store session data
-    matchFeedbackStore.createSession(sessionId, {
+    await matchFeedbackStore.createSession(sessionId, {
       matchId,
       title,
       rank: rank || undefined,
