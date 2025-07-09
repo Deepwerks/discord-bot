@@ -7,16 +7,17 @@ export enum InteractionType {
   Modal = 'modal',
 }
 
-export interface IUserInteractions {
+export interface IFailedUserInteractions {
   id: string;
   type: InteractionType;
   name: string;
   userId: string;
   guildId: string | null;
   options: object | null;
+  error: object;
 }
 
-export class UserInteractions extends Model {
+export class FailedUserInteractions extends Model {
   declare id: string;
 
   declare type: InteractionType;
@@ -24,6 +25,7 @@ export class UserInteractions extends Model {
   declare userId: string;
   declare guildId: string | null;
   declare options: object | null;
+  declare error: object | null;
 
   declare createdAt: Date;
   declare updatedAt: Date | null;
@@ -55,14 +57,17 @@ export class UserInteractions extends Model {
         options: {
           type: DataTypes.JSON,
         },
+        error: {
+          type: DataTypes.JSON,
+        },
       },
       {
         sequelize,
-        tableName: 'user_interactions',
+        tableName: 'failed_user_interactions',
         schema: 'app',
         name: {
-          singular: 'UserInteraction',
-          plural: 'UserInteractions',
+          singular: 'FailedUserInteraction',
+          plural: 'FailedUserInteractions',
         },
         timestamps: true,
         paranoid: true,

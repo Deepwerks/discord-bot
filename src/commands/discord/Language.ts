@@ -11,7 +11,6 @@ import { supportedLanguages } from '../../services/i18n';
 import CommandError from '../../base/errors/CommandError';
 import { TFunction } from 'i18next';
 import i18next from '../../services/i18n';
-import { logger } from '../..';
 import { Guilds } from '../../services/database/orm/init';
 
 export default class Language extends Command {
@@ -39,58 +38,40 @@ export default class Language extends Command {
     });
   }
 
-  async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
+  async Execute(interaction: ChatInputCommandInteraction, _t: TFunction<'translation', undefined>) {
     const selectedLanguage = interaction.options.getString('select');
 
-    try {
-      if (!supportedLanguages.map((lang) => lang.code).includes(selectedLanguage!)) {
-        throw new CommandError(`Language \`${selectedLanguage}\` is not supported!`);
-      }
-
-      const newT = i18next.getFixedT(selectedLanguage!);
-
-      const storedGuild = await Guilds.findOne({
-        where: { guildId: interaction.guildId },
-      });
-
-      if (storedGuild) {
-        await storedGuild.update({
-          preferedLanguage: selectedLanguage,
-        });
-      } else {
-        await Guilds.create({
-          guildId: interaction.guildId,
-          ownerDiscordId: interaction.guild?.ownerId,
-          preferedLanguage: selectedLanguage,
-        });
-      }
-
-      await interaction.reply({
-        embeds: [
-          new EmbedBuilder().setColor('Green').setDescription(
-            newT('commands.language.set_success', {
-              selectedLanguage,
-            })
-          ),
-        ],
-        flags: ['Ephemeral'],
-      });
-    } catch (error) {
-      logger.error({
-        error,
-        user: interaction.user.id,
-        interaction: this.name,
-      });
-
-      const errorEmbed = new EmbedBuilder()
-        .setColor('Red')
-        .setDescription(error instanceof CommandError ? error.message : t('errors.generic_error'));
-
-      if (interaction.deferred || interaction.replied) {
-        await interaction.editReply({ embeds: [errorEmbed] });
-      } else {
-        await interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
-      }
+    if (!supportedLanguages.map((lang) => lang.code).includes(selectedLanguage!)) {
+      throw new CommandError(`Language \`${selectedLanguage}\` is not supported!`);
     }
+
+    const newT = i18next.getFixedT(selectedLanguage!);
+
+    const storedGuild = await Guilds.findOne({
+      where: { guildId: interaction.guildId },
+    });
+
+    if (storedGuild) {
+      await storedGuild.update({
+        preferedLanguage: selectedLanguage,
+      });
+    } else {
+      await Guilds.create({
+        guildId: interaction.guildId,
+        ownerDiscordId: interaction.guild?.ownerId,
+        preferedLanguage: selectedLanguage,
+      });
+    }
+
+    await interaction.reply({
+      embeds: [
+        new EmbedBuilder().setColor('Green').setDescription(
+          newT('commands.language.set_success', {
+            selectedLanguage,
+          })
+        ),
+      ],
+      flags: ['Ephemeral'],
+    });
   }
 }

@@ -1,12 +1,12 @@
 import { Collection, EmbedBuilder, Events, StringSelectMenuInteraction } from 'discord.js';
 import CustomClient from '../../base/classes/CustomClient';
 import Event from '../../base/classes/Event';
-import { logger } from '../..';
 import i18next from '../../services/i18n';
 import logInteraction from '../../services/logger/logInteraction';
 import CommandError from '../../base/errors/CommandError';
-import { InteractionType } from '../../services/database/orm/models/UserInteractions.model';
+import { InteractionType } from '../../services/database/orm/models/FailedUserInteractions.model';
 import { getGuildConfig } from '../../services/database/repository';
+import logFailedInteraction from '../../services/logger/logFailedInteractions';
 
 export default class SelectMenuHandler extends Event {
   constructor(client: CustomClient) {
@@ -70,11 +70,21 @@ export default class SelectMenuHandler extends Event {
         userId: interaction.user.id,
         options: null,
       });
-      return await selectMenuHandler.Execute(interaction, t);
+
+      await selectMenuHandler.Execute(interaction, t);
     } catch (error) {
-      logger.error({
-        error,
-        interaction: interaction.id,
+      logFailedInteraction({
+        id: interaction.id,
+        guildId: interaction.inGuild() ? interaction.guildId : null,
+        name: action,
+        type: InteractionType.SelectMenu,
+        userId: interaction.user.id,
+        options: null,
+        error: {
+          name: error instanceof CommandError ? error.name : 'Unknown',
+          message: error instanceof CommandError ? error.message : t('errors.generic_error'),
+          stack: error instanceof CommandError ? error.stack : undefined,
+        },
       });
 
       const errorEmbed = new EmbedBuilder()

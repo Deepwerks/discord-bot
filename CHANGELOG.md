@@ -1,9 +1,9 @@
-## [1.9.2](https://github.com/Deepwerks/discord-bot/compare/v1.9.0...v1.9.2) (2025-07-09)
+# [1.10.0](https://github.com/Deepwerks/discord-bot/compare/v1.9.0...v1.10.0) (2025-07-09)
 
 
 ### Features
 
-* implemented setActivity command ([c377553](https://github.com/Deepwerks/discord-bot/commit/c3775536c03c002408e60f5b3350fd32d8f30427))
+* implemented setActivity command ([#255](https://github.com/Deepwerks/discord-bot/issues/255)) ([11c479b](https://github.com/Deepwerks/discord-bot/commit/11c479b06038fdf4653fd63b05cf4b91e02bf8ec))
 
 
 
