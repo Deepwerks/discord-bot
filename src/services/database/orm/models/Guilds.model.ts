@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
-class Guilds extends Model {
+export class Guilds extends Model {
   declare guildId: string;
   declare ownerDiscordId: string;
   declare preferedLanguage: string;
@@ -41,5 +41,3 @@ class Guilds extends Model {
     );
   }
 }
-
-export default Guilds;

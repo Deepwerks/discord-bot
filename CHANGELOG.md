@@ -1,14 +1,9 @@
 ## [1.9.2](https://github.com/Deepwerks/discord-bot/compare/v1.9.0...v1.9.2) (2025-07-09)
 
 
-### Bug Fixes
-
-* fixed an error where users couldnt search by the me shortcut ([4b5c851](https://github.com/Deepwerks/discord-bot/commit/4b5c85105e30ec1420ab06a847476286ce69f4a6))
-
-
 ### Features
 
-* implemented caching for guildConfigs ([494d030](https://github.com/Deepwerks/discord-bot/commit/494d030d05c900217342feebeb4fd69396203e81))
+* implemented setActivity command ([c377553](https://github.com/Deepwerks/discord-bot/commit/c3775536c03c002408e60f5b3350fd32d8f30427))
 
 
 
