@@ -9,6 +9,12 @@ export function createPaginationSession(
 
   const embed = context.generateEmbed(context.data[0], 0, context.data.length);
 
+  const startButton = new ButtonBuilder()
+    .setCustomId(`pagination:start:${sessionId}`)
+    .setLabel('⏮️')
+    .setStyle(ButtonStyle.Primary)
+    .setDisabled(true);
+
   const backButton = new ButtonBuilder()
     .setCustomId(`pagination:back:${sessionId}`)
     .setLabel('◀ Back')
@@ -21,7 +27,18 @@ export function createPaginationSession(
     .setStyle(ButtonStyle.Primary)
     .setDisabled(context.data.length <= 1);
 
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(backButton, nextButton);
+  const endButton = new ButtonBuilder()
+    .setCustomId(`pagination:end:${sessionId}`)
+    .setLabel('⏭️')
+    .setStyle(ButtonStyle.Primary)
+    .setDisabled(context.data.length <= 1);
+
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    startButton,
+    backButton,
+    nextButton,
+    endButton
+  );
 
   // Auto-clean after 5 minutes
   setTimeout(() => paginationStore.delete(sessionId), 5 * 60 * 1000);

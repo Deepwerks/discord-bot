@@ -28,9 +28,19 @@ export default class PaginationButtonPressed extends ButtonAction {
       session.page++;
     } else if (direction === 'back' && session.page > 0) {
       session.page--;
+    } else if (direction === 'start' && session.page > 0) {
+      session.page = 0;
+    } else if (direction === 'end' && session.page < totalPages - 1) {
+      session.page = totalPages - 1;
     }
 
     const embed = session.generateEmbed(session.data[session.page], session.page, totalPages);
+
+    const startButton = new ButtonBuilder()
+      .setCustomId(`pagination:start:${sessionId}`)
+      .setLabel('⏮️')
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(session.page === 0);
 
     const backButton = new ButtonBuilder()
       .setCustomId(`pagination:back:${sessionId}`)
@@ -44,7 +54,18 @@ export default class PaginationButtonPressed extends ButtonAction {
       .setStyle(ButtonStyle.Primary)
       .setDisabled(session.page >= totalPages - 1);
 
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(backButton, nextButton);
+    const endButton = new ButtonBuilder()
+      .setCustomId(`pagination:end:${sessionId}`)
+      .setLabel('⏭️')
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(session.page >= totalPages - 1);
+
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      startButton,
+      backButton,
+      nextButton,
+      endButton
+    );
 
     await interaction.update({
       embeds: [embed],
