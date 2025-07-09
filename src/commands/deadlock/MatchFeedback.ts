@@ -11,6 +11,7 @@ import {
   ThreadAutoArchiveDuration,
   ChannelType,
   Attachment,
+  AutocompleteInteraction,
 } from 'discord.js';
 import Command from '../../base/classes/Command';
 import CustomClient from '../../base/classes/CustomClient';
@@ -47,10 +48,11 @@ export default class MatchFeedback extends Command {
           max_length: 100,
         },
         {
-          name: 'video',
-          description: 'Upload your match video file',
+          name: 'hero_played',
+          description: 'Your played character (optional)',
           required: false,
-          type: ApplicationCommandOptionType.Attachment,
+          type: ApplicationCommandOptionType.Number,
+          autocomplete: true,
         },
         {
           name: 'rank',
@@ -58,6 +60,12 @@ export default class MatchFeedback extends Command {
           required: false,
           type: ApplicationCommandOptionType.String,
           max_length: 50,
+        },
+        {
+          name: 'video',
+          description: 'Upload your match video file',
+          required: false,
+          type: ApplicationCommandOptionType.Attachment,
         },
       ],
     });
@@ -68,6 +76,7 @@ export default class MatchFeedback extends Command {
     const matchId = interaction.options.getInteger('match_id', true);
     const title = interaction.options.getString('title', true);
     const rank = interaction.options.getString('rank', false);
+    const heroPlayed = interaction.options.getNumber('hero_played', false);
 
     await interaction.deferReply();
 
@@ -108,7 +117,9 @@ export default class MatchFeedback extends Command {
     const imageBuffer = await generateMatchImage({
       match,
       useGenericNames: false,
-      highlightedPlayerId: player ? +player.steamId : undefined,
+      highlightedPlayerId: player
+        ? +player.steamId
+        : match.players.find((player) => player.hero_id === heroPlayed)?.account_id,
     });
 
     // Create private thread first
@@ -208,5 +219,28 @@ export default class MatchFeedback extends Command {
       ],
       components: [threadRow],
     });
+  }
+
+  async AutoComplete(interaction: AutocompleteInteraction) {
+    // Check if the focused option is the hero_name option
+    const focusedOption = interaction.options.getFocused(true);
+    if (focusedOption.name !== 'hero_played') return;
+    const focusedValue = focusedOption.value.toLowerCase();
+
+    // Get all hero names from the cache
+    const heroes = useAssetsClient.HeroService.GetHeroes();
+
+    // Filter the hero names based on the focused value
+    const suggestions = heroes
+      .filter((h) => h.name.toLowerCase().includes(focusedValue))
+      .sort((a, b) => {
+        const aIndex = a.name.toLowerCase().indexOf(focusedValue);
+        const bIndex = b.name.toLowerCase().indexOf(focusedValue);
+        return aIndex - bIndex;
+      })
+      .map((h) => ({ name: h.name, value: h.id }))
+      .slice(0, 25);
+
+    await interaction.respond(suggestions);
   }
 }
