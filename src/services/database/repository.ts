@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Guilds, StoredPlayers } from './orm/init';
+import { BotActivities, Guilds, StoredPlayers } from './orm/init';
 import { guildConfigCache } from '../cache/GuildConfigCache';
 import CommandError from '../../base/errors/CommandError';
 import { TFunction } from 'i18next';
@@ -7,6 +7,7 @@ import { logger, useStatlockerClient } from '../..';
 import SteamID from 'steamid';
 import { useDeadlockClient } from '../..';
 import { generateMatchImage, IGenerateMatchImageOptions } from '../utils/generateMatchImage';
+import { IBotActivities } from './orm/models/BotActivities.model';
 
 export const getStoredPlayersByDiscordIds = async (ids: string[]) => {
   const players = await StoredPlayers.findAll({
@@ -157,3 +158,68 @@ export async function handleMatchRequest({
 
   return { matchData, imageBuffer, _steamAuthNeeded };
 }
+
+export const addActivity = async (options: IBotActivities) => {
+  try {
+    const newActivity = await BotActivities.create({ ...options });
+    return newActivity;
+  } catch (error) {
+    logger.error('Failed to create activity', error);
+    return null;
+  }
+};
+
+export const destoryActivity = async (id: number) => {
+  try {
+    const activity = await BotActivities.findByPk(id);
+    if (activity) {
+      await activity.destroy();
+      return true;
+    }
+
+    logger.error(`Failed to destroy activity (${id}): Not found`);
+    return false;
+  } catch (error) {
+    logger.error('Failed to destroy activity', error);
+    return false;
+  }
+};
+
+export const restoreActivity = async (id: number) => {
+  try {
+    const activity = await BotActivities.findByPk(id, { paranoid: true });
+    if (activity) {
+      await activity.restore();
+      return true;
+    }
+
+    logger.error(`Failed to restore activity (${id}): Not found`);
+    return false;
+  } catch (error) {
+    logger.error('Failed to restore activity', error);
+    return false;
+  }
+};
+
+export const getLatestActivity = async () => {
+  try {
+    const latestActivity = await BotActivities.findOne({
+      order: [['createdAt', 'DESC']],
+    });
+
+    return latestActivity;
+  } catch (error) {
+    logger.error('Failed to get Activity', error);
+    return null;
+  }
+};
+
+export const getAllActivities = async () => {
+  try {
+    const activities = await BotActivities.findAll();
+    return activities;
+  } catch (error) {
+    logger.error('Failed to get activities', error);
+    return [];
+  }
+};
