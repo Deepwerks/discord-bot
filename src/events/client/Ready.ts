@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ActivityType, Collection, Events, REST, Routes } from 'discord.js';
+import { Collection, Events, REST, Routes } from 'discord.js';
 import CustomClient from '../../base/classes/CustomClient';
 import Event from '../../base/classes/Event';
 import Command from '../../base/classes/Command';
 import { logger } from '../..';
+import { getLatestActivity } from '../../services/database/repository';
 
 export default class Ready extends Event {
   constructor(client: CustomClient) {
@@ -17,15 +18,27 @@ export default class Ready extends Event {
   async Execute() {
     logger.info(`${this.client.user?.tag} is now ready!`);
 
-    this.client.user?.setPresence({
-      activities: [
-        {
-          name: `New command: /create-lobby`,
-          type: ActivityType.Custom,
-        },
-      ],
-      status: 'online', // online | idle | dnd | invisible
-    });
+    const botActivity = await getLatestActivity();
+
+    if (botActivity) {
+      const activityTypes = {
+        Playing: 0,
+        Streaming: 1,
+        Listening: 2,
+        Watching: 3,
+        Competing: 5,
+      };
+
+      this.client.user?.setPresence({
+        activities: [
+          {
+            name: botActivity.message,
+            type: activityTypes[botActivity.type as keyof typeof activityTypes],
+          },
+        ],
+        status: botActivity.status as 'online' | 'idle' | 'dnd' | 'invisible',
+      });
+    }
 
     const cliendId = this.client.config.discord_client_id;
     const rest = new REST().setToken(this.client.config.discord_bot_token);
