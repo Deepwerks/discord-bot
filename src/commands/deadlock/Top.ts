@@ -10,7 +10,7 @@ import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
 import CommandError from '../../base/errors/CommandError';
-import { logger, useDeadlockClient } from '../..';
+import { useDeadlockClient } from '../..';
 import DeadlockPlayerHeroStats from '../../services/clients/DeadlockClient/services/DeadlockPlayerService/entities/DeadlockPlayerHeroStats';
 import getProfile from '../../services/database/repository';
 
@@ -81,68 +81,50 @@ export default class Top extends Command {
     if (!sortBy) sortBy = 'kda';
     await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
 
-    try {
-      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction.user.id, t);
+    const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction.user.id, t);
 
-      const stats = await useDeadlockClient.PlayerService.FetchHeroStats(steamProfile.accountId);
+    const stats = await useDeadlockClient.PlayerService.FetchHeroStats(steamProfile.accountId);
 
-      if (!stats || !Array.isArray(stats) || stats.length === 0) {
-        throw new CommandError(t('errors.no_stats_found'));
+    if (!stats || !Array.isArray(stats) || stats.length === 0) {
+      throw new CommandError(t('errors.no_stats_found'));
+    }
+
+    const sortedStats = stats.sort((a, b) => {
+      if (sortBy === 'kda') {
+        return calculateKDA(b) - calculateKDA(a);
+      } else if (sortBy === 'winrate') {
+        return calculateWinRate(b) - calculateWinRate(a);
+      } else if (sortBy === 'matches') {
+        return b.matchesPlayed - a.matchesPlayed;
+      } else if (sortBy === 'denies_per_match') {
+        return b.deniesPerMatch - a.deniesPerMatch;
+      } else if (sortBy === 'networth_per_min') {
+        return b.networthPerMin - a.networthPerMin;
       }
+      return 0;
+    });
 
-      const sortedStats = stats.sort((a, b) => {
-        if (sortBy === 'kda') {
-          return calculateKDA(b) - calculateKDA(a);
-        } else if (sortBy === 'winrate') {
-          return calculateWinRate(b) - calculateWinRate(a);
-        } else if (sortBy === 'matches') {
-          return b.matchesPlayed - a.matchesPlayed;
-        } else if (sortBy === 'denies_per_match') {
-          return b.deniesPerMatch - a.deniesPerMatch;
-        } else if (sortBy === 'networth_per_min') {
-          return b.networthPerMin - a.networthPerMin;
-        }
-        return 0;
+    const embeds = await createHeroStatsEmbeds(
+      sortedStats,
+      steamProfile.name,
+      String(steamProfile.accountId),
+      sortBy
+    );
+
+    await interaction.editReply({
+      embeds,
+    });
+
+    if (steamAuthNeeded) {
+      const embed = new EmbedBuilder()
+        .setColor(0xffa500)
+        .setTitle(t('commands.top.steam_auth_required_title'))
+        .setDescription(t('commands.top.steam_auth_required_description'));
+
+      await interaction.followUp({
+        embeds: [embed],
+        ephemeral: true,
       });
-
-      const embeds = await createHeroStatsEmbeds(
-        sortedStats,
-        steamProfile.name,
-        String(steamProfile.accountId),
-        sortBy
-      );
-
-      await interaction.editReply({
-        embeds,
-      });
-
-      if (steamAuthNeeded) {
-        const embed = new EmbedBuilder()
-          .setColor(0xffa500)
-          .setTitle(t('commands.top.steam_auth_required_title'))
-          .setDescription(t('commands.top.steam_auth_required_description'));
-
-        await interaction.followUp({
-          embeds: [embed],
-          ephemeral: true,
-        });
-      }
-    } catch (error) {
-      logger.error({
-        error,
-        user: interaction.user.id,
-        interaction: this.name,
-      });
-
-      const errorEmbed = new EmbedBuilder()
-        .setColor('Red')
-        .setDescription(error instanceof CommandError ? error.message : t('errors.generic_error'));
-
-      if (interaction.deferred || interaction.replied) {
-        await interaction.editReply({ embeds: [errorEmbed] });
-      } else {
-        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
-      }
     }
   }
 }

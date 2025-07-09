@@ -34,251 +34,231 @@ export default class StartMatchButtonAction extends ButtonAction {
   }
 
   async Execute(interaction: ButtonInteraction, t: TFunction<'translation', undefined>) {
-    try {
-      const [_, creatorId] = interaction.customId.split(':');
+    const [_, creatorId] = interaction.customId.split(':');
 
-      if (interaction.user.id !== creatorId) {
-        throw new CommandError(t('buttons.start_match.only_creator_can_start'));
+    if (interaction.user.id !== creatorId) {
+      throw new CommandError(t('buttons.start_match.only_creator_can_start'));
+    }
+
+    const lobby = lobbyStore.getLobby(creatorId);
+    if (!lobby) {
+      throw new CommandError(t('buttons.start_match.lobby_not_found'));
+    }
+
+    const playerIds = lobby.players;
+    if (playerIds.size < 1) {
+      throw new CommandError(t('buttons.start_match.not_enough_players'));
+    }
+
+    const expirationTs = Math.floor(Date.now() / 1000) + 60;
+    const relativeTs = `<t:${expirationTs}:R>`;
+
+    const channel = interaction.channel as TextChannel;
+    const thread = await channel.threads.create({
+      name: lobby.name,
+      autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
+      type: ChannelType.PrivateThread,
+      reason: 'Ready check for match',
+    });
+
+    for (const id of playerIds) {
+      try {
+        await thread.members.add(id);
+      } catch (err) {
+        logger.warn(`Failed to add player ${id}:`, err);
+      }
+    }
+
+    const readyButton = new ButtonBuilder()
+      .setCustomId('ready_up')
+      .setLabel(t('buttons.start_match.player_ready_label'))
+      .setStyle(ButtonStyle.Success);
+
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(readyButton);
+
+    const readySet = new Set<string>();
+    const statusMessage = await thread.send({
+      content: buildReadyMessage(t, Array.from(playerIds), readySet, relativeTs),
+      components: [row],
+    });
+
+    const collector = thread.createMessageComponentCollector({
+      componentType: ComponentType.Button,
+      time: 60 * 1000,
+    });
+
+    collector.on('collect', async (btnInteraction) => {
+      if (!playerIds.has(btnInteraction.user.id)) {
+        throw new CommandError(t('buttons.start_match.not_a_player'));
       }
 
-      const lobby = lobbyStore.getLobby(creatorId);
-      if (!lobby) {
-        throw new CommandError(t('buttons.start_match.lobby_not_found'));
+      if (readySet.has(btnInteraction.user.id)) {
+        throw new CommandError(t('buttons.start_match.already_ready'));
       }
 
-      const playerIds = lobby.players;
-      if (playerIds.size < 1) {
-        throw new CommandError(t('buttons.start_match.not_enough_players'));
-      }
-
-      const expirationTs = Math.floor(Date.now() / 1000) + 60;
-      const relativeTs = `<t:${expirationTs}:R>`;
-
-      const channel = interaction.channel as TextChannel;
-      const thread = await channel.threads.create({
-        name: lobby.name,
-        autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
-        type: ChannelType.PrivateThread,
-        reason: 'Ready check for match',
+      readySet.add(btnInteraction.user.id);
+      await btnInteraction.reply({
+        content: 'You are now ready! ✅',
+        flags: ['Ephemeral'],
       });
 
-      for (const id of playerIds) {
-        try {
-          await thread.members.add(id);
-        } catch (err) {
-          logger.warn(`Failed to add player ${id}:`, err);
-        }
-      }
-
-      const readyButton = new ButtonBuilder()
-        .setCustomId('ready_up')
-        .setLabel(t('buttons.start_match.player_ready_label'))
-        .setStyle(ButtonStyle.Success);
-
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(readyButton);
-
-      const readySet = new Set<string>();
-      const statusMessage = await thread.send({
+      await statusMessage.edit({
         content: buildReadyMessage(t, Array.from(playerIds), readySet, relativeTs),
         components: [row],
       });
 
-      const collector = thread.createMessageComponentCollector({
-        componentType: ComponentType.Button,
-        time: 60 * 1000,
-      });
+      if (readySet.size === playerIds.size) {
+        collector.stop('all_ready');
+      }
+    });
 
-      collector.on('collect', async (btnInteraction) => {
-        if (!playerIds.has(btnInteraction.user.id)) {
-          throw new CommandError(t('buttons.start_match.not_a_player'));
-        }
+    collector.on('end', async (_collected, reason) => {
+      if (reason === 'all_ready') {
+        try {
+          const votes = new Map<string, TeamShuffleMode>();
+          let selectedMode: TeamShuffleMode | null = null;
 
-        if (readySet.has(btnInteraction.user.id)) {
-          throw new CommandError(t('buttons.start_match.already_ready'));
-        }
+          const players = await getStoredPlayersByDiscordIds(Array.from(playerIds));
+          const isEveryPlayerAuthenticated =
+            players.length === playerIds.size
+              ? players.every((p) => p.authenticated === true)
+              : false;
 
-        readySet.add(btnInteraction.user.id);
-        await btnInteraction.reply({
-          content: 'You are now ready! ✅',
-          flags: ['Ephemeral'],
-        });
+          await statusMessage.delete();
 
-        await statusMessage.edit({
-          content: buildReadyMessage(t, Array.from(playerIds), readySet, relativeTs),
-          components: [row],
-        });
+          const voteMessage = await thread.send({
+            content: '[@here]\nAll players are ready! Please vote for team shuffle mode:',
+            components: [
+              new ActionRowBuilder<ButtonBuilder>().addComponents(
+                new ButtonBuilder()
+                  .setCustomId('vote:balanced')
+                  .setLabel('Balanced')
+                  .setDisabled(!isEveryPlayerAuthenticated)
+                  .setStyle(ButtonStyle.Primary),
+                new ButtonBuilder()
+                  .setCustomId('vote:random')
+                  .setLabel('Random')
+                  .setStyle(ButtonStyle.Secondary)
+              ),
+            ],
+          });
 
-        if (readySet.size === playerIds.size) {
-          collector.stop('all_ready');
-        }
-      });
+          if (!isEveryPlayerAuthenticated) {
+            await thread.send({
+              content:
+                '⚠️ **Balanced** Option is disabled: *Not all players were authenticated. Use `/store` to authenticate!*',
+            });
+          }
 
-      collector.on('end', async (_collected, reason) => {
-        if (reason === 'all_ready') {
-          try {
-            const votes = new Map<string, TeamShuffleMode>();
-            let selectedMode: TeamShuffleMode | null = null;
+          const voteCollector = thread.createMessageComponentCollector({
+            componentType: ComponentType.Button,
+            time: 10_000,
+          });
 
-            const players = await getStoredPlayersByDiscordIds(Array.from(playerIds));
-            const isEveryPlayerAuthenticated =
-              players.length === playerIds.size
-                ? players.every((p) => p.authenticated === true)
-                : false;
+          voteCollector.on('collect', async (btnInt) => {
+            if (!playerIds.has(btnInt.user.id)) return;
 
-            await statusMessage.delete();
+            const choice =
+              btnInt.customId === 'vote:balanced'
+                ? TeamShuffleMode.Balanced
+                : TeamShuffleMode.Random;
 
-            const voteMessage = await thread.send({
-              content: '[@here]\nAll players are ready! Please vote for team shuffle mode:',
-              components: [
-                new ActionRowBuilder<ButtonBuilder>().addComponents(
-                  new ButtonBuilder()
-                    .setCustomId('vote:balanced')
-                    .setLabel('Balanced')
-                    .setDisabled(!isEveryPlayerAuthenticated)
-                    .setStyle(ButtonStyle.Primary),
-                  new ButtonBuilder()
-                    .setCustomId('vote:random')
-                    .setLabel('Random')
-                    .setStyle(ButtonStyle.Secondary)
-                ),
-              ],
+            votes.set(btnInt.user.id, choice);
+            await btnInt.reply({
+              content: 'You have voted...',
+              flags: ['Ephemeral'],
             });
 
-            if (!isEveryPlayerAuthenticated) {
-              await thread.send({
-                content:
-                  '⚠️ **Balanced** Option is disabled: *Not all players were authenticated. Use `/store` to authenticate!*',
-              });
+            // Check if majority or all voted
+            const tally = {
+              balanced: [...votes.values()].filter((v) => v === TeamShuffleMode.Balanced).length,
+              random: [...votes.values()].filter((v) => v === TeamShuffleMode.Random).length,
+            };
+
+            if (
+              votes.size === playerIds.size ||
+              Math.max(tally.balanced, tally.random) > playerIds.size / 2
+            ) {
+              selectedMode =
+                tally.balanced > tally.random ? TeamShuffleMode.Balanced : TeamShuffleMode.Random;
+              voteCollector.stop('decided');
+            }
+          });
+
+          voteCollector.on('end', async (_, _voteReason) => {
+            if (!selectedMode) {
+              // Default to random
+              selectedMode = TeamShuffleMode.Random;
             }
 
-            const voteCollector = thread.createMessageComponentCollector({
-              componentType: ComponentType.Button,
-              time: 10_000,
+            await voteMessage.edit({
+              content: `Voting ended! Team shuffle mode selected: **${selectedMode}**. \nStarting match...`,
+              components: [],
             });
 
-            voteCollector.on('collect', async (btnInt) => {
-              if (!playerIds.has(btnInt.user.id)) return;
+            const match = await useDeadlockClient.MatchService.CreateCustomMatch();
 
-              const choice =
-                btnInt.customId === 'vote:balanced'
-                  ? TeamShuffleMode.Balanced
-                  : TeamShuffleMode.Random;
+            if (!match) {
+              throw new CommandError('Failed to create match');
+            }
 
-              votes.set(btnInt.user.id, choice);
-              await btnInt.reply({
-                content: 'You have voted...',
-                flags: ['Ephemeral'],
-              });
+            lobbyStore.setPartId(creatorId, String(match.partyId));
 
-              // Check if majority or all voted
-              const tally = {
-                balanced: [...votes.values()].filter((v) => v === TeamShuffleMode.Balanced).length,
-                random: [...votes.values()].filter((v) => v === TeamShuffleMode.Random).length,
-              };
+            const playersArray = Array.from(playerIds);
+            const [teamA, teamB] =
+              selectedMode === TeamShuffleMode.Random
+                ? shuffleTeamsRandom(playersArray)
+                : await shuffleTeamsBalanced(players);
 
-              if (
-                votes.size === playerIds.size ||
-                Math.max(tally.balanced, tally.random) > playerIds.size / 2
-              ) {
-                selectedMode =
-                  tally.balanced > tally.random ? TeamShuffleMode.Balanced : TeamShuffleMode.Random;
-                voteCollector.stop('decided');
-              }
+            const finishButton = new ButtonBuilder()
+              .setCustomId(`finish_match:${creatorId}`)
+              .setLabel('Finish')
+              .setStyle(ButtonStyle.Primary);
+
+            const closeThread = new ButtonBuilder()
+              .setCustomId(`close_thread:${thread.id}:${creatorId}`)
+              .setLabel('Close Thread')
+              .setEmoji('🗑️')
+              .setStyle(ButtonStyle.Danger);
+
+            const archiveThread = new ButtonBuilder()
+              .setCustomId(`archive_thread:${thread.id}:${creatorId}`)
+              .setLabel('Archive Thread')
+              .setEmoji('📃')
+              .setStyle(ButtonStyle.Secondary);
+
+            const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+              finishButton,
+              archiveThread,
+              closeThread
+            );
+
+            await sleep(1000);
+
+            const embed = buildMatchEmbed(match.partyId, match.party_code, teamA, teamB);
+            await thread.send({
+              content: '@here',
+              embeds: [embed],
+              components: [row],
             });
-
-            voteCollector.on('end', async (_, _voteReason) => {
-              if (!selectedMode) {
-                // Default to random
-                selectedMode = TeamShuffleMode.Random;
-              }
-
-              await voteMessage.edit({
-                content: `Voting ended! Team shuffle mode selected: **${selectedMode}**. \nStarting match...`,
-                components: [],
-              });
-
-              const match = await useDeadlockClient.MatchService.CreateCustomMatch();
-
-              if (!match) {
-                throw new CommandError('Failed to create match');
-              }
-
-              lobbyStore.setPartId(creatorId, String(match.partyId));
-
-              const playersArray = Array.from(playerIds);
-              const [teamA, teamB] =
-                selectedMode === TeamShuffleMode.Random
-                  ? shuffleTeamsRandom(playersArray)
-                  : await shuffleTeamsBalanced(players);
-
-              const finishButton = new ButtonBuilder()
-                .setCustomId(`finish_match:${creatorId}`)
-                .setLabel('Finish')
-                .setStyle(ButtonStyle.Primary);
-
-              const closeThread = new ButtonBuilder()
-                .setCustomId(`close_thread:${thread.id}:${creatorId}`)
-                .setLabel('Close Thread')
-                .setEmoji('🗑️')
-                .setStyle(ButtonStyle.Danger);
-
-              const archiveThread = new ButtonBuilder()
-                .setCustomId(`archive_thread:${thread.id}:${creatorId}`)
-                .setLabel('Archive Thread')
-                .setEmoji('📃')
-                .setStyle(ButtonStyle.Secondary);
-
-              const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-                finishButton,
-                archiveThread,
-                closeThread
-              );
-
-              await sleep(1000);
-
-              const embed = buildMatchEmbed(match.partyId, match.party_code, teamA, teamB);
-              await thread.send({
-                content: '@here',
-                embeds: [embed],
-                components: [row],
-              });
-            });
-          } catch (err) {
-            logger.warn('Match creation failed:', err);
-            await thread.send(t('buttons.start_match.match_creation_failed'));
-            await thread.setArchived(true);
-
-            await sleep(3000);
-            await thread.delete();
-            lobbyStore.removeLobby(creatorId);
-          }
-        } else {
-          await thread.send(t('buttons.start_match.not_all_ready'));
+          });
+        } catch (err) {
+          logger.warn('Match creation failed:', err);
+          await thread.send(t('buttons.start_match.match_creation_failed'));
           await thread.setArchived(true);
+
+          await sleep(3000);
+          await thread.delete();
           lobbyStore.removeLobby(creatorId);
         }
-      });
-
-      await interaction.message.delete();
-    } catch (error) {
-      logger.error({
-        error,
-        user: interaction.user.id,
-        interaction: this.customId,
-      });
-
-      const errorEmbed = new EmbedBuilder()
-        .setColor('Red')
-        .setDescription(
-          error instanceof CommandError ? error.message : t('buttons.start_match.start_failed')
-        );
-
-      if (interaction.deferred || interaction.replied) {
-        await interaction.editReply({ embeds: [errorEmbed] });
       } else {
-        await interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
+        await thread.send(t('buttons.start_match.not_all_ready'));
+        await thread.setArchived(true);
+        lobbyStore.removeLobby(creatorId);
       }
-    }
+    });
+
+    await interaction.message.delete();
   }
 }
 

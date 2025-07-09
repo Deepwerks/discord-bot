@@ -29,84 +29,66 @@ export default class Patchnotes extends Command {
     });
   }
 
-  async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
+  async Execute(interaction: ChatInputCommandInteraction, _t: TFunction<'translation', undefined>) {
     await interaction.deferReply();
 
-    try {
-      const patches = await useDeadlockClient.PatchService.FetchPatches();
-      let lastStoredPatch = await PatchnoteSchema.findOne({}, {}, { sort: { date: -1 } }).lean();
+    const patches = await useDeadlockClient.PatchService.FetchPatches();
+    let lastStoredPatch = await PatchnoteSchema.findOne({}, {}, { sort: { date: -1 } }).lean();
+
+    if (!lastStoredPatch) {
+      const scraper = new ForumScraper();
+      await scraper.scrapeMany(patches);
+
+      logger.info(`Inserted ${patches.length} patches as the first batch.`);
+
+      lastStoredPatch = await PatchnoteSchema.findOne({}, {}, { sort: { date: -1 } }).lean();
+    }
+
+    const newPatches = patches.filter((patch) => {
+      return new Date(patch.pubDate) > lastStoredPatch!.date;
+    });
+
+    if (newPatches.length > 0) {
+      const scraper = new ForumScraper();
+
+      await scraper.scrapeMany(newPatches);
+      logger.info(`Inserted ${newPatches.length} new patches.`);
+
+      lastStoredPatch = await PatchnoteSchema.findOne({}, {}, { sort: { date: -1 } }).lean();
 
       if (!lastStoredPatch) {
-        const scraper = new ForumScraper();
-        await scraper.scrapeMany(patches);
-
-        logger.info(`Inserted ${patches.length} patches as the first batch.`);
-
-        lastStoredPatch = await PatchnoteSchema.findOne({}, {}, { sort: { date: -1 } }).lean();
+        throw new CommandError('No patch found');
       }
+    }
 
-      const newPatches = patches.filter((patch) => {
-        return new Date(patch.pubDate) > lastStoredPatch!.date;
-      });
+    const linkButton = new ButtonBuilder()
+      .setLabel('Read More')
+      .setStyle(ButtonStyle.Link)
+      .setURL(lastStoredPatch!.url)
+      .setEmoji('📰');
 
-      if (newPatches.length > 0) {
-        const scraper = new ForumScraper();
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(linkButton);
 
-        await scraper.scrapeMany(newPatches);
-        logger.info(`Inserted ${newPatches.length} new patches.`);
-
-        lastStoredPatch = await PatchnoteSchema.findOne({}, {}, { sort: { date: -1 } }).lean();
-
-        if (!lastStoredPatch) {
-          throw new CommandError('No patch found');
-        }
-      }
-
-      const linkButton = new ButtonBuilder()
-        .setLabel('Read More')
-        .setStyle(ButtonStyle.Link)
-        .setURL(lastStoredPatch!.url)
-        .setEmoji('📰');
-
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(linkButton);
-
-      await interaction.editReply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor('#00BFFF')
-            .setTitle(`🛠️ Patch Notes - ${lastStoredPatch!.title}`)
-            .setDescription(
-              `
+    await interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor('#00BFFF')
+          .setTitle(`🛠️ Patch Notes - ${lastStoredPatch!.title}`)
+          .setDescription(
+            `
                 ${lastStoredPatch!.changes
                   .map((change) => {
                     return `\`${change.category.padEnd(20)} ${countLeafProps(change.changes)}x\``;
                   })
                   .join('\n')}
                 `
-            )
-            .setFooter({
-              text: `Posted: ${lastStoredPatch!.date.toLocaleDateString()}`,
-            }),
-        ],
-        components: [row],
-      });
-    } catch (error) {
-      logger.error({
-        error,
-        user: interaction.user.id,
-        interaction: this.name,
-      });
-
-      const errorEmbed = new EmbedBuilder()
-        .setColor('Red')
-        .setDescription(error instanceof CommandError ? error.message : t('errors.generic_error'));
-
-      if (interaction.deferred || interaction.replied) {
-        await interaction.editReply({ embeds: [errorEmbed] });
-      } else {
-        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
-      }
-    }
+          )
+          .setFooter({
+            text: `Posted: ${lastStoredPatch!.date.toLocaleDateString()}`,
+          }),
+      ],
+      components: [row],
+    });
   }
 }
 
