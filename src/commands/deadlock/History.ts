@@ -18,7 +18,7 @@ import CommandError from '../../base/errors/CommandError';
 import { logger, useAssetsClient, useDeadlockClient } from '../..';
 import { getFormattedMatchTime } from '../../services/utils/getFormattedMatchTime';
 import pLimit from 'p-limit';
-import getProfile from '../../services/common/getProfile';
+import getProfile from '../../services/database/repository';
 
 export default class History extends Command {
   constructor(client: CustomClient) {

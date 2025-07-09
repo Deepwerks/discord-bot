@@ -11,7 +11,7 @@ import CustomClient from '../base/classes/CustomClient';
 import CommandError from '../base/errors/CommandError';
 import { logger } from '..';
 import { TFunction } from 'i18next';
-import { handleMatchRequest } from '../services/common/handleMatchRequest';
+import { handleMatchRequest } from '../services/database/repository';
 
 export default class GetMatchDetails extends SelectMenu {
   constructor(client: CustomClient) {

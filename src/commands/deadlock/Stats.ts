@@ -13,7 +13,7 @@ import { TFunction } from 'i18next';
 import CommandError from '../../base/errors/CommandError';
 import { logger, useAssetsClient, useDeadlockClient } from '../..';
 import { findHeroByName } from '../../services/utils/findHeroByName';
-import getProfile from '../../services/common/getProfile';
+import getProfile from '../../services/database/repository';
 
 export default class Stats extends Command {
   constructor(client: CustomClient) {

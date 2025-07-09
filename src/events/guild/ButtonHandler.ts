@@ -5,8 +5,8 @@ import { logger } from '../..';
 import i18next from '../../services/i18n';
 import logInteraction from '../../services/logger/logInteraction';
 import CommandError from '../../base/errors/CommandError';
-import { Guilds } from '../../services/database/orm/init';
 import { InteractionType } from '../../services/database/orm/models/UserInteractions.model';
+import { getGuildConfig } from '../../services/database/repository';
 
 export default class ButtonHandler extends Event {
   constructor(client: CustomClient) {
@@ -22,12 +22,8 @@ export default class ButtonHandler extends Event {
     const [action] = interaction.customId.split(':');
     if (['ready_up', 'vote'].includes(action)) return;
 
-    const guildLang = await Guilds.findOne({
-      where: {
-        guildId: interaction.guildId!,
-      },
-    });
-    const t = i18next.getFixedT(guildLang?.preferedLanguage ?? 'en');
+    const guildConfig = await getGuildConfig(interaction.guildId);
+    const t = i18next.getFixedT(guildConfig?.preferedLanguage ?? 'en');
 
     try {
       const buttonActionHandler = this.client.buttons.get(action);
