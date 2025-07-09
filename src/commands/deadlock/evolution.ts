@@ -9,8 +9,6 @@ import Command from '../../base/classes/Command';
 import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
-import CommandError from '../../base/errors/CommandError';
-import { logger } from '../..';
 import PatchnoteSchema, { IPatchnote } from '../../base/schemas/PatchnoteSchema';
 import { createPaginationSession } from '../../services/utils/createPagination';
 import i18n from '../../services/i18n';
@@ -48,44 +46,26 @@ export default class Evolution extends Command {
     const search = interaction.options.getString('search', true);
     await interaction.deferReply();
 
-    try {
-      const results = await findMentionsInPatchnotes(search);
+    const results = await findMentionsInPatchnotes(search);
 
-      if (results.length === 0) {
-        await interaction.editReply(t('commands.evolution.no_results', { search }));
-        return;
-      }
-
-      const sessionId = interaction.id;
-
-      const context = {
-        userId: interaction.user.id,
-        data: results,
-        page: 0,
-        perPage: 1,
-        generateEmbed: (entry: PatchChange, page: number, total: number) =>
-          createEmbedPage(t, entry, page, total, search),
-      };
-
-      const paginatedResponse = createPaginationSession(sessionId, context);
-      await interaction.editReply(paginatedResponse as InteractionEditReplyOptions);
-    } catch (error) {
-      logger.error({
-        error,
-        user: interaction.user.id,
-        interaction: this.name,
-      });
-
-      const errorEmbed = new EmbedBuilder()
-        .setColor('Red')
-        .setDescription(error instanceof CommandError ? error.message : t('errors.generic_error'));
-
-      if (interaction.deferred || interaction.replied) {
-        await interaction.editReply({ embeds: [errorEmbed] });
-      } else {
-        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
-      }
+    if (results.length === 0) {
+      await interaction.editReply(t('commands.evolution.no_results', { search }));
+      return;
     }
+
+    const sessionId = interaction.id;
+
+    const context = {
+      userId: interaction.user.id,
+      data: results,
+      page: 0,
+      perPage: 1,
+      generateEmbed: (entry: PatchChange, page: number, total: number) =>
+        createEmbedPage(t, entry, page, total, search),
+    };
+
+    const paginatedResponse = createPaginationSession(sessionId, context);
+    await interaction.editReply(paginatedResponse as InteractionEditReplyOptions);
   }
 }
 

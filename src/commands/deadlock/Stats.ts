@@ -11,7 +11,7 @@ import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
 import CommandError from '../../base/errors/CommandError';
-import { logger, useAssetsClient, useDeadlockClient } from '../..';
+import { useAssetsClient, useDeadlockClient } from '../..';
 import { findHeroByName } from '../../services/utils/findHeroByName';
 import getProfile from '../../services/database/repository';
 
@@ -59,56 +59,48 @@ export default class Stats extends Command {
       'Mo & Krill': ['max_bonus_health_per_kill'],
     };
 
-    try {
-      await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
-      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction.user.id, t);
+    await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
+    const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction.user.id, t);
 
-      if (!steamProfile) {
-        throw new CommandError(t('errors.steam_profile_not_found'));
-      }
+    if (!steamProfile) {
+      throw new CommandError(t('errors.steam_profile_not_found'));
+    }
 
-      const accountId = steamProfile.accountId;
-      const heroName = interaction.options.getString('hero_name', false);
+    const accountId = steamProfile.accountId;
+    const heroName = interaction.options.getString('hero_name', false);
 
-      const hero = findHeroByName(heroName ?? '');
+    const hero = findHeroByName(heroName ?? '');
 
-      if (heroName && !hero) {
-        throw new CommandError(`Hero not found: ${heroName}`);
-      }
+    if (heroName && !hero) {
+      throw new CommandError(`Hero not found: ${heroName}`);
+    }
 
-      const globalStats = ['total_kd', 'total_matches', 'total_wins', 'total_losses'];
+    const globalStats = ['total_kd', 'total_matches', 'total_wins', 'total_losses'];
 
-      const additionalStats = ['total_winrate', 'hours_played', 'most_played_hero'];
+    const additionalStats = ['total_winrate', 'hours_played', 'most_played_hero'];
 
-      const heroStats = heroName
-        ? [
-            'hero_kd',
-            'hero_matches',
-            'hero_wins',
-            'hero_losses',
-            'hero_winrate',
-            'hero_hours_played',
-          ]
-        : [];
+    const heroStats = heroName
+      ? ['hero_kd', 'hero_matches', 'hero_wins', 'hero_losses', 'hero_winrate', 'hero_hours_played']
+      : [];
 
-      const heroSpecificStats = heroName ? HeroSpecificStats[hero!.name] || [] : [];
+    const heroSpecificStats = heroName ? HeroSpecificStats[hero!.name] || [] : [];
 
-      const stats = await useDeadlockClient.PlayerService.FetchStats(
-        accountId,
-        [...globalStats, ...additionalStats, ...heroStats, ...heroSpecificStats],
-        hero?.name
-      );
+    const stats = await useDeadlockClient.PlayerService.FetchStats(
+      accountId,
+      [...globalStats, ...additionalStats, ...heroStats, ...heroSpecificStats],
+      hero?.name
+    );
 
-      if (!stats) {
-        throw new CommandError('Failed to get player stats');
-      }
+    if (!stats) {
+      throw new CommandError('Failed to get player stats');
+    }
 
-      const globalStatBlock = formatStatsBlock(stats, globalStats);
-      const additionalStatBlock = formatStatsBlock(stats, additionalStats);
-      const heroStatBlock = heroStats.length > 0 ? formatStatsBlock(stats, heroStats) : '';
-      const heroSpecificStatBlock = formatStatsBlock(stats, heroSpecificStats);
+    const globalStatBlock = formatStatsBlock(stats, globalStats);
+    const additionalStatBlock = formatStatsBlock(stats, additionalStats);
+    const heroStatBlock = heroStats.length > 0 ? formatStatsBlock(stats, heroStats) : '';
+    const heroSpecificStatBlock = formatStatsBlock(stats, heroSpecificStats);
 
-      const description = `
+    const description = `
         ${
           !heroName
             ? `\`\`\`Predicted Rank: ${steamProfile.performanceRankMessage}\`\`\` \nGlobal Stats ${globalStatBlock}  \nAdditional Stats ${additionalStatBlock}`
@@ -118,49 +110,32 @@ export default class Stats extends Command {
         }
       `;
 
-      const embed = new EmbedBuilder()
-        .setColor(heroName ? 0x00ae86 : 0x7289da)
-        .setThumbnail(
-          heroName ? (hero!.images.minimap_image ?? steamProfile.avatarUrl) : steamProfile.avatarUrl
-        )
-        .setTitle(`${escapeMarkdown(steamProfile.name)}'s stats`)
-        .setURL(`https://statlocker.gg/profile/${steamProfile.accountId}`)
-        .setDescription(description)
-        .setTimestamp()
-        .setFooter({
-          text: `PlayerID: ${steamProfile.accountId}`,
-          iconURL: this.client.user!.displayAvatarURL(),
-        });
-
-      await interaction.editReply({ embeds: [embed] });
-
-      if (steamAuthNeeded) {
-        const embed = new EmbedBuilder()
-          .setColor(0xffa500)
-          .setTitle(t('commands.stats.steam_auth_required_title'))
-          .setDescription(t('commands.stats.steam_auth_required_description'));
-
-        await interaction.followUp({
-          embeds: [embed],
-          ephemeral: true,
-        });
-      }
-    } catch (error) {
-      logger.error({
-        error,
-        user: interaction.user.id,
-        interaction: this.name,
+    const embed = new EmbedBuilder()
+      .setColor(heroName ? 0x00ae86 : 0x7289da)
+      .setThumbnail(
+        heroName ? (hero!.images.minimap_image ?? steamProfile.avatarUrl) : steamProfile.avatarUrl
+      )
+      .setTitle(`${escapeMarkdown(steamProfile.name)}'s stats`)
+      .setURL(`https://statlocker.gg/profile/${steamProfile.accountId}`)
+      .setDescription(description)
+      .setTimestamp()
+      .setFooter({
+        text: `PlayerID: ${steamProfile.accountId}`,
+        iconURL: this.client.user!.displayAvatarURL(),
       });
 
-      const errorEmbed = new EmbedBuilder()
-        .setColor('Red')
-        .setDescription(error instanceof CommandError ? error.message : t('errors.generic_error'));
+    await interaction.editReply({ embeds: [embed] });
 
-      if (interaction.deferred || interaction.replied) {
-        await interaction.editReply({ embeds: [errorEmbed] });
-      } else {
-        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
-      }
+    if (steamAuthNeeded) {
+      const embed = new EmbedBuilder()
+        .setColor(0xffa500)
+        .setTitle(t('commands.stats.steam_auth_required_title'))
+        .setDescription(t('commands.stats.steam_auth_required_description'));
+
+      await interaction.followUp({
+        embeds: [embed],
+        ephemeral: true,
+      });
     }
   }
 

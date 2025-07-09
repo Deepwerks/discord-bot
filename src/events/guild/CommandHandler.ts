@@ -3,12 +3,11 @@ import CustomClient from '../../base/classes/CustomClient';
 import Event from '../../base/classes/Event';
 import Command from '../../base/classes/Command';
 import i18next from '../../services/i18n';
-import { logger } from '../..';
 import logInteraction from '../../services/logger/logInteraction';
 import CommandError from '../../base/errors/CommandError';
-import { commandExecutions } from '../../services/metrics';
-import { InteractionType } from '../../services/database/orm/models/UserInteractions.model';
+import { InteractionType } from '../../services/database/orm/models/FailedUserInteractions.model';
 import { getGuildConfig } from '../../services/database/repository';
+import logFailedInteraction from '../../services/logger/logFailedInteractions';
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -76,33 +75,45 @@ export default class CommandHandler extends Event {
         subCommandGroup ? `${subCommandGroup}` : ''
       }.${interaction.options.getSubcommand(false) || ''}`;
 
-      logger.info(`[COMMAND] ${interaction.user.tag} used /${command.name}`);
-
-      commandExecutions.inc({
-        command: command.name,
-      });
-
-      logInteraction({
-        id: interaction.id,
-        guildId: interaction.inGuild() ? interaction.guildId : null,
-        name: command.name,
-        type: InteractionType.Command,
-        userId: interaction.user.id,
-        options: interaction.options.data,
-      });
-
       try {
         const subCommandHandler = this.client.subCommands.get(subCommand);
 
         if (subCommandHandler) {
-          return await subCommandHandler.Execute(interaction, t);
+          logInteraction({
+            id: interaction.id,
+            guildId: interaction.inGuild() ? interaction.guildId : null,
+            name: command.name,
+            type: InteractionType.Command,
+            userId: interaction.user.id,
+            options: interaction.options.data,
+          });
+
+          await subCommandHandler.Execute(interaction, t);
         } else {
-          return await command.Execute(interaction, t);
+          logInteraction({
+            id: interaction.id,
+            guildId: interaction.inGuild() ? interaction.guildId : null,
+            name: command.name,
+            type: InteractionType.Command,
+            userId: interaction.user.id,
+            options: interaction.options.data,
+          });
+
+          await command.Execute(interaction, t);
         }
       } catch (error) {
-        logger.error({
-          error,
-          interaction: interaction.id,
+        logFailedInteraction({
+          id: interaction.id,
+          guildId: interaction.inGuild() ? interaction.guildId : null,
+          name: command.name,
+          type: InteractionType.Command,
+          userId: interaction.user.id,
+          options: interaction.options.data,
+          error: {
+            name: error instanceof CommandError ? error.name : 'Unknown',
+            message: error instanceof CommandError ? error.message : t('errors.generic_error'),
+            stack: error instanceof CommandError ? error.stack : undefined,
+          },
         });
 
         const errorEmbed = new EmbedBuilder()
@@ -127,7 +138,15 @@ export default class CommandHandler extends Event {
       try {
         await command.AutoComplete(interaction);
       } catch (error) {
-        logger.error(error);
+        logFailedInteraction({
+          id: interaction.id,
+          guildId: interaction.inGuild() ? interaction.guildId : null,
+          name: `Autocomplete: ${command.name}`,
+          type: InteractionType.Command,
+          userId: interaction.user.id,
+          options: null,
+          error: error as object,
+        });
       }
     }
   }

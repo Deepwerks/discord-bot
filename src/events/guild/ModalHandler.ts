@@ -3,7 +3,8 @@ import CustomClient from '../../base/classes/CustomClient';
 import Event from '../../base/classes/Event';
 import IModalHandler from '../../base/interfaces/IModalHandler';
 import CommandError from '../../base/errors/CommandError';
-import { logger } from '../..';
+import logFailedInteraction from '../../services/logger/logFailedInteractions';
+import { InteractionType } from '../../services/database/orm/models/FailedUserInteractions.model';
 
 export default class ModalHandler extends Event implements IModalHandler {
   constructor(client: CustomClient) {
@@ -21,17 +22,26 @@ export default class ModalHandler extends Event implements IModalHandler {
     const [action, _id] = modalId.split(':');
 
     const modalHandler = this.client.modals.get(action);
-    if (!modalHandler) {
-      throw new CommandError(`No modal handler found for ID: ${action}`);
-    }
 
     try {
+      if (!modalHandler) {
+        throw new CommandError(`No modal handler found for ID: ${action}`);
+      }
+
       await modalHandler.Execute(interaction);
     } catch (error) {
-      logger.error({
-        error,
-        user: interaction.user.id,
-        interaction: this.name,
+      logFailedInteraction({
+        id: interaction.id,
+        guildId: interaction.inGuild() ? interaction.guildId : null,
+        name: action,
+        type: InteractionType.Modal,
+        userId: interaction.user.id,
+        options: null,
+        error: {
+          name: error instanceof CommandError ? error.name : 'Unknown',
+          message: error instanceof CommandError ? error.message : 'Failed to open modal',
+          stack: error instanceof CommandError ? error.stack : undefined,
+        },
       });
 
       const errorEmbed = new EmbedBuilder()

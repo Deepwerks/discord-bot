@@ -14,8 +14,7 @@ import Command from '../../base/classes/Command';
 import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
-import CommandError from '../../base/errors/CommandError';
-import { logger, useAssetsClient, useDeadlockClient } from '../..';
+import { useAssetsClient, useDeadlockClient } from '../..';
 import { getFormattedMatchTime } from '../../services/utils/getFormattedMatchTime';
 import pLimit from 'p-limit';
 import getProfile from '../../services/database/repository';
@@ -53,129 +52,112 @@ export default class History extends Command {
 
     await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
 
-    try {
-      const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction.user.id, t);
+    const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction.user.id, t);
 
-      const matchHistory = await useDeadlockClient.PlayerService.fetchMatchHistory(
-        steamProfile.accountId,
-        15
-      );
-      const mmrHistory = await useDeadlockClient.PlayerService.fetchMMRHistory(
-        steamProfile.accountId,
-        15
-      );
+    const matchHistory = await useDeadlockClient.PlayerService.fetchMatchHistory(
+      steamProfile.accountId,
+      15
+    );
+    const mmrHistory = await useDeadlockClient.PlayerService.fetchMMRHistory(
+      steamProfile.accountId,
+      15
+    );
 
-      const limit = pLimit(10);
+    const limit = pLimit(10);
 
-      const matchesString: string[] = await Promise.all(
-        matchHistory.map((match) =>
-          limit(async () => {
-            const hero = await match.getHero();
-            const heroName = hero ? hero.name : 'Unknown';
+    const matchesString: string[] = await Promise.all(
+      matchHistory.map((match) =>
+        limit(async () => {
+          const hero = await match.getHero();
+          const heroName = hero ? hero.name : 'Unknown';
 
-            const mmrRecord = mmrHistory.find((record) => record.matchId === match.matchId);
+          const mmrRecord = mmrHistory.find((record) => record.matchId === match.matchId);
 
-            const champion = heroName.slice(0, 14).padEnd(15);
-            const time = getFormattedMatchTime(match.matchDurationS).padEnd(9);
+          const champion = heroName.slice(0, 14).padEnd(15);
+          const time = getFormattedMatchTime(match.matchDurationS).padEnd(9);
 
-            const rank = (
-              await useAssetsClient.DefaultService.GetRankName(
-                mmrRecord?.division,
-                mmrRecord?.divisionTier
-              )
+          const rank = (
+            await useAssetsClient.DefaultService.GetRankName(
+              mmrRecord?.division,
+              mmrRecord?.divisionTier
             )
-              ?.slice(0, 12)
-              .padEnd(13);
-            const kda =
-              `(${match.playerKills}/${match.playerDeaths}/${match.playerAssists})`.padEnd(13);
-            const matchId = match.matchId.toString().padEnd(13);
-            const date = match.startDate.format('D MMM YYYY').padEnd(12);
+          )
+            ?.slice(0, 12)
+            .padEnd(13);
+          const kda = `(${match.playerKills}/${match.playerDeaths}/${match.playerAssists})`.padEnd(
+            13
+          );
+          const matchId = match.matchId.toString().padEnd(13);
+          const date = match.startDate.format('D MMM YYYY').padEnd(12);
 
-            const line = `${champion}${time}${rank}${kda}${matchId}${date}`;
+          const line = `${champion}${time}${rank}${kda}${matchId}${date}`;
 
-            const prefix = match.matchResult === match.playerTeam ? '+' : '-';
-            return `${prefix}${line}`;
-          })
-        )
-      );
+          const prefix = match.matchResult === match.playerTeam ? '+' : '-';
+          return `${prefix}${line}`;
+        })
+      )
+    );
 
-      const header =
-        'Character'.padEnd(16) +
-        'Time'.padEnd(9) +
-        'Rank'.padEnd(13) +
-        'KDA'.padEnd(13) +
-        'Match ID'.padEnd(13) +
-        'Date'.padEnd(12);
+    const header =
+      'Character'.padEnd(16) +
+      'Time'.padEnd(9) +
+      'Rank'.padEnd(13) +
+      'KDA'.padEnd(13) +
+      'Match ID'.padEnd(13) +
+      'Date'.padEnd(12);
 
-      const response = `\`\`\`diff
+    const response = `\`\`\`diff
 ${escapeMarkdown(steamProfile.name)}'s (${steamProfile.accountId}) last ${matchHistory.length} matches:
 
 ${header}
 ${matchesString.join('\n')}
       \`\`\``;
 
-      const linkButton = new ButtonBuilder()
-        .setLabel(t('commands.history.view_on_statlocker'))
-        .setStyle(ButtonStyle.Link)
-        .setURL(`https://statlocker.gg/profile/${steamProfile.accountId}`)
-        .setEmoji('1367520315244023868');
+    const linkButton = new ButtonBuilder()
+      .setLabel(t('commands.history.view_on_statlocker'))
+      .setStyle(ButtonStyle.Link)
+      .setURL(`https://statlocker.gg/profile/${steamProfile.accountId}`)
+      .setEmoji('1367520315244023868');
 
-      const selectMatchButton = new StringSelectMenuBuilder()
-        .setCustomId(`get_match_details`)
-        .setPlaceholder(t('commands.history.match_details_placeholder'))
-        .addOptions(
-          await Promise.all(
-            matchHistory.map(async (match) => {
-              const win = match.matchResult === match.playerTeam ? 'Win' : 'Loss';
-              const hero = await match.getHero();
+    const selectMatchButton = new StringSelectMenuBuilder()
+      .setCustomId(`get_match_details`)
+      .setPlaceholder(t('commands.history.match_details_placeholder'))
+      .addOptions(
+        await Promise.all(
+          matchHistory.map(async (match) => {
+            const win = match.matchResult === match.playerTeam ? 'Win' : 'Loss';
+            const hero = await match.getHero();
 
-              return new StringSelectMenuOptionBuilder()
-                .setLabel(`${hero?.name} — ${win}`)
-                .setDescription(
-                  `${String(match.matchId)} (${match.startDate.format('D MMMM, YYYY')})`
-                )
-                .setValue(String(match.matchId));
-            })
-          )
-        );
-
-      const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(linkButton);
-      const interactiveRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-        selectMatchButton
+            return new StringSelectMenuOptionBuilder()
+              .setLabel(`${hero?.name} — ${win}`)
+              .setDescription(
+                `${String(match.matchId)} (${match.startDate.format('D MMMM, YYYY')})`
+              )
+              .setValue(String(match.matchId));
+          })
+        )
       );
 
-      await interaction.editReply({
-        content: response,
-        components: [buttonRow, interactiveRow],
+    const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(linkButton);
+    const interactiveRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+      selectMatchButton
+    );
+
+    await interaction.editReply({
+      content: response,
+      components: [buttonRow, interactiveRow],
+    });
+
+    if (steamAuthNeeded) {
+      const embed = new EmbedBuilder()
+        .setColor(0xffa500)
+        .setTitle(t('commands.history.steam_auth_required_title'))
+        .setDescription(t('commands.history.steam_auth_required_description'));
+
+      await interaction.followUp({
+        embeds: [embed],
+        ephemeral: true,
       });
-
-      if (steamAuthNeeded) {
-        const embed = new EmbedBuilder()
-          .setColor(0xffa500)
-          .setTitle(t('commands.history.steam_auth_required_title'))
-          .setDescription(t('commands.history.steam_auth_required_description'));
-
-        await interaction.followUp({
-          embeds: [embed],
-          ephemeral: true,
-        });
-      }
-    } catch (error) {
-      logger.error({
-        error,
-        user: interaction.user.id,
-        interaction: this.name,
-      });
-
-      const errorEmbed = new EmbedBuilder()
-        .setColor('Red')
-        .setDescription(error instanceof CommandError ? error.message : t('errors.generic_error'));
-
-      if (interaction.deferred || interaction.replied) {
-        await interaction.editReply({ embeds: [errorEmbed] });
-      } else {
-        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
-      }
     }
   }
 }

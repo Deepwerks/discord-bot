@@ -3,7 +3,7 @@ import { logger } from '../../..';
 
 import config from '../../../config';
 import { Guilds } from './models/Guilds.model';
-import { UserInteractions } from './models/UserInteractions.model';
+import { FailedUserInteractions } from './models/FailedUserInteractions.model';
 import { StoredPlayers } from './models/StoredPlayers.model';
 import { BotActivities } from './models/BotActivities.model';
 
@@ -24,7 +24,7 @@ const sequelize = new Sequelize(config.db_name, config.db_user, config.db_passwo
   timezone: 'Europe/Budapest',
 });
 
-const models = [Guilds, UserInteractions, StoredPlayers, BotActivities];
+const models = [Guilds, FailedUserInteractions, StoredPlayers, BotActivities];
 models.forEach((model) => model.initialize(sequelize));
 
-export { sequelize, Guilds, UserInteractions, StoredPlayers, BotActivities };
+export { sequelize, Guilds, FailedUserInteractions, StoredPlayers, BotActivities };

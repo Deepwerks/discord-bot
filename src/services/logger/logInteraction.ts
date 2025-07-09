@@ -1,40 +1,22 @@
 import { logger } from '../..';
-import { UserInteractions } from '../database/orm/init';
-import { IUserInteractions } from '../database/orm/models/UserInteractions.model';
+import { InteractionType } from '../database/orm/models/FailedUserInteractions.model';
+import { commandExecutions } from '../metrics';
 
-const usageBuffer: IUserInteractions[] = [];
-
-const FLUSH_INTERVAL = 10 * 1000; // every 10s
-const MAX_BUFFER_SIZE = 50;
+export interface IUserInteractions {
+  id: string;
+  type: InteractionType;
+  name: string;
+  userId: string;
+  guildId: string | null;
+  options: object | null;
+}
 
 function logInteraction(options: IUserInteractions) {
-  usageBuffer.push(options);
+  logger.info(`[INTERACTION] ${options.userId} used ${options.name}`);
 
-  if (usageBuffer.length >= MAX_BUFFER_SIZE) {
-    flush();
-  }
+  commandExecutions.inc({
+    command: options.name,
+  });
 }
-
-async function flush() {
-  if (usageBuffer.length === 0) return;
-
-  try {
-    await UserInteractions.bulkCreate(usageBuffer.map((item) => ({ ...item })));
-    usageBuffer.length = 0;
-  } catch (err) {
-    logger.error('Failed to insert user interaction:', err);
-  }
-}
-
-setInterval(flush, FLUSH_INTERVAL);
-
-async function shutdownHandler() {
-  logger.info('Flushing interaction logs before shutdown...');
-  await flush();
-  process.exit(0);
-}
-
-process.on('SIGINT', shutdownHandler);
-process.on('SIGTERM', shutdownHandler);
 
 export default logInteraction;
