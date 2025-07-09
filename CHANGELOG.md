@@ -3,6 +3,7 @@
 
 ### Features
 
+* implemented back to the start and to the end buttons & removed cds on pagination buttons ([8e248f7](https://github.com/Deepwerks/discord-bot/commit/8e248f7a597bc3fd38be64056881ccb92eac8f28))
 * implemented setActivity command ([#255](https://github.com/Deepwerks/discord-bot/issues/255)) ([11c479b](https://github.com/Deepwerks/discord-bot/commit/11c479b06038fdf4653fd63b05cf4b91e02bf8ec))
 
 
