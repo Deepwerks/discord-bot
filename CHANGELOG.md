@@ -3,12 +3,7 @@
 
 ### Bug Fixes
 
-* prevent user from creating multiple lobbies ([a4db30d](https://github.com/Deepwerks/discord-bot/commit/a4db30d19e8cea8cb9ca6ab70f92d5b27fa9504b))
-
-
-### Features
-
-* prevent users from joining multiple lobbies ([294ba94](https://github.com/Deepwerks/discord-bot/commit/294ba94bbc6cfac9e4138b3f2eda16d96a642f3a))
+* update embed on player join ([1281e46](https://github.com/Deepwerks/discord-bot/commit/1281e46560806b008a2cce9fad8374fadfe5ed9c))
 
 
 

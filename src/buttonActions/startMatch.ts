@@ -253,7 +253,7 @@ export default class StartMatchButtonAction extends ButtonAction {
         }
       } else {
         await thread.send(t('buttons.start_match.not_all_ready'));
-        await thread.setArchived(true);
+        await thread.delete();
         lobbyStore.removeLobby(creatorId);
       }
     });

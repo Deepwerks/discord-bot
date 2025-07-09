@@ -51,6 +51,7 @@ export default class JoinPartyButtonAction extends ButtonAction {
 
     // Join lobby
     await lobbyStore.addPlayer(lobbyId, userId);
+    lobby.players.push(userId);
 
     // Build updated embed
     const embed = new EmbedBuilder()
@@ -69,9 +70,7 @@ export default class JoinPartyButtonAction extends ButtonAction {
             current: lobby.players.length,
             max: lobby.maxPlayers,
           }),
-          value: Array.from(lobby.players)
-            .map((id) => `<@${id}>`)
-            .join(', '),
+          value: lobby.players.map((id) => `<@${id}>`).join(', '),
           inline: false,
         }
       )
