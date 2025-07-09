@@ -1,16 +1,16 @@
 import crypto from 'crypto';
 import config from '../../config';
-import { storeToken } from '../stores/SteamLinkTokenStore';
+import { tokenStore } from '../redis/stores/SteamLinkTokenStore';
 
 const SECRET = config.secret;
 
-export function generateSteamLinkToken(discordId: string): string {
+export async function generateSteamLinkToken(discordId: string): Promise<string> {
   const expiresAt = Date.now() + 5 * 60 * 1000;
   const payload = `${discordId}:${expiresAt}`;
   const hmac = crypto.createHmac('sha256', SECRET).update(payload).digest('hex');
   const token = Buffer.from(`${payload}:${hmac}`).toString('base64');
 
-  storeToken(token, discordId, expiresAt);
+  await tokenStore.storeToken(token, discordId, expiresAt);
 
   return token;
 }

@@ -2,8 +2,8 @@ import { EmbedBuilder, ModalSubmitInteraction, ThreadChannel } from 'discord.js'
 import CustomClient from '../base/classes/CustomClient';
 import Modal from '../base/classes/CustomModal';
 import CommandError from '../base/errors/CommandError';
-import { matchFeedbackStore } from '../services/stores/MatchFeedbackStore';
 import { t } from 'i18next';
+import { matchFeedbackStore } from '../services/redis/stores/MatchFeedbackStore';
 
 export default class MatchFeedback extends Modal {
   constructor(client: CustomClient) {
@@ -26,7 +26,7 @@ export default class MatchFeedback extends Modal {
     }
 
     // Get session data
-    const session = matchFeedbackStore.getSession(sessionId);
+    const session = await matchFeedbackStore.getSession(sessionId);
     if (!session) {
       throw new CommandError(t('modals.match_feedback.error_session_not_found'));
     }
@@ -74,7 +74,7 @@ export default class MatchFeedback extends Modal {
           .setColor('Green')
           .setDescription(t('modals.match_feedback.success_message')),
       ],
-      ephemeral: true,
+      flags: ['Ephemeral'],
     });
   }
 }

@@ -26,7 +26,7 @@ export default class Store extends Command {
   }
 
   async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
-    const token = generateSteamLinkToken(interaction.user.id);
+    const token = await generateSteamLinkToken(interaction.user.id);
     const url = `${
       this.client.config.deadlock_assistant_url
     }/auth/steam?token=${encodeURIComponent(token)}`;

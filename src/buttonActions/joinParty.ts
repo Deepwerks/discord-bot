@@ -1,9 +1,9 @@
 import { ButtonInteraction, EmbedBuilder } from 'discord.js';
 import ButtonAction from '../base/classes/ButtonAction';
 import CustomClient from '../base/classes/CustomClient';
-import { lobbyStore } from '../services/stores/LobbyStore';
 import CommandError from '../base/errors/CommandError';
 import { TFunction } from 'i18next';
+import { lobbyStore } from '../services/redis/stores/LobbyStore';
 
 export default class JoinPartyButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -22,7 +22,7 @@ export default class JoinPartyButtonAction extends ButtonAction {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, creatorId, maxPlayersRaw, lobbyId] = parts;
-    const lobby = lobbyStore.getLobby(lobbyId);
+    const lobby = await lobbyStore.getLobby(lobbyId);
 
     if (!lobby) {
       throw new CommandError(t('buttons.join_party.lobby_not_found'));
@@ -31,22 +31,22 @@ export default class JoinPartyButtonAction extends ButtonAction {
     const userId = interaction.user.id;
 
     // Already in lobby?
-    if (lobby.players.has(userId)) {
+    if (lobby.players.includes(userId)) {
       throw new CommandError(t('buttons.join_party.already_joined'));
     }
 
     // Lobby full?
-    if (lobby.players.size >= lobby.maxPlayers) {
+    if (lobby.players.length >= lobby.maxPlayers) {
       throw new CommandError(
         t('buttons.join_party.lobby_full', {
-          current: lobby.players.size,
+          current: lobby.players.length,
           max: lobby.maxPlayers,
         })
       );
     }
 
     // Join lobby
-    lobbyStore.addPlayer(lobbyId, userId);
+    await lobbyStore.addPlayer(lobbyId, userId);
 
     // Build updated embed
     const embed = new EmbedBuilder()
@@ -62,7 +62,7 @@ export default class JoinPartyButtonAction extends ButtonAction {
         },
         {
           name: t('buttons.join_party.list_players_title', {
-            current: lobby.players.size,
+            current: lobby.players.length,
             max: lobby.maxPlayers,
           }),
           value: Array.from(lobby.players)

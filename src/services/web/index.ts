@@ -5,7 +5,6 @@ import cookieParser from 'cookie-parser';
 import steamAuthRouter from './routes/v2/SteamAuthRouter';
 import metricsRouter from './routes/v2/MetricsRouter';
 import errorHandler from './middlewares/errorHandler';
-import { cleanUpTokens } from '../stores/SteamLinkTokenStore';
 import limiter from './middlewares/rateLimit';
 
 export interface IWebService {
@@ -26,8 +25,6 @@ export default class WebService implements IWebService {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
-
-    cleanUpTokens();
 
     app.get('/', limiter, (_req: Request, res: Response, _next: NextFunction) => {
       res.json({

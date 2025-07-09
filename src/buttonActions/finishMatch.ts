@@ -10,9 +10,9 @@ import ButtonAction from '../base/classes/ButtonAction';
 import CustomClient from '../base/classes/CustomClient';
 import { useDeadlockClient, useStatlockerClient } from '..';
 import { generateMatchImage } from '../services/utils/generateMatchImage';
-import { lobbyStore } from '../services/stores/LobbyStore';
 import CommandError from '../base/errors/CommandError';
 import { TFunction } from 'i18next';
+import { lobbyStore } from '../services/redis/stores/LobbyStore';
 
 export default class FinishMatchButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -31,7 +31,7 @@ export default class FinishMatchButtonAction extends ButtonAction {
     const startTime = performance.now();
 
     // Get match data from Deadlock API
-    const partyId = lobbyStore.getPartyId(creatorId);
+    const partyId = await lobbyStore.getPartyId(creatorId);
 
     if (!partyId) {
       throw new CommandError(t('buttons.finish_match.no_party_id'));

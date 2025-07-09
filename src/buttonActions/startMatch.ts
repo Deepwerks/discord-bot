@@ -12,12 +12,12 @@ import {
 import ButtonAction from '../base/classes/ButtonAction';
 import CustomClient from '../base/classes/CustomClient';
 import { logger, useDeadlockClient } from '..';
-import { lobbyStore } from '../services/stores/LobbyStore';
 import CommandError from '../base/errors/CommandError';
 import { TFunction } from 'i18next';
 import i18n from '../services/i18n';
 import { getStoredPlayersByDiscordIds } from '../services/database/repository';
 import { StoredPlayers } from '../services/database/orm/init';
+import { lobbyStore } from '../services/redis/stores/LobbyStore';
 
 enum TeamShuffleMode {
   Balanced = 'balanced',
@@ -40,13 +40,13 @@ export default class StartMatchButtonAction extends ButtonAction {
       throw new CommandError(t('buttons.start_match.only_creator_can_start'));
     }
 
-    const lobby = lobbyStore.getLobby(creatorId);
+    const lobby = await lobbyStore.getLobby(creatorId);
     if (!lobby) {
       throw new CommandError(t('buttons.start_match.lobby_not_found'));
     }
 
     const playerIds = lobby.players;
-    if (playerIds.size < 1) {
+    if (playerIds.length < 1) {
       throw new CommandError(t('buttons.start_match.not_enough_players'));
     }
 
@@ -88,7 +88,7 @@ export default class StartMatchButtonAction extends ButtonAction {
     });
 
     collector.on('collect', async (btnInteraction) => {
-      if (!playerIds.has(btnInteraction.user.id)) {
+      if (!playerIds.includes(btnInteraction.user.id)) {
         throw new CommandError(t('buttons.start_match.not_a_player'));
       }
 
@@ -107,7 +107,7 @@ export default class StartMatchButtonAction extends ButtonAction {
         components: [row],
       });
 
-      if (readySet.size === playerIds.size) {
+      if (readySet.size === playerIds.length) {
         collector.stop('all_ready');
       }
     });
@@ -120,7 +120,7 @@ export default class StartMatchButtonAction extends ButtonAction {
 
           const players = await getStoredPlayersByDiscordIds(Array.from(playerIds));
           const isEveryPlayerAuthenticated =
-            players.length === playerIds.size
+            players.length === playerIds.length
               ? players.every((p) => p.authenticated === true)
               : false;
 
@@ -156,7 +156,7 @@ export default class StartMatchButtonAction extends ButtonAction {
           });
 
           voteCollector.on('collect', async (btnInt) => {
-            if (!playerIds.has(btnInt.user.id)) return;
+            if (!playerIds.includes(btnInt.user.id)) return;
 
             const choice =
               btnInt.customId === 'vote:balanced'
@@ -176,8 +176,8 @@ export default class StartMatchButtonAction extends ButtonAction {
             };
 
             if (
-              votes.size === playerIds.size ||
-              Math.max(tally.balanced, tally.random) > playerIds.size / 2
+              votes.size === playerIds.length ||
+              Math.max(tally.balanced, tally.random) > playerIds.length / 2
             ) {
               selectedMode =
                 tally.balanced > tally.random ? TeamShuffleMode.Balanced : TeamShuffleMode.Random;
