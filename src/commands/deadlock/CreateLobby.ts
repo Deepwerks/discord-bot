@@ -10,6 +10,8 @@ import Command from '../../base/classes/Command';
 import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
+import { lobbyStore } from '../../services/redis/stores/LobbyStore';
+import CommandError from '../../base/errors/CommandError';
 
 export default class CreateLobby extends Command {
   constructor(client: CustomClient) {
@@ -26,6 +28,10 @@ export default class CreateLobby extends Command {
   }
 
   async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
+    if (await lobbyStore.isUserInAnyLobby(interaction.user.id)) {
+      throw new CommandError('You are already playing in a lobby!');
+    }
+
     const modal = new ModalBuilder().setCustomId('createLobby').setTitle('Lobby Settings');
 
     const lobbyNameInput = new TextInputBuilder()
