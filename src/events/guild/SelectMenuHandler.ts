@@ -82,7 +82,7 @@ export default class SelectMenuHandler extends Event {
         options: null,
         error: {
           name: error instanceof CommandError ? error.name : 'Unknown',
-          message: error instanceof CommandError ? error.message : t('errors.generic_error'),
+          message: error instanceof CommandError ? error.message : error,
           stack: error instanceof CommandError ? error.stack : undefined,
         },
       });

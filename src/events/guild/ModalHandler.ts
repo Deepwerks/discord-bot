@@ -39,7 +39,7 @@ export default class ModalHandler extends Event implements IModalHandler {
         options: null,
         error: {
           name: error instanceof CommandError ? error.name : 'Unknown',
-          message: error instanceof CommandError ? error.message : 'Failed to open modal',
+          message: error instanceof CommandError ? error.message : error,
           stack: error instanceof CommandError ? error.stack : undefined,
         },
       });

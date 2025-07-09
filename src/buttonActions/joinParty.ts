@@ -45,6 +45,10 @@ export default class JoinPartyButtonAction extends ButtonAction {
       );
     }
 
+    if (await lobbyStore.isUserInAnyLobby(userId)) {
+      throw new CommandError('You are already playing in a lobby!');
+    }
+
     // Join lobby
     await lobbyStore.addPlayer(lobbyId, userId);
 

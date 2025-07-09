@@ -74,6 +74,51 @@ class LobbyStore {
     if (!lobby || !lobby.partyId) return false;
     return lobby.partyId;
   }
+
+  async isUserInAnyLobby(userId: string): Promise<boolean> {
+    const iter = this.client.scanIterator({ MATCH: 'lobby:*' });
+
+    for await (const rawKey of iter) {
+      const key = typeof rawKey === 'string' ? rawKey : String(rawKey); // ensures it's a string
+      const data = await this.client.get(key);
+      if (!data) continue;
+
+      const lobby: LobbyState = JSON.parse(data);
+      if (lobby.players.includes(userId)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  async removeUserFromOtherLobbies(userId: string): Promise<true | false> {
+    const iter = this.client.scanIterator({ MATCH: 'lobby:*' });
+
+    let removed = false;
+
+    for await (const rawKey of iter) {
+      const key = typeof rawKey === 'string' ? rawKey : String(rawKey);
+      const data = await this.client.get(key);
+      if (!data) continue;
+
+      const lobby: LobbyState = JSON.parse(data);
+
+      // Skip if user is the creator of this lobby
+      if (lobby.creatorId === userId) {
+        return false; // early exit: cannot remove from this one
+      }
+
+      // If user is in the players list, remove them
+      if (lobby.players.includes(userId)) {
+        lobby.players = lobby.players.filter((id) => id !== userId);
+        await this.client.set(key, JSON.stringify(lobby));
+        removed = true;
+      }
+    }
+
+    return removed;
+  }
 }
 
 export const lobbyStore = new LobbyStore(redisClient);
