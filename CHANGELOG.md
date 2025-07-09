@@ -1,9 +1,14 @@
 ## [1.10.1](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.1) (2025-07-09)
 
 
+### Bug Fixes
+
+* prevent user from creating multiple lobbies ([a4db30d](https://github.com/Deepwerks/discord-bot/commit/a4db30d19e8cea8cb9ca6ab70f92d5b27fa9504b))
+
+
 ### Features
 
-* implemented redis caching ([a1f8db9](https://github.com/Deepwerks/discord-bot/commit/a1f8db958d09c5ada8cd2631482407baab364033))
+* prevent users from joining multiple lobbies ([294ba94](https://github.com/Deepwerks/discord-bot/commit/294ba94bbc6cfac9e4138b3f2eda16d96a642f3a))
 
 
 
