@@ -39,7 +39,7 @@ export default class SelectMenuHandler extends Event {
 
       const now = Date.now();
       const timestamps = cooldowns.get(selectMenuHandler.customId)!;
-      const cooldownAmount = (selectMenuHandler.cooldown || 3) * 1000;
+      const cooldownAmount = (selectMenuHandler.cooldown || 1) * 1000;
 
       if (
         timestamps.has(interaction.user.id) &&

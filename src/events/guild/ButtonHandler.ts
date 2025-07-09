@@ -43,7 +43,7 @@ export default class ButtonHandler extends Event {
 
       const now = Date.now();
       const timestamps = cooldowns.get(buttonActionHandler.customId)!;
-      const cooldownAmount = (buttonActionHandler.cooldown || 3) * 1000;
+      const cooldownAmount = buttonActionHandler.cooldown * 1000;
 
       if (
         timestamps.has(interaction.user.id) &&
