@@ -1,9 +1,14 @@
-## [1.9.1](https://github.com/Deepwerks/discord-bot/compare/v1.9.0...v1.9.1) (2025-07-08)
+## [1.9.2](https://github.com/Deepwerks/discord-bot/compare/v1.9.0...v1.9.2) (2025-07-09)
+
+
+### Bug Fixes
+
+* fixed an error where users couldnt search by the me shortcut ([4b5c851](https://github.com/Deepwerks/discord-bot/commit/4b5c85105e30ec1420ab06a847476286ce69f4a6))
 
 
 ### Features
 
-* made command accept usernames too ([2cd3b55](https://github.com/Deepwerks/discord-bot/commit/2cd3b55a43140860ca2b396336cbb5a8ef3f674b))
+* implemented caching for guildConfigs ([494d030](https://github.com/Deepwerks/discord-bot/commit/494d030d05c900217342feebeb4fd69396203e81))
 
 
 

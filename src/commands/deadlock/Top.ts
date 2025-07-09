@@ -12,7 +12,7 @@ import { TFunction } from 'i18next';
 import CommandError from '../../base/errors/CommandError';
 import { logger, useDeadlockClient } from '../..';
 import DeadlockPlayerHeroStats from '../../services/clients/DeadlockClient/services/DeadlockPlayerService/entities/DeadlockPlayerHeroStats';
-import getProfile from '../../services/common/getProfile';
+import getProfile from '../../services/database/repository';
 
 const calculateKDA = (m: DeadlockPlayerHeroStats) => (m.kills + m.assists) / Math.max(1, m.deaths);
 const calculateWinRate = (m: DeadlockPlayerHeroStats) =>

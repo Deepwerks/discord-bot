@@ -18,7 +18,7 @@ import { logger, useDeadlockClient } from '../..';
 import PerformanceTagService, {
   IPerformanceTag,
 } from '../../services/calculators/PerformanceTagService';
-import getProfile from '../../services/common/getProfile';
+import getProfile from '../../services/database/repository';
 
 const safeAvg = (arr: number[]) =>
   arr.length === 0 ? 0 : arr.reduce((a, b) => a + b, 0) / arr.length;

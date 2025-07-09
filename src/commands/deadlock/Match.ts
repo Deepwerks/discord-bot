@@ -14,7 +14,7 @@ import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
 import { logger } from '../..';
 import CommandError from '../../base/errors/CommandError';
-import { handleMatchRequest } from '../../services/common/handleMatchRequest';
+import { handleMatchRequest } from '../../services/database/repository';
 
 export default class Match extends Command {
   constructor(client: CustomClient) {

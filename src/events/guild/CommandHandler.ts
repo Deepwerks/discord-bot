@@ -7,8 +7,8 @@ import { logger } from '../..';
 import logInteraction from '../../services/logger/logInteraction';
 import CommandError from '../../base/errors/CommandError';
 import { commandExecutions } from '../../services/metrics';
-import { Guilds } from '../../services/database/orm/init';
 import { InteractionType } from '../../services/database/orm/models/UserInteractions.model';
+import { getGuildConfig } from '../../services/database/repository';
 
 export default class CommandHandler extends Event {
   constructor(client: CustomClient) {
@@ -22,12 +22,8 @@ export default class CommandHandler extends Event {
   async Execute(interaction: Interaction) {
     // Check if the interaction is a command or autocomplete
     if (interaction.isChatInputCommand()) {
-      const guildLang = await Guilds.findOne({
-        where: {
-          guildId: interaction.guildId!,
-        },
-      });
-      const t = i18next.getFixedT(guildLang?.preferedLanguage ?? 'en');
+      const guildConfig = await getGuildConfig(interaction.guildId);
+      const t = i18next.getFixedT(guildConfig?.preferedLanguage ?? 'en');
 
       const command: Command = this.client.commands.get(interaction.commandName)!;
 
