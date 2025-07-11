@@ -1,9 +1,10 @@
-import { EmbedBuilder, ModalSubmitInteraction, ThreadChannel } from 'discord.js';
+import { EmbedBuilder, ModalSubmitInteraction, ThreadChannel, TextChannel } from 'discord.js';
 import CustomClient from '../base/classes/CustomClient';
 import Modal from '../base/classes/CustomModal';
 import CommandError from '../base/errors/CommandError';
 import { t } from 'i18next';
 import { matchFeedbackStore } from '../services/redis/stores/MatchFeedbackStore';
+import { logger } from '..';
 
 export default class MatchFeedback extends Modal {
   constructor(client: CustomClient) {
@@ -26,13 +27,20 @@ export default class MatchFeedback extends Modal {
     }
 
     // Get session data
-    const session = await matchFeedbackStore.getSession(sessionId);
+    const session = await matchFeedbackStore.get(sessionId);
     if (!session) {
       throw new CommandError(t('modals.match_feedback.error_session_not_found'));
     }
 
     const feedbackMessage = interaction.fields.getTextInputValue('feedback_message');
     const submitterRank = interaction.fields.getTextInputValue('submitter_rank') || null;
+    const ratingValue = interaction.fields.getTextInputValue('feedback_rating');
+
+    // Validate rating
+    const rating = parseInt(ratingValue);
+    if (isNaN(rating) || rating < 1 || rating > 5) {
+      throw new CommandError(t('buttons.post_feedback.error_invalid_rating'));
+    }
 
     // Get the private thread
     const thread = (await this.client.channels.fetch(session.threadId)) as ThreadChannel;
@@ -62,10 +70,64 @@ export default class MatchFeedback extends Modal {
       });
     }
 
+    // Add rating field
+    const stars = ':star:'.repeat(rating);
+    feedbackEmbed.addFields({
+      name: t('modals.match_feedback.feedback_rating_field'),
+      value: t('modals.match_feedback.rating_stars', { stars, rating }),
+      inline: true,
+    });
+
+    // Store the rating
+    await matchFeedbackStore.addRating(sessionId, rating);
+
     // Post feedback to private thread
     await thread.send({
       embeds: [feedbackEmbed],
     });
+
+    // Update public message with new average rating
+    try {
+      const channel = (await this.client.channels.fetch(session.channelId)) as TextChannel;
+      if (channel && channel.isTextBased()) {
+        const publicMessage = await channel.messages.fetch(session.messageId);
+        if (publicMessage && publicMessage.embeds.length > 0) {
+          const embed = EmbedBuilder.from(publicMessage.embeds[0]);
+
+          const updatedSession = await matchFeedbackStore.get(sessionId);
+
+          const ratingCount = updatedSession?.ratings.length || 0;
+          const ratingSum = updatedSession?.ratings.reduce((acc, rating) => acc + rating, 0);
+          const ratingAvg = ratingSum ?? 0 / Math.max(1, ratingCount);
+
+          // Remove existing rating field if present
+          const existingFields =
+            embed.data.fields?.filter(
+              (field) => field.name !== t('commands.match_feedback.embed_rating_field')
+            ) || [];
+
+          // Add updated rating field
+          embed.setFields(...existingFields, {
+            name: t('commands.match_feedback.embed_rating_field'),
+            value: t('commands.match_feedback.embed_rating_value', {
+              stars: ':star:'.repeat(Math.round(ratingAvg)),
+              average: ratingAvg.toFixed(1),
+              count: ratingCount,
+            }),
+            inline: true,
+          });
+
+          await publicMessage.edit({ embeds: [embed] });
+        }
+      }
+    } catch (error) {
+      logger.warn('Failed to update public message with rating', {
+        sessionId,
+        messageId: session.messageId,
+        channelId: session.channelId,
+        error: error instanceof Error ? error.message : error,
+      });
+    }
 
     // Confirm to the user
     await interaction.reply({
