@@ -28,7 +28,7 @@ export default class CloseFeedbackSession extends ButtonAction {
     }
 
     // Get session data
-    const session = await matchFeedbackStore.getSession(sessionId);
+    const session = await matchFeedbackStore.get(sessionId);
     if (!session) {
       throw new CommandError(t('buttons.close_feedback_session.error_session_not_found'));
     }
@@ -66,7 +66,7 @@ export default class CloseFeedbackSession extends ButtonAction {
     }
 
     // Remove session from store
-    matchFeedbackStore.removeSession(sessionId);
+    matchFeedbackStore.delete(sessionId);
 
     // Get the current thread and delete it
     const thread = interaction.channel as ThreadChannel;

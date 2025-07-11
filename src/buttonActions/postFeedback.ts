@@ -33,7 +33,7 @@ export default class PostFeedback extends ButtonAction {
     }
 
     // Get session data
-    const session = await matchFeedbackStore.getSession(sessionId);
+    const session = await matchFeedbackStore.get(sessionId);
     if (!session) {
       throw new CommandError(t('buttons.post_feedback.error_session_not_found'));
     }
@@ -60,10 +60,20 @@ export default class PostFeedback extends ButtonAction {
       .setStyle(TextInputStyle.Short)
       .setRequired(false);
 
+    const ratingInput = new TextInputBuilder()
+      .setCustomId('feedback_rating')
+      .setLabel(t('buttons.post_feedback.modal_rating_label'))
+      .setPlaceholder(t('buttons.post_feedback.modal_rating_placeholder'))
+      .setMinLength(1)
+      .setMaxLength(1)
+      .setStyle(TextInputStyle.Short)
+      .setRequired(true);
+
     const feedbackRow = new ActionRowBuilder<TextInputBuilder>().addComponents(feedbackInput);
     const rankRow = new ActionRowBuilder<TextInputBuilder>().addComponents(rankInput);
+    const ratingRow = new ActionRowBuilder<TextInputBuilder>().addComponents(ratingInput);
 
-    modal.addComponents(feedbackRow, rankRow);
+    modal.addComponents(feedbackRow, rankRow, ratingRow);
 
     await interaction.showModal(modal);
   }

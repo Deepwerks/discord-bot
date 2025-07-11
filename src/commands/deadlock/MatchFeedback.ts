@@ -183,7 +183,7 @@ export default class MatchFeedback extends Command {
     });
 
     // Store session data
-    await matchFeedbackStore.createSession(sessionId, {
+    await matchFeedbackStore.store(sessionId, {
       matchId,
       title,
       rank: rank || undefined,
@@ -192,6 +192,7 @@ export default class MatchFeedback extends Command {
       threadId: thread.id,
       channelId: channel.id,
       messageId: publicMessage.id,
+      ratings: [],
     });
 
     // Create delete session button for private thread
