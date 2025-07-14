@@ -1,10 +1,10 @@
+import { z } from 'zod';
 import { logger } from '../../../../..';
 import CustomCache from '../../../../cache';
 import { hasMiscProperty } from '../../../../utils/guards';
 import BaseClientService from '../../../base/classes/BaseClientService';
 import DeadlockItem from './entities/DeadlockItem';
 import DeadlockItemSchema from './validators/DeadlockItem.validator';
-import DeadlockItemsSchema from './validators/DeadlockItems.validator';
 
 export default class DeadlockItemService extends BaseClientService {
   private cache = new CustomCache<DeadlockItem>('DeadlockItemCache', 0);
@@ -14,7 +14,7 @@ export default class DeadlockItemService extends BaseClientService {
       logger.info('[API CALL] Fetching deadlock items...');
 
       const response = await this.client.request('GET', `/v2/items/`, {
-        schema: DeadlockItemsSchema,
+        schema: z.array(DeadlockItemSchema),
       });
 
       const items = response.map((item) => new DeadlockItem(item));

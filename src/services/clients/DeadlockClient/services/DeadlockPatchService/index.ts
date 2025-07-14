@@ -1,8 +1,9 @@
+import { z } from 'zod';
 import { logger } from '../../../../..';
 import { hasMiscProperty } from '../../../../utils/guards';
 import BaseClientService from '../../../base/classes/BaseClientService';
 import DeadlockPatch from './entities/DeadlockPatch';
-import DeadlockPatchesSchema from './validators/DeadlockPatches.validator';
+import DeadlockPatchSchema from './validators/DeadlockPatch.validator';
 
 export default class DeadlockPatchService extends BaseClientService {
   async FetchPatches(limit?: number): Promise<DeadlockPatch[]> {
@@ -10,7 +11,7 @@ export default class DeadlockPatchService extends BaseClientService {
       logger.info('[API CALL] Fetching deadlock patches...');
 
       const response = await this.client.request('GET', `/v1/patches`, {
-        schema: DeadlockPatchesSchema,
+        schema: z.array(DeadlockPatchSchema),
       });
 
       if (limit === undefined) {
