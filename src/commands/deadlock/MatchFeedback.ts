@@ -103,8 +103,11 @@ export default class MatchFeedback extends Command {
       },
     });
 
-    let playedCharacter: string | null = null;
-    if (player) {
+    let playedCharacter = heroPlayed
+      ? (await useAssetsClient.HeroService.GetHero(heroPlayed))?.name
+      : null;
+
+    if (player && !playedCharacter) {
       const playerInMatch = match.players.find((p) => p.account_id === +player.steamId);
 
       if (playerInMatch) {
@@ -228,6 +231,7 @@ export default class MatchFeedback extends Command {
     // Check if the focused option is the hero_name option
     const focusedOption = interaction.options.getFocused(true);
     if (focusedOption.name !== 'hero_played') return;
+
     const focusedValue = focusedOption.value.toLowerCase();
 
     // Get all hero names from the cache
