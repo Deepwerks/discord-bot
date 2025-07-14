@@ -117,9 +117,11 @@ export default class MatchFeedback extends Command {
     const imageBuffer = await generateMatchImage({
       match,
       useGenericNames: false,
-      highlightedPlayerId: player
-        ? +player.steamId
-        : match.players.find((player) => player.hero_id === heroPlayed)?.account_id,
+      highlightedPlayerId: heroPlayed
+        ? match.players.find((player) => player.hero_id === heroPlayed)?.account_id
+        : player
+          ? +player.steamId
+          : undefined,
     });
 
     // Create private thread first
