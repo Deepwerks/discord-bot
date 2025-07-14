@@ -1,3 +1,4 @@
+import z from 'zod';
 import { logger } from '../../../../..';
 import { hasMiscProperty } from '../../../../utils/guards';
 import BaseClientService from '../../../base/classes/BaseClientService';
@@ -8,6 +9,8 @@ import DeadlockPlayerHeroStats from './entities/DeadlockPlayerHeroStats';
 import DeadlockMatchHistorySchema from './validators/DeadlockMatchHistory.validator';
 import DeadlockMMRHistorySchema from './validators/DeadlockMMRHistory.validator';
 import DeadlockPlayerHeroesStatsSchema from './validators/DeadlockPlayerHeroesStats.validator';
+import SteamProfileSchema from './validators/SteamProfile.validator';
+import SteamProfile from './entities/SteamProfile';
 
 export default class DeadlockPlayerService extends BaseClientService {
   async FetchHeroStats(
@@ -116,6 +119,51 @@ export default class DeadlockPlayerService extends BaseClientService {
     } catch (error) {
       logger.error('Failed to fetch player stats', {
         account_id,
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        misc: hasMiscProperty(error) ? error.misc : undefined,
+      });
+
+      return null;
+    }
+  }
+
+  async SearchProfile(query: string) {
+    try {
+      logger.info(`[API CALL] Searching for steam profiles: ${query}...`);
+
+      const response = await this.client.request('GET', '/v1/players/steam-search', {
+        params: {
+          search_query: query,
+        },
+        schema: z.array(SteamProfileSchema),
+      });
+
+      return response.map((profile) => new SteamProfile(profile));
+    } catch (error) {
+      logger.error('Failed to get steam profiles', {
+        query,
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        misc: hasMiscProperty(error) ? error.misc : undefined,
+      });
+
+      return null;
+    }
+  }
+
+  async GetProfile(accountId: string) {
+    try {
+      logger.info(`[API CALL] Getting steam profile: ${accountId}...`);
+
+      const response = await this.client.request('GET', `/v1/players/${accountId}/steam`, {
+        schema: SteamProfileSchema,
+      });
+
+      return new SteamProfile(response);
+    } catch (error) {
+      logger.error('Failed to get steam profile', {
+        accountId,
         error: error instanceof Error ? error.message : error,
         stack: error instanceof Error ? error.stack : undefined,
         misc: hasMiscProperty(error) ? error.misc : undefined,
