@@ -5,6 +5,7 @@
 
 * heroname in embed ([d03f5a9](https://github.com/Deepwerks/discord-bot/commit/d03f5a9248f3b83f20adcf4c894207e605d74cee))
 * rating ([59328f4](https://github.com/Deepwerks/discord-bot/commit/59328f4d325af650225b858c4ca06977ef8a57fb))
+* removed lodash from dev dependencies ([e54ddeb](https://github.com/Deepwerks/discord-bot/commit/e54ddebc0107243c11777b38b84824748154e22f))
 * update embed on player join ([#267](https://github.com/Deepwerks/discord-bot/issues/267)) ([a74eb40](https://github.com/Deepwerks/discord-bot/commit/a74eb404240963eea5f25db6fa35f85a066cca58))
 
 
