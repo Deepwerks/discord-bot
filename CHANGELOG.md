@@ -3,9 +3,8 @@
 
 ### Bug Fixes
 
-* prioritize hero over steam account ([458269e](https://github.com/Deepwerks/discord-bot/commit/458269e3856e98b93cb70eddd541782b26b11b9a))
-* prioritize hero over steam account ([05142c7](https://github.com/Deepwerks/discord-bot/commit/05142c7012e4254781e98bb37e64022f0250469a))
-* tag displayed user in message ([fae5bfa](https://github.com/Deepwerks/discord-bot/commit/fae5bfa7998d65c8f4dfe46046beedc943187722))
+* heroname in embed ([d03f5a9](https://github.com/Deepwerks/discord-bot/commit/d03f5a9248f3b83f20adcf4c894207e605d74cee))
+* rating ([59328f4](https://github.com/Deepwerks/discord-bot/commit/59328f4d325af650225b858c4ca06977ef8a57fb))
 * update embed on player join ([#267](https://github.com/Deepwerks/discord-bot/issues/267)) ([a74eb40](https://github.com/Deepwerks/discord-bot/commit/a74eb404240963eea5f25db6fa35f85a066cca58))
 
 
