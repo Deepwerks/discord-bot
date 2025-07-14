@@ -96,9 +96,11 @@ export default class MatchFeedback extends Modal {
 
           const updatedSession = await matchFeedbackStore.get(sessionId);
 
-          const ratingCount = updatedSession?.ratings.length || 0;
-          const ratingSum = updatedSession?.ratings.reduce((acc, rating) => acc + rating, 0);
-          const ratingAvg = ratingSum ?? 0 / Math.max(1, ratingCount);
+          const ratings = updatedSession?.ratings ?? [];
+          const ratingAvg = ratings.length
+            ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+            : 0;
+          const ratingCount = ratings.length;
 
           // Remove existing rating field if present
           const existingFields =
