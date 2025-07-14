@@ -1,9 +1,10 @@
+import z from 'zod';
 import { logger } from '../../../../..';
 import CustomCache from '../../../../cache';
 import { hasMiscProperty } from '../../../../utils/guards';
 import BaseClientService from '../../../base/classes/BaseClientService';
 import DeadlockRank from './entities/DeadlockRank';
-import DeadlockRanksSchema from './validators/DeadlockRanks.validator';
+import DeadlockRankSchema from './validators/DeadlockRank.validator';
 
 export default class DeadlockDefaultService extends BaseClientService {
   private cache = new CustomCache<DeadlockRank>('DeadlockRankCache', 0);
@@ -13,7 +14,7 @@ export default class DeadlockDefaultService extends BaseClientService {
       logger.info('[API CALL] Fetching deadlock ranks...');
 
       const response = await this.client.request('GET', `/v2/ranks`, {
-        schema: DeadlockRanksSchema,
+        schema: z.array(DeadlockRankSchema),
       });
 
       const ranks = response.map((rank) => {
@@ -93,7 +94,7 @@ export default class DeadlockDefaultService extends BaseClientService {
       logger.info('[API CALL] Fetching all deadlock ranks...');
 
       const response = await this.client.request('GET', `/v2/ranks`, {
-        schema: DeadlockRanksSchema,
+        schema: z.array(DeadlockRankSchema),
       });
 
       response.map((rank) => {

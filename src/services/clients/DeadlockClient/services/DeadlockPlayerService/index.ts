@@ -1,3 +1,4 @@
+import z from 'zod';
 import { logger } from '../../../../..';
 import { hasMiscProperty } from '../../../../utils/guards';
 import BaseClientService from '../../../base/classes/BaseClientService';
@@ -5,9 +6,11 @@ import { VariableRequestParams, VariableResponse } from './entities/CommandRespo
 import DeadlockMatchHistoryRecord from './entities/DeadlockMatchHistoryRecord';
 import DeadlockMMRHistoryRecord from './entities/DeadlockMMRHistoryRecord';
 import DeadlockPlayerHeroStats from './entities/DeadlockPlayerHeroStats';
-import DeadlockMatchHistorySchema from './validators/DeadlockMatchHistory.validator';
-import DeadlockMMRHistorySchema from './validators/DeadlockMMRHistory.validator';
-import DeadlockPlayerHeroesStatsSchema from './validators/DeadlockPlayerHeroesStats.validator';
+import SteamProfileSchema from './validators/SteamProfile.validator';
+import SteamProfile from './entities/SteamProfile';
+import DeadlockMatchHistoryRecordSchema from './validators/DeadlockMatchHistoryRecord.validator';
+import DeadlockMMRHistoryRecordSchema from './validators/DeadlockMMRHistoryRecord.validator';
+import DeadlockPlayerHeroStatsSchema from './validators/DeadlockPlayerHeroStats.validator';
 
 export default class DeadlockPlayerService extends BaseClientService {
   async FetchHeroStats(
@@ -17,7 +20,7 @@ export default class DeadlockPlayerService extends BaseClientService {
     try {
       logger.info('[API CALL] Fetching player hero stats...');
       const response = await this.client.request('GET', `/v1/players/${account_id}/hero-stats`, {
-        schema: DeadlockPlayerHeroesStatsSchema,
+        schema: z.array(DeadlockPlayerHeroStatsSchema),
       });
 
       const heroesStats = response.map((s) => new DeadlockPlayerHeroStats(s));
@@ -43,7 +46,7 @@ export default class DeadlockPlayerService extends BaseClientService {
       logger.info('[API CALL] Fetching player match history...');
 
       const response = await this.client.request('GET', `/v1/players/${account_id}/match-history`, {
-        schema: DeadlockMatchHistorySchema,
+        schema: z.array(DeadlockMatchHistoryRecordSchema),
       });
 
       return response.slice(0, limit).map((r) => new DeadlockMatchHistoryRecord(r));
@@ -64,7 +67,7 @@ export default class DeadlockPlayerService extends BaseClientService {
       logger.info('[API CALL] Fetching player mmr history...');
 
       const response = await this.client.request('GET', `/v1/players/${account_id}/mmr-history`, {
-        schema: DeadlockMMRHistorySchema,
+        schema: z.array(DeadlockMMRHistoryRecordSchema),
       });
 
       return response
@@ -116,6 +119,51 @@ export default class DeadlockPlayerService extends BaseClientService {
     } catch (error) {
       logger.error('Failed to fetch player stats', {
         account_id,
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        misc: hasMiscProperty(error) ? error.misc : undefined,
+      });
+
+      return null;
+    }
+  }
+
+  async SearchProfile(query: string) {
+    try {
+      logger.info(`[API CALL] Searching for steam profiles: ${query}...`);
+
+      const response = await this.client.request('GET', '/v1/players/steam-search', {
+        params: {
+          search_query: query,
+        },
+        schema: z.array(SteamProfileSchema),
+      });
+
+      return response.map((profile) => new SteamProfile(profile));
+    } catch (error) {
+      logger.error('Failed to get steam profiles', {
+        query,
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        misc: hasMiscProperty(error) ? error.misc : undefined,
+      });
+
+      return null;
+    }
+  }
+
+  async GetProfile(accountId: string) {
+    try {
+      logger.info(`[API CALL] Getting steam profile: ${accountId}...`);
+
+      const response = await this.client.request('GET', `/v1/players/${accountId}/steam`, {
+        schema: SteamProfileSchema,
+      });
+
+      return new SteamProfile(response);
+    } catch (error) {
+      logger.error('Failed to get steam profile', {
+        accountId,
         error: error instanceof Error ? error.message : error,
         stack: error instanceof Error ? error.stack : undefined,
         misc: hasMiscProperty(error) ? error.misc : undefined,

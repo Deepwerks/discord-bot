@@ -1,10 +1,10 @@
+import z from 'zod';
 import { logger } from '../../../../..';
 import CustomCache from '../../../../cache';
 import { hasMiscProperty } from '../../../../utils/guards';
 import BaseClientService from '../../../base/classes/BaseClientService';
 import DeadlockHero from './entities/DeadlockHero';
 import DeadlockHeroSchema from './validators/DeadlockHero.validator';
-import DeadlockHeroesSchema from './validators/DeadlockHeroes.validator';
 
 export default class DeadlockHeroService extends BaseClientService {
   private cache = new CustomCache<DeadlockHero>('DeadlockHeroCache', 0);
@@ -49,7 +49,7 @@ export default class DeadlockHeroService extends BaseClientService {
       logger.info('[API CALL] Fetching all deadlock heroes...');
 
       const response = await this.client.request('GET', '/v2/heroes', {
-        schema: DeadlockHeroesSchema,
+        schema: z.array(DeadlockHeroSchema),
       });
       const accessableHeroes = response
         .filter((hero) => !hero.disabled && !hero.in_development && !hero.limited_testing)

@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { logger } from '../../../../..';
 import CustomCache from '../../../../cache';
 import { hasMiscProperty } from '../../../../utils/guards';
@@ -5,7 +6,6 @@ import BaseClient from '../../../base/classes/BaseClient';
 import BaseClientService from '../../../base/classes/BaseClientService';
 import StatlockerProfile from './entities/StatlockerProfile';
 import StatlockerProfileSchema from './validator/StatlockerProfile.validator';
-import StatlockerProfilesSchema from './validator/StatlockerProfiles.validator';
 
 export default class StatlockerProfileService extends BaseClientService {
   private cache: CustomCache<StatlockerProfile>;
@@ -45,7 +45,7 @@ export default class StatlockerProfileService extends BaseClientService {
       logger.info(`[API CALL] Fetching ${account_ids.length} statlocker profiles...`);
 
       const response = await this.client.request('POST', `/api/profile/batch-profiles`, {
-        schema: StatlockerProfilesSchema,
+        schema: z.array(StatlockerProfileSchema),
         data: account_ids,
       });
 
@@ -124,7 +124,7 @@ export default class StatlockerProfileService extends BaseClientService {
         'GET',
         `/api/profile/search-profiles/${username}`,
         {
-          schema: StatlockerProfilesSchema,
+          schema: z.array(StatlockerProfileSchema),
         }
       );
 
