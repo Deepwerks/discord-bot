@@ -3,15 +3,14 @@
 
 ### Bug Fixes
 
-* heroname in embed ([d03f5a9](https://github.com/Deepwerks/discord-bot/commit/d03f5a9248f3b83f20adcf4c894207e605d74cee))
-* rating ([59328f4](https://github.com/Deepwerks/discord-bot/commit/59328f4d325af650225b858c4ca06977ef8a57fb))
-* removed lodash from dev dependencies ([e54ddeb](https://github.com/Deepwerks/discord-bot/commit/e54ddebc0107243c11777b38b84824748154e22f))
 * update embed on player join ([#267](https://github.com/Deepwerks/discord-bot/issues/267)) ([a74eb40](https://github.com/Deepwerks/discord-bot/commit/a74eb404240963eea5f25db6fa35f85a066cca58))
 
 
 ### Features
 
 * add community rating feature to feedback system ([#268](https://github.com/Deepwerks/discord-bot/issues/268)) ([77f6ae9](https://github.com/Deepwerks/discord-bot/commit/77f6ae98c11c86e80f0991d901afd125fc17a631))
+* implemented steam profile search functions ([90bd33f](https://github.com/Deepwerks/discord-bot/commit/90bd33f7ad799ebcad427c63f076ca94e069fc73))
+* removed redundant entities from services ([44e9ed6](https://github.com/Deepwerks/discord-bot/commit/44e9ed641c6c964123358096b0a97f85522be75d))
 
 
 
