@@ -86,8 +86,11 @@
       "embed_title": "🎥 {{title}}",
       "embed_description": "**Match ID:** {{matchId}}\n**Character:** {{playedCharacter}}\n**Rank:** {{rank}}",
       "embed_footer": "Shared by {{displayName}}",
+      "embed_rating_field": "Community Rating",
+      "embed_rating_value": "{{stars}} ({{average}}/5 from {{count}} ratings)",
+      "embed_no_ratings": "No ratings yet",
       "thread_initial_title": "📝 Feedback Collection Started",
-      "thread_initial_description": "Your match video \"{{title}}\" has been posted publicly. Feedback from community members will appear here.\n\n**Match ID:** {{matchId}}{{video}}",
+      "thread_initial_description": "Your match \"{{title}}\" has been posted publicly. Feedback from community members will appear here.\n\n**Match ID:** {{matchId}}{{video}}",
       "button_close_session": "🗑️ Close Session",
       "public_message_content": "{{displayName}} is looking for some feedback to level up their game! Check out their match and hit the **Post Feedback** button to share your thoughts.\n\nRealtime map for the match: https://statlocker.gg/match/{{matchId}}/map"
     }
@@ -170,6 +173,9 @@
       "modal_placeholder": "Share your thoughts, tips, or analysis about this match...",
       "modal_rank_label": "Your Current Rank (Optional)",
       "modal_rank_placeholder": "e.g., Phantom, Ascendant, etc.",
+      "modal_rating_label": "Rate this gameplay (1-5 stars)",
+      "modal_rating_placeholder": "Enter a number from 1 to 5",
+      "error_invalid_rating": "Please enter a valid rating between 1 and 5.",
       "error_generic": "An error occurred while opening the feedback form."
     },
     "close_feedback_session": {
@@ -188,6 +194,8 @@
       "error_thread_not_found": "Feedback thread not found.",
       "feedback_footer": "Feedback for: {{title}}",
       "feedback_rank_field": "Submitter Rank",
+      "feedback_rating_field": "Rating",
+      "rating_stars": "{{stars}} ({{rating}}/5)",
       "success_message": "✅ Thank you for your feedback! It has been sent to the video creator.",
       "error_generic": "An error occurred while submitting your feedback."
     }
