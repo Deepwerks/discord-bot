@@ -3,7 +3,7 @@
 
 ### Bug Fixes
 
-* set updated guild config in cache on language cmd ([7de8a58](https://github.com/Deepwerks/discord-bot/commit/7de8a58f23687a10f8ff0f7802bf8779a942c464))
+* set updated guild config in cache on language cmd ([#278](https://github.com/Deepwerks/discord-bot/issues/278)) ([29ed24c](https://github.com/Deepwerks/discord-bot/commit/29ed24c496bacef236825ea8e5611df422720c04))
 * update embed on player join ([#267](https://github.com/Deepwerks/discord-bot/issues/267)) ([a74eb40](https://github.com/Deepwerks/discord-bot/commit/a74eb404240963eea5f25db6fa35f85a066cca58))
 
 
