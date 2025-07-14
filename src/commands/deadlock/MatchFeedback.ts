@@ -174,7 +174,7 @@ export default class MatchFeedback extends Command {
     // Post in public channel
     const publicMessage = await interaction.editReply({
       content: t('commands.match_feedback.public_message_content', {
-        displayName: interaction.user.displayName,
+        displayedUserId: interaction.user.id,
         matchId,
       }),
       embeds: [embed],
