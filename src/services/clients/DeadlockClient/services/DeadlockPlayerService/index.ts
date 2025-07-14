@@ -6,11 +6,11 @@ import { VariableRequestParams, VariableResponse } from './entities/CommandRespo
 import DeadlockMatchHistoryRecord from './entities/DeadlockMatchHistoryRecord';
 import DeadlockMMRHistoryRecord from './entities/DeadlockMMRHistoryRecord';
 import DeadlockPlayerHeroStats from './entities/DeadlockPlayerHeroStats';
-import DeadlockMatchHistorySchema from './validators/DeadlockMatchHistory.validator';
-import DeadlockMMRHistorySchema from './validators/DeadlockMMRHistory.validator';
-import DeadlockPlayerHeroesStatsSchema from './validators/DeadlockPlayerHeroesStats.validator';
 import SteamProfileSchema from './validators/SteamProfile.validator';
 import SteamProfile from './entities/SteamProfile';
+import DeadlockMatchHistoryRecordSchema from './validators/DeadlockMatchHistoryRecord.validator';
+import DeadlockMMRHistoryRecordSchema from './validators/DeadlockMMRHistoryRecord.validator';
+import DeadlockPlayerHeroStatsSchema from './validators/DeadlockPlayerHeroStats.validator';
 
 export default class DeadlockPlayerService extends BaseClientService {
   async FetchHeroStats(
@@ -20,7 +20,7 @@ export default class DeadlockPlayerService extends BaseClientService {
     try {
       logger.info('[API CALL] Fetching player hero stats...');
       const response = await this.client.request('GET', `/v1/players/${account_id}/hero-stats`, {
-        schema: DeadlockPlayerHeroesStatsSchema,
+        schema: z.array(DeadlockPlayerHeroStatsSchema),
       });
 
       const heroesStats = response.map((s) => new DeadlockPlayerHeroStats(s));
@@ -46,7 +46,7 @@ export default class DeadlockPlayerService extends BaseClientService {
       logger.info('[API CALL] Fetching player match history...');
 
       const response = await this.client.request('GET', `/v1/players/${account_id}/match-history`, {
-        schema: DeadlockMatchHistorySchema,
+        schema: z.array(DeadlockMatchHistoryRecordSchema),
       });
 
       return response.slice(0, limit).map((r) => new DeadlockMatchHistoryRecord(r));
@@ -67,7 +67,7 @@ export default class DeadlockPlayerService extends BaseClientService {
       logger.info('[API CALL] Fetching player mmr history...');
 
       const response = await this.client.request('GET', `/v1/players/${account_id}/mmr-history`, {
-        schema: DeadlockMMRHistorySchema,
+        schema: z.array(DeadlockMMRHistoryRecordSchema),
       });
 
       return response
