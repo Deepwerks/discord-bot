@@ -92,7 +92,7 @@
       "thread_initial_title": "📝 Feedback Collection Started",
       "thread_initial_description": "Your match \"{{title}}\" has been posted publicly. Feedback from community members will appear here.\n\n**Match ID:** {{matchId}}{{video}}",
       "button_close_session": "🗑️ Close Session",
-      "public_message_content": "{{displayName}} is looking for some feedback to level up their game! Check out their match and hit the **Post Feedback** button to share your thoughts.\n\nRealtime map for the match: https://statlocker.gg/match/{{matchId}}/map"
+      "public_message_content": "<@{{displayedUserId}}> is looking for some feedback to level up their game! Check out their match and hit the **Post Feedback** button to share your thoughts.\n\nRealtime map for the match: https://statlocker.gg/match/{{matchId}}/map"
     }
   },
   "warnings": {

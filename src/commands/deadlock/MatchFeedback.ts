@@ -117,9 +117,11 @@ export default class MatchFeedback extends Command {
     const imageBuffer = await generateMatchImage({
       match,
       useGenericNames: false,
-      highlightedPlayerId: player
-        ? +player.steamId
-        : match.players.find((player) => player.hero_id === heroPlayed)?.account_id,
+      highlightedPlayerId: heroPlayed
+        ? match.players.find((p) => p.hero_id === heroPlayed)?.account_id
+        : player?.steamId
+          ? Number(player.steamId)
+          : undefined,
     });
 
     // Create private thread first
@@ -174,7 +176,7 @@ export default class MatchFeedback extends Command {
     // Post in public channel
     const publicMessage = await interaction.editReply({
       content: t('commands.match_feedback.public_message_content', {
-        displayName: interaction.user.displayName,
+        displayedUserId: interaction.user.id,
         matchId,
       }),
       embeds: [embed],
