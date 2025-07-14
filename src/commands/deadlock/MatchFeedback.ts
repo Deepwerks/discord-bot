@@ -118,9 +118,9 @@ export default class MatchFeedback extends Command {
       match,
       useGenericNames: false,
       highlightedPlayerId: heroPlayed
-        ? match.players.find((player) => player.hero_id === heroPlayed)?.account_id
-        : player
-          ? +player.steamId
+        ? match.players.find((p) => p.hero_id === heroPlayed)?.account_id
+        : player?.steamId
+          ? Number(player.steamId)
           : undefined,
     });
 
