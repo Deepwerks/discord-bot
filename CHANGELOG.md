@@ -3,14 +3,13 @@
 
 ### Bug Fixes
 
+* set updated guild config in cache on language cmd ([7de8a58](https://github.com/Deepwerks/discord-bot/commit/7de8a58f23687a10f8ff0f7802bf8779a942c464))
 * update embed on player join ([#267](https://github.com/Deepwerks/discord-bot/issues/267)) ([a74eb40](https://github.com/Deepwerks/discord-bot/commit/a74eb404240963eea5f25db6fa35f85a066cca58))
 
 
 ### Features
 
 * add community rating feature to feedback system ([#268](https://github.com/Deepwerks/discord-bot/issues/268)) ([77f6ae9](https://github.com/Deepwerks/discord-bot/commit/77f6ae98c11c86e80f0991d901afd125fc17a631))
-* implemented steam profile search functions ([90bd33f](https://github.com/Deepwerks/discord-bot/commit/90bd33f7ad799ebcad427c63f076ca94e069fc73))
-* removed redundant entities from services ([44e9ed6](https://github.com/Deepwerks/discord-bot/commit/44e9ed641c6c964123358096b0a97f85522be75d))
 
 
 

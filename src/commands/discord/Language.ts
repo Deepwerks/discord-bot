@@ -12,6 +12,7 @@ import CommandError from '../../base/errors/CommandError';
 import { TFunction } from 'i18next';
 import i18next from '../../services/i18n';
 import { Guilds } from '../../services/database/orm/init';
+import { guildConfigCache } from '../../services/cache/GuildConfigCache';
 
 export default class Language extends Command {
   constructor(client: CustomClient) {
@@ -47,21 +48,23 @@ export default class Language extends Command {
 
     const newT = i18next.getFixedT(selectedLanguage!);
 
-    const storedGuild = await Guilds.findOne({
+    let storedGuild = await Guilds.findOne({
       where: { guildId: interaction.guildId },
     });
 
     if (storedGuild) {
-      await storedGuild.update({
+      storedGuild = await storedGuild.update({
         preferedLanguage: selectedLanguage,
       });
     } else {
-      await Guilds.create({
+      storedGuild = await Guilds.create({
         guildId: interaction.guildId,
         ownerDiscordId: interaction.guild?.ownerId,
         preferedLanguage: selectedLanguage,
       });
     }
+
+    guildConfigCache.set(interaction.guildId!, storedGuild);
 
     await interaction.reply({
       embeds: [
