@@ -65,6 +65,7 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/express": "^5.0.1",
     "@types/jest": "^29.5.14",
+    "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^22.14.1",
     "@types/node-cron": "^3.0.11",
     "@types/node-steam-openid": "^1.0.3",
