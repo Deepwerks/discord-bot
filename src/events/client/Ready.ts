@@ -4,7 +4,7 @@ import CustomClient from '../../base/classes/CustomClient';
 import Event from '../../base/classes/Event';
 import Command from '../../base/classes/Command';
 import { logger } from '../..';
-import { getLatestActivity } from '../../services/database/repository';
+import { botActivityStore } from '../../services/redis/stores/BotActivityStore';
 
 export default class Ready extends Event {
   constructor(client: CustomClient) {
@@ -18,7 +18,7 @@ export default class Ready extends Event {
   async Execute() {
     logger.info(`${this.client.user?.tag} is now ready!`);
 
-    const botActivity = await getLatestActivity();
+    const botActivity = await botActivityStore.get();
 
     if (botActivity) {
       const activityTypes = {

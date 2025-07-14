@@ -7,7 +7,7 @@ import Command from '../../base/classes/Command';
 import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
-import { addActivity } from '../../services/database/repository';
+import { botActivityStore } from '../../services/redis/stores/BotActivityStore';
 
 export default class SetActivity extends Command {
   constructor(client: CustomClient) {
@@ -78,7 +78,7 @@ export default class SetActivity extends Command {
       status: status as 'online' | 'idle' | 'dnd' | 'invisible',
     });
 
-    await addActivity({
+    await botActivityStore.set({
       message,
       status,
       type,
