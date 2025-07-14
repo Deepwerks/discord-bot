@@ -1,9 +1,17 @@
-## [1.10.1](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.1) (2025-07-09)
+## [1.10.1](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.1) (2025-07-14)
 
 
 ### Bug Fixes
 
-* update embed on player join ([1281e46](https://github.com/Deepwerks/discord-bot/commit/1281e46560806b008a2cce9fad8374fadfe5ed9c))
+* prioritize hero over steam account ([458269e](https://github.com/Deepwerks/discord-bot/commit/458269e3856e98b93cb70eddd541782b26b11b9a))
+* prioritize hero over steam account ([05142c7](https://github.com/Deepwerks/discord-bot/commit/05142c7012e4254781e98bb37e64022f0250469a))
+* tag displayed user in message ([fae5bfa](https://github.com/Deepwerks/discord-bot/commit/fae5bfa7998d65c8f4dfe46046beedc943187722))
+* update embed on player join ([#267](https://github.com/Deepwerks/discord-bot/issues/267)) ([a74eb40](https://github.com/Deepwerks/discord-bot/commit/a74eb404240963eea5f25db6fa35f85a066cca58))
+
+
+### Features
+
+* add community rating feature to feedback system ([#268](https://github.com/Deepwerks/discord-bot/issues/268)) ([77f6ae9](https://github.com/Deepwerks/discord-bot/commit/77f6ae98c11c86e80f0991d901afd125fc17a631))
 
 
 
