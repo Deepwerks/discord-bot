@@ -5,7 +5,6 @@ import config from '../../../config';
 import { Guilds } from './models/Guilds.model';
 import { FailedUserInteractions } from './models/FailedUserInteractions.model';
 import { StoredPlayers } from './models/StoredPlayers.model';
-import { BotActivities } from './models/BotActivities.model';
 
 const sequelize = new Sequelize(config.db_name, config.db_user, config.db_password, {
   port: config.db_port,
@@ -24,7 +23,7 @@ const sequelize = new Sequelize(config.db_name, config.db_user, config.db_passwo
   timezone: 'Europe/Budapest',
 });
 
-const models = [Guilds, FailedUserInteractions, StoredPlayers, BotActivities];
+const models = [Guilds, FailedUserInteractions, StoredPlayers];
 models.forEach((model) => model.initialize(sequelize));
 
-export { sequelize, Guilds, FailedUserInteractions, StoredPlayers, BotActivities };
+export { sequelize, Guilds, FailedUserInteractions, StoredPlayers };
