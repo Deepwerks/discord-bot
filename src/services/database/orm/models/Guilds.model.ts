@@ -1,9 +1,20 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
+export interface IAMRMSettings {
+  enabled: boolean;
+  channels: {
+    categoryId: string;
+    forumId: string;
+    dashboardId: string;
+  } | null;
+}
+
 export class Guilds extends Model {
   declare guildId: string;
   declare ownerDiscordId: string;
   declare preferedLanguage: string;
+
+  declare amrmSettings: IAMRMSettings | null;
 
   declare createdAt: Date;
   declare updatedAt: Date | null;
@@ -25,6 +36,9 @@ export class Guilds extends Model {
           type: DataTypes.STRING,
           defaultValue: 'en',
           allowNull: false,
+        },
+        amrmSettings: {
+          type: DataTypes.JSONB,
         },
       },
       {
