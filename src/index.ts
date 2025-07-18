@@ -7,6 +7,7 @@ import StatlockerClient from './services/clients/StatlockerClient';
 import { logtailLogger } from './services/logger';
 import { JobScheduler } from './services/scheduler';
 import CheckDeadlockPatches from './services/scheduler/jobs/CheckDeadlockPatches';
+import AIAssistantClient from './services/clients/AIAssistantClient';
 
 const logger = logtailLogger;
 
@@ -25,6 +26,9 @@ const useStatlockerClient = new StatlockerClient({
 const useRedditClient = new RedditClient({
   config,
 });
+const useAIAssistantClient = new AIAssistantClient({
+  config,
+});
 
 new CustomClient().Init();
 
@@ -33,7 +37,14 @@ const scheduler = new JobScheduler()
   .addJob('CheckDeadlockPatchesAfternoon', '0 0 15 * * *', CheckDeadlockPatches);
 scheduler.startJobs();
 
-export { useDeadlockClient, useAssetsClient, useStatlockerClient, useRedditClient, logger };
+export {
+  useDeadlockClient,
+  useAssetsClient,
+  useStatlockerClient,
+  useRedditClient,
+  useAIAssistantClient,
+  logger,
+};
 
 process.on('uncaughtException', (err) => {
   logger.error('Uncaught Exception:', err);
