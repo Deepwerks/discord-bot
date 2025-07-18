@@ -27,7 +27,8 @@ export type AgentStep = ActionEvent | FinalAnswerEvent;
 export interface AIAssistantResponse {
   answer?: string;
   memoryId?: string;
-  thinkingMessages: string[];
+  error?: string;
+  thinkingMessages?: string[];
 }
 
 export default class DeadlockAIAssistantService extends BaseClientService {
@@ -76,8 +77,10 @@ export default class DeadlockAIAssistantService extends BaseClientService {
       es.addEventListener('error', (event) => {
         logger.error('Failed to query AI Assistant', {
           prompt: prompt.substring(0, 100) + (prompt.length > 100 ? '...' : ''),
+          code: event.code,
           error: event.message,
         });
+        onUpdate({ error: event.message });
         es.close();
       });
     } catch (error) {

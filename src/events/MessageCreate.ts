@@ -33,7 +33,7 @@ export default class MessageCreate extends Event {
     let lastUpdateTime = 0;
     let updateTimer: NodeJS.Timeout | null = null;
 
-    function onUpdate({ answer, thinkingMessages, memoryId }: AIAssistantResponse) {
+    function onUpdate({ answer, thinkingMessages, memoryId, error }: AIAssistantResponse) {
       logger.debug('AI Assistant Response', { answer, thinkingMessages });
 
       const response = [];
@@ -42,17 +42,21 @@ export default class MessageCreate extends Event {
 
       if (answer) response.push(`**Answer:** ${answer}`);
 
-      const lastThoughts = [];
-      let thinkLength = 0;
-      for (let i = thinkingMessages.length - 1; i >= 0; i--) {
-        thinkLength += thinkingMessages[i].length;
-        if (thinkLength > 1000) break; // Do not exceed 1000 characters
-        lastThoughts.unshift(thinkingMessages[i]);
+      if (thinkingMessages) {
+        const lastThoughts = [];
+        let thinkLength = 0;
+        for (let i = thinkingMessages.length - 1; i >= 0; i--) {
+          thinkLength += thinkingMessages[i].length;
+          if (thinkLength > 1000) break; // Do not exceed 1000 characters
+          lastThoughts.unshift(thinkingMessages[i]);
+        }
+        const thoughts = lastThoughts.join('\n');
+        if (thoughts) response.push(`Thinking:\n\`\`\`\n${thoughts}\n\`\`\``);
       }
-      const thoughts = lastThoughts.join('\n');
-      if (thoughts) response.push(`Thinking:\n\`\`\`\n${thoughts}\n\`\`\``);
 
       if (memoryId) response.push(`Memory ID: ||${memoryId}||`);
+
+      if (error) response.push(`Error: ${error}`);
 
       nextUpdate = response.join('\n');
 
@@ -72,10 +76,18 @@ export default class MessageCreate extends Event {
       const memoryIdMatch = referencedMessage.content.match(/Memory ID: \|\|(.*)\|\|/);
       if (memoryIdMatch) previousMemoryId = memoryIdMatch[1];
     }
-    await useAIAssistantClient.AiAssistantService.queryAiAssistant(
-      question,
-      onUpdate,
-      previousMemoryId
-    );
+    try {
+      await useAIAssistantClient.AiAssistantService.queryAiAssistant(
+        question,
+        onUpdate,
+        previousMemoryId
+      );
+    } catch (error) {
+      logger.error('Failed to query AI Assistant', {
+        prompt: question.substring(0, 100) + (question.length > 100 ? '...' : ''),
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+    }
   }
 }
