@@ -43,9 +43,7 @@ export default class DeadlockAIAssistantService extends BaseClientService {
       let answer: string;
       const thinkingMessages: string[] = [];
 
-      // TODO: Change to actual API endpoint
-      const url = new URL('https://ai-assistant.deadlock-api.com/replay');
-      url.searchParams.set('sleep_time', "1.5");
+      const url = new URL('https://ai-assistant.deadlock-api.com/invoke');
       url.searchParams.set('prompt', prompt);
       url.searchParams.set('api_key', this.client.config.ai_assistant_api_key);
       if (previousMemoryId) url.searchParams.set('memory_id', previousMemoryId);
