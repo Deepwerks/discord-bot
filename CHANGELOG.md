@@ -9,10 +9,18 @@
 
 ### Features
 
+* Add AI Assistant service ([e19eb92](https://github.com/Deepwerks/discord-bot/commit/e19eb923148ab6087b779666e172ad660f456d06))
 * Add AI Assistant service ([375bdcd](https://github.com/Deepwerks/discord-bot/commit/375bdcd8b4b43fda7caf045111ce04ff32064940))
 * add community rating feature to feedback system ([#268](https://github.com/Deepwerks/discord-bot/issues/268)) ([77f6ae9](https://github.com/Deepwerks/discord-bot/commit/77f6ae98c11c86e80f0991d901afd125fc17a631))
+* Add disclaimer for potential AI mistakes in responses ([225962f](https://github.com/Deepwerks/discord-bot/commit/225962f0c866baeabe2f0bc43b1cc88eb90907b4))
+* Enhance AI Assistant response handling with error reporting ([7107dd7](https://github.com/Deepwerks/discord-bot/commit/7107dd7b302f349ec66f3d4a8837e9f6da4fb5e7))
+* Implement MessageCreate event for AI Assistant interactions ([7c6a440](https://github.com/Deepwerks/discord-bot/commit/7c6a44012b0e215b77ffe3fa5c3b005a2b019204))
 * Implement MessageCreate event for AI Assistant interactions ([4529e31](https://github.com/Deepwerks/discord-bot/commit/4529e31a3b54b1da8eb3b78319f3cbb873aa3a92))
+* Limit thinking messages to 600 characters in MessageCreate event ([96e6eb1](https://github.com/Deepwerks/discord-bot/commit/96e6eb18c3c066cd8fc4af2e357148f4d5d7c885))
+* send error message on reached server limit ([914ac67](https://github.com/Deepwerks/discord-bot/commit/914ac67dfe2e663ddbf4538bde02f3f2770e8108))
+* Update AI Assistant API endpoint to actual endpoint ([af498ea](https://github.com/Deepwerks/discord-bot/commit/af498eac290fc6fbe54061356a2eb2b4b3734ec0))
 * Update AI Assistant API endpoint to actual endpoint ([9c0470a](https://github.com/Deepwerks/discord-bot/commit/9c0470a4afc4d18a5b5855f99234fc33260425a8))
+* Update Memory ID message to include continuation instruction ([35f02c2](https://github.com/Deepwerks/discord-bot/commit/35f02c230bd8fe61f19c14a7be04db923bf09441))
 
 
 
