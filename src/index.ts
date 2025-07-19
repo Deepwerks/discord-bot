@@ -7,6 +7,7 @@ import StatlockerClient from './services/clients/StatlockerClient';
 import { logtailLogger } from './services/logger';
 import { JobScheduler } from './services/scheduler';
 import CheckDeadlockPatches from './services/scheduler/jobs/CheckDeadlockPatches';
+import RenewSubscriptions from './services/scheduler/jobs/RenewSubscriptions';
 import AIAssistantClient from './services/clients/AIAssistantClient';
 
 const logger = logtailLogger;
@@ -30,12 +31,15 @@ const useAIAssistantClient = new AIAssistantClient({
   config,
 });
 
-new CustomClient().Init();
+(async () => {
+  const client = await new CustomClient().Init();
 
-const scheduler = new JobScheduler()
-  .addJob('CheckDeadlockPatches', '0 0 3 * * *', CheckDeadlockPatches)
-  .addJob('CheckDeadlockPatchesAfternoon', '0 0 15 * * *', CheckDeadlockPatches);
-scheduler.startJobs();
+  const scheduler = new JobScheduler()
+    .addJob('CheckDeadlockPatches', '0 0 3 * * *', CheckDeadlockPatches)
+    .addJob('CheckDeadlockPatchesAfternoon', '0 0 15 * * *', CheckDeadlockPatches)
+    .addJob('RenewSubscriptions', '0 0 * * *', () => RenewSubscriptions(client));
+  scheduler.startJobs();
+})();
 
 export {
   useDeadlockClient,

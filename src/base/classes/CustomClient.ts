@@ -64,6 +64,7 @@ export default class CustomClient extends Client implements ICustomClient {
       .catch((err) => logger.error(err));
 
     new WebService(this.config).Init();
+    return this;
   }
 
   LoadHandlers(): void {

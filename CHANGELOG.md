@@ -1,4 +1,4 @@
-## [1.10.1](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.1) (2025-07-14)
+## [1.10.1](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.1) (2025-07-19)
 
 
 ### Bug Fixes
@@ -10,6 +10,9 @@
 ### Features
 
 * add community rating feature to feedback system ([#268](https://github.com/Deepwerks/discord-bot/issues/268)) ([77f6ae9](https://github.com/Deepwerks/discord-bot/commit/77f6ae98c11c86e80f0991d901afd125fc17a631))
+* created sequelize models for guild subscription monitoring ([1368168](https://github.com/Deepwerks/discord-bot/commit/13681681c7e4cdceff8124c2bda2e7d6893f1bec))
+* implemented a function to check guild chatbot usage ([df46e72](https://github.com/Deepwerks/discord-bot/commit/df46e729942f5e32ce404a0fd3fa525a4d4cd282))
+* implemented guild subscriptions ([ee0d688](https://github.com/Deepwerks/discord-bot/commit/ee0d68826a439bffa56304700c32f0211ab58285))
 
 
 
