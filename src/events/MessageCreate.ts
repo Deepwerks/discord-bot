@@ -47,7 +47,7 @@ export default class MessageCreate extends Event {
         let thinkLength = 0;
         for (let i = thinkingMessages.length - 1; i >= 0; i--) {
           thinkLength += thinkingMessages[i].length;
-          if (thinkLength > 1000) break; // Do not exceed 1000 characters
+          if (thinkLength > 600) break; // Do not exceed 600 characters
           lastThoughts.unshift(thinkingMessages[i]);
         }
         const thoughts = lastThoughts.join('\n');
