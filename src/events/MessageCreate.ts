@@ -58,6 +58,9 @@ export default class MessageCreate extends Event {
 
       if (error) response.push(`Error: ${error}`);
 
+      // If we have a final Answer also add a disclaimer
+      if(answer) response.push(`_AI can make mistakes._`);
+
       nextUpdate = response.join('\n');
 
       if (!updateTimer) {
