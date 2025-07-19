@@ -163,9 +163,11 @@ export const isAbleToUseChatbot = async (guildId: string) => {
   try {
     logger.info(`Checking chatbot usage permission for guild: ${guildId}`);
 
-    const guildSubscription = await GuildSubscriptions.findByPk(guildId);
-    if (!guildSubscription) {
-      logger.info(`No subscription found for guild: ${guildId}`);
+    const guildSubscription = await GuildSubscriptions.findOne({
+      where: { guildId: guildId },
+    });
+    if (!guildSubscription || !guildSubscription.isActive) {
+      logger.info(`No active subscription found for guild: ${guildId}`);
       return false;
     }
 

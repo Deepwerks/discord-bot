@@ -22,7 +22,10 @@ const sequelize = new Sequelize(config.db_name, config.db_user, config.db_passwo
     acquire: 30000,
     idle: 10000,
   },
-  timezone: 'Europe/Budapest',
+  dialectOptions: {
+    useUTC: false,
+    timezone: 'Europe/Budapest',
+  },
 });
 
 const models = [Guilds, FailedUserInteractions, StoredPlayers, GuildAiUsage, GuildSubscriptions];

@@ -5,10 +5,6 @@ export class GuildAiUsage extends Model {
   declare date: Date;
   declare count: number;
 
-  declare createdAt: Date;
-  declare updatedAt: Date | null;
-  declare deletedAt: Date | null;
-
   public static initialize(sequelize: Sequelize) {
     this.init(
       {
@@ -33,8 +29,8 @@ export class GuildAiUsage extends Model {
           singular: 'GuildAiUsage',
           plural: 'GuildAiUsages',
         },
-        timestamps: true,
-        paranoid: true,
+        timestamps: false,
+        paranoid: false,
       }
     );
   }
