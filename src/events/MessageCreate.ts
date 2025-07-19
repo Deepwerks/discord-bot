@@ -3,6 +3,7 @@ import CustomClient from '../base/classes/CustomClient';
 import Event from '../base/classes/Event';
 import { logger, useAIAssistantClient } from '..';
 import { AIAssistantResponse } from '../services/clients/AIAssistantClient/services/DeadlockAiAssistantService';
+import { isAbleToUseChatbot } from '../services/database/repository';
 
 export default class MessageCreate extends Event {
   constructor(client: CustomClient) {
@@ -16,6 +17,9 @@ export default class MessageCreate extends Event {
   async Execute(message: Message) {
     if (message.author.bot) return;
     if (!message.mentions.has(this.client.user!)) return;
+
+    const isAbleToUse = await isAbleToUseChatbot(message.guildId!);
+    if (!isAbleToUse) return;
 
     logger.debug('Bot mentioned in message', {
       guildId: message.guildId,
