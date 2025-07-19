@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Guilds, StoredPlayers } from './orm/init';
+import { GuildAiUsage, Guilds, GuildSubscriptions, StoredPlayers } from './orm/init';
 import { guildConfigCache } from '../cache/GuildConfigCache';
 import CommandError from '../../base/errors/CommandError';
 import { TFunction } from 'i18next';
@@ -7,6 +7,7 @@ import { logger, useStatlockerClient } from '../..';
 import SteamID from 'steamid';
 import { useDeadlockClient } from '../..';
 import { generateMatchImage, IGenerateMatchImageOptions } from '../utils/generateMatchImage';
+import dayjs from 'dayjs';
 
 export const getStoredPlayersByDiscordIds = async (ids: string[]) => {
   const players = await StoredPlayers.findAll({
@@ -157,3 +158,41 @@ export async function handleMatchRequest({
 
   return { matchData, imageBuffer, _steamAuthNeeded };
 }
+
+export const isAbleToUseChatbot = async (guildId: string) => {
+  try {
+    logger.info(`Checking chatbot usage permission for guild: ${guildId}`);
+
+    const guildSubscription = await GuildSubscriptions.findByPk(guildId);
+    if (!guildSubscription) {
+      logger.info(`No subscription found for guild: ${guildId}`);
+      return false;
+    }
+
+    const today = dayjs().format('YYYY-MM-DD');
+    let usage = await GuildAiUsage.findOne({ where: { guildId, date: today } });
+
+    if (!usage) {
+      logger.info(`No usage found for guild ${guildId} on ${today}, creating new usage record.`);
+      usage = await GuildAiUsage.create({ guildId, date: today, count: 0 });
+    }
+
+    if (usage.count >= guildSubscription.dailyLimit) {
+      logger.info(
+        `Guild ${guildId} has reached its daily limit: ${usage.count}/${guildSubscription.dailyLimit}`
+      );
+      return false;
+    }
+
+    usage.count++;
+    await usage.save();
+    logger.info(
+      `Incremented usage count for guild ${guildId} on ${today}: ${usage.count}/${guildSubscription.dailyLimit}`
+    );
+
+    return true;
+  } catch (error) {
+    logger.error(`Error checking chatbot usage for guild ${guildId}: ${error}`);
+    return false;
+  }
+};
