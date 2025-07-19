@@ -79,7 +79,10 @@ export default class Help extends Command {
     const embed = new EmbedBuilder()
       .setTitle('📖 Bot Commands')
       .setDescription('Here’s a list of all available commands:')
-      .setColor(0x00bcd4);
+      .setColor(0x00bcd4)
+      .setFooter({
+        text: `Privacy Policy: https://deadlockassistant.com/privacy \nTerms of Service: https://deadlockassistant.com/tos`,
+      });
 
     for (const [category, cmds] of grouped) {
       embed.addFields({
