@@ -1,4 +1,4 @@
-## [1.10.1](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.1) (2025-07-14)
+## [1.10.1](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.1) (2025-07-19)
 
 
 ### Bug Fixes
@@ -10,6 +10,8 @@
 ### Features
 
 * add community rating feature to feedback system ([#268](https://github.com/Deepwerks/discord-bot/issues/268)) ([77f6ae9](https://github.com/Deepwerks/discord-bot/commit/77f6ae98c11c86e80f0991d901afd125fc17a631))
+* added redirect routes to TOS and privacy policy ([429f7b7](https://github.com/Deepwerks/discord-bot/commit/429f7b78fa1bcc622d1a8c50753b3b3733db6c99))
+* added tos and privacy policy links to help command response ([d8d42a4](https://github.com/Deepwerks/discord-bot/commit/d8d42a46a5162834944adebe5e018533f8140d0c))
 
 
 
