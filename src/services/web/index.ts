@@ -4,6 +4,7 @@ import { logger } from '../..';
 import cookieParser from 'cookie-parser';
 import steamAuthRouter from './routes/v2/SteamAuthRouter';
 import metricsRouter from './routes/v2/MetricsRouter';
+import redirectsRouter from './routes/v2/RedirectsRouter';
 import errorHandler from './middlewares/errorHandler';
 import limiter from './middlewares/rateLimit';
 
@@ -37,6 +38,7 @@ export default class WebService implements IWebService {
 
     app.use(steamAuthRouter);
     app.use(metricsRouter);
+    app.use(redirectsRouter);
 
     app.use(errorHandler);
 
