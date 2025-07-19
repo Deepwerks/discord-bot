@@ -54,7 +54,7 @@ export default class MessageCreate extends Event {
         if (thoughts) response.push(`Thinking:\n\`\`\`\n${thoughts}\n\`\`\``);
       }
 
-      if (memoryId) response.push(`Memory ID: ||${memoryId}||`);
+      if (memoryId) response.push(`Memory ID: ||${memoryId}|| (reply to this message to continue)`);
 
       if (error) response.push(`Error: ${error}`);
 
