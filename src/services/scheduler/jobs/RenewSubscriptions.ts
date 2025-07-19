@@ -6,6 +6,7 @@ import CustomClient from '../../../base/classes/CustomClient';
 const SUPPORT_SERVER_ID = '1363157938558210079';
 const CHATBOT_PREMIUM_T1_ROLE_ID = '1396131129068752948';
 const CHATBOT_PREMIUM_T2_ROLE_ID = '1396131850950410250';
+const CHATBOT_PREMIUM_PLUS_ID = '1396229921382076496';
 
 export default async (client: CustomClient) => {
   try {
@@ -28,6 +29,13 @@ export default async (client: CustomClient) => {
         if (!member) {
           logger.error(`The server manager is no longer on the support server!`);
           await deactivateSubscription(subscription);
+          continue;
+        }
+
+        const hasPlusRole = member.roles.cache.has(CHATBOT_PREMIUM_PLUS_ID);
+        if (hasPlusRole) {
+          logger.info(`Manager has partner role...`);
+          await renewSubscription(subscription, '+');
           continue;
         }
 
@@ -65,10 +73,15 @@ const deactivateSubscription = async (subscription: GuildSubscriptions) => {
 const renewSubscription = async (subscription: GuildSubscriptions, tier: string) => {
   logger.info(`Renewing subscription: ${subscription.id}`);
 
-  await sequelize.query(
-    `UPDATE app.guild_subscriptions SET "updatedAt" = NOW(), "isActive" = True, "dailyLimit" = :dailyLimit WHERE "id" = :id`,
-    {
-      replacements: { id: subscription.id, dailyLimit: tier === 'T1' ? 1000 : 3000 },
-    }
-  );
+  const baseQuery = `UPDATE app.guild_subscriptions SET "updatedAt" = NOW(), "isActive" = TRUE`;
+  const setLimit = tier === '+' ? '' : `, "dailyLimit" = :dailyLimit`;
+  const fullQuery = `${baseQuery}${setLimit} WHERE "id" = :id`;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const replacements: any = { id: subscription.id };
+  if (tier !== '+') {
+    replacements.dailyLimit = tier === 'T1' ? 1000 : 3000;
+  }
+
+  await sequelize.query(fullQuery, { replacements });
 };
