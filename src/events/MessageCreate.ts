@@ -19,7 +19,11 @@ export default class MessageCreate extends Event {
     if (!message.mentions.has(this.client.user!)) return;
 
     const isAbleToUse = await isAbleToUseChatbot(message.guildId!);
-    if (!isAbleToUse) return;
+    if (!isAbleToUse) {
+      await message.reply({
+        content: '❌ This server has reached its daily limit. Please try chatting again tomorrow.',
+      });
+    }
 
     logger.debug('Bot mentioned in message', {
       guildId: message.guildId,
