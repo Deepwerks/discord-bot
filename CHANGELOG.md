@@ -9,10 +9,10 @@
 
 ### Features
 
+* Add AI Assistant service ([375bdcd](https://github.com/Deepwerks/discord-bot/commit/375bdcd8b4b43fda7caf045111ce04ff32064940))
 * add community rating feature to feedback system ([#268](https://github.com/Deepwerks/discord-bot/issues/268)) ([77f6ae9](https://github.com/Deepwerks/discord-bot/commit/77f6ae98c11c86e80f0991d901afd125fc17a631))
-* created sequelize models for guild subscription monitoring ([1368168](https://github.com/Deepwerks/discord-bot/commit/13681681c7e4cdceff8124c2bda2e7d6893f1bec))
-* implemented a function to check guild chatbot usage ([df46e72](https://github.com/Deepwerks/discord-bot/commit/df46e729942f5e32ce404a0fd3fa525a4d4cd282))
-* implemented guild subscriptions ([ee0d688](https://github.com/Deepwerks/discord-bot/commit/ee0d68826a439bffa56304700c32f0211ab58285))
+* Implement MessageCreate event for AI Assistant interactions ([4529e31](https://github.com/Deepwerks/discord-bot/commit/4529e31a3b54b1da8eb3b78319f3cbb873aa3a92))
+* Update AI Assistant API endpoint to actual endpoint ([9c0470a](https://github.com/Deepwerks/discord-bot/commit/9c0470a4afc4d18a5b5855f99234fc33260425a8))
 
 
 

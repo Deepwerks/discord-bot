@@ -38,6 +38,7 @@
     "dayjs": "^1.11.13",
     "discord.js": "^14.19.3",
     "dotenv": "^16.5.0",
+    "eventsource": "^4.0.0",
     "express": "^5.1.0",
     "express-rate-limit": "^7.5.0",
     "fuse.js": "^7.1.0",

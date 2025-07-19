@@ -52,7 +52,7 @@ export default class RegisterNewSubscription extends Command {
         },
       ],
       dev: false,
-      limitedServers: ['1363157938558210079', '1116312943584354374', `1369999947050778665`],
+      limitedServers: ['1363157938558210079', '1116312943584354374', '1369999947050778665'],
     });
   }
 

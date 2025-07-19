@@ -3,6 +3,7 @@ export default interface IConfig {
 
   deadlock_api_key: string;
   deadlock_api_url: string;
+  ai_assistant_api_key: string;
 
   deadlock_assets_api_url: string;
 
