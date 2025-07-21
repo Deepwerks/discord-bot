@@ -59,16 +59,23 @@ export default class MessageCreate extends Event {
     let lastUpdateTime = 0;
     let updateTimer: NodeJS.Timeout | null = null;
 
-    function onUpdate({ answer, thinkingMessages, memoryId, error }: AIAssistantResponse) {
+    function onUpdate({
+      answer,
+      thinkingMessages,
+      memoryId,
+      error,
+      formattedAnswer,
+    }: AIAssistantResponse) {
       logger.debug('AI Assistant Response', { answer, thinkingMessages });
 
       const response = [];
 
       response.push(`**Question:** ${question}`);
 
-      if (answer) response.push(`**Answer:** ${answer}`);
+      if (formattedAnswer) response.push(`**Answer:**\n${formattedAnswer}`);
+      else if (answer) response.push(`**Answer:** ${answer}`);
 
-      if (thinkingMessages) {
+      if (!formattedAnswer && thinkingMessages) {
         const lastThoughts = [];
         let thinkLength = 0;
         for (let i = thinkingMessages.length - 1; i >= 0; i--) {
@@ -85,7 +92,7 @@ export default class MessageCreate extends Event {
       if (error) response.push(`Error: ${error}`);
 
       // If we have a final Answer also add a disclaimer
-      if (answer) response.push(`_AI can make mistakes._`);
+      if (answer || formattedAnswer) response.push(`_AI can make mistakes._`);
 
       nextUpdate = response.join('\n');
 

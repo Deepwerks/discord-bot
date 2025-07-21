@@ -22,10 +22,16 @@ interface FinalAnswerEvent {
   data: string;
 }
 
-export type AgentStep = ActionEvent | FinalAnswerEvent;
+interface FormattedResponseEvent {
+  type: 'formatted_response';
+  data: string;
+}
+
+export type AgentStep = ActionEvent | FinalAnswerEvent | FormattedResponseEvent;
 
 export interface AIAssistantResponse {
   answer?: string;
+  formattedAnswer?: string;
   memoryId?: string;
   error?: string;
   thinkingMessages?: string[];
@@ -42,6 +48,7 @@ export default class DeadlockAIAssistantService extends BaseClientService {
 
       let memoryId: string;
       let answer: string;
+      let formattedAnswer: string;
       const thinkingMessages: string[] = [];
 
       const url = new URL('https://ai-assistant.deadlock-api.com/invoke');
@@ -52,7 +59,7 @@ export default class DeadlockAIAssistantService extends BaseClientService {
       const es = new EventSource(url);
       es.addEventListener('memoryId', (event) => {
         memoryId = event.data;
-        onUpdate({ memoryId, answer, thinkingMessages });
+        onUpdate({ memoryId, answer, formattedAnswer, thinkingMessages });
         es.close();
       });
       es.addEventListener('agentStep', (event) => {
@@ -64,12 +71,17 @@ export default class DeadlockAIAssistantService extends BaseClientService {
               .flatMap((step) => step.content)
               .map((c) => c.text);
             thinkingMessages.push(...actions);
-            onUpdate({ memoryId, answer, thinkingMessages });
+            onUpdate({ memoryId, answer, formattedAnswer, thinkingMessages });
             break;
           }
           case 'final_answer': {
             answer = data.data;
-            onUpdate({ memoryId, answer, thinkingMessages });
+            onUpdate({ memoryId, answer, formattedAnswer, thinkingMessages });
+            break;
+          }
+          case 'formatted_response': {
+            formattedAnswer = data.data;
+            onUpdate({ memoryId, answer, formattedAnswer, thinkingMessages });
             break;
           }
         }
