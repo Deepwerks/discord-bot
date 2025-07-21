@@ -39,16 +39,6 @@ export default class RenewSubscription extends Command {
           description: 'Daily limit',
           required: false,
           type: ApplicationCommandOptionType.Integer,
-          choices: [
-            {
-              name: '1000 req/day',
-              value: 1000,
-            },
-            {
-              name: '3000 req/day',
-              value: 3000,
-            },
-          ],
         },
       ],
       dev: false,

@@ -159,7 +159,11 @@ export async function handleMatchRequest({
   return { matchData, imageBuffer, _steamAuthNeeded };
 }
 
-export const isAbleToUseChatbot = async (guildId: string) => {
+export type chatbotUsageCheckerErrors = 'NoSubscription' | 'LimitReached' | 'FunctionError';
+
+export const isAbleToUseChatbot = async (
+  guildId: string
+): Promise<[boolean, chatbotUsageCheckerErrors | null]> => {
   try {
     logger.info(`Checking chatbot usage permission for guild: ${guildId}`);
 
@@ -168,7 +172,7 @@ export const isAbleToUseChatbot = async (guildId: string) => {
     });
     if (!guildSubscription || !guildSubscription.isActive) {
       logger.info(`No active subscription found for guild: ${guildId}`);
-      return false;
+      return [false, 'NoSubscription'];
     }
 
     const today = dayjs().format('YYYY-MM-DD');
@@ -183,7 +187,7 @@ export const isAbleToUseChatbot = async (guildId: string) => {
       logger.info(
         `Guild ${guildId} has reached its daily limit: ${usage.count}/${guildSubscription.dailyLimit}`
       );
-      return false;
+      return [false, 'LimitReached'];
     }
 
     usage.count++;
@@ -192,9 +196,9 @@ export const isAbleToUseChatbot = async (guildId: string) => {
       `Incremented usage count for guild ${guildId} on ${today}: ${usage.count}/${guildSubscription.dailyLimit}`
     );
 
-    return true;
+    return [true, null];
   } catch (error) {
     logger.error(`Error checking chatbot usage for guild ${guildId}: ${error}`);
-    return false;
+    return [false, 'FunctionError'];
   }
 };
