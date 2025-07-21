@@ -72,8 +72,19 @@ export default class MessageCreate extends Event {
 
       response.push(`**Question:** ${question}`);
 
-      if (formattedAnswer) response.push(`**Answer:**\n${formattedAnswer}`);
-      else if (answer) response.push(`**Answer:** ${answer}`);
+      // Truncate formattedAnswer if needed
+      let finalFormattedAnswer = formattedAnswer;
+      if (formattedAnswer) {
+        const baseLength =
+          response.join('\n').length + `**Answer:**\n`.length + `\n_AI can make mistakes._`.length;
+        const remainingLength = 2000 - baseLength;
+        if (formattedAnswer.length > remainingLength) {
+          finalFormattedAnswer = formattedAnswer.slice(0, remainingLength - 3) + '...';
+        }
+        response.push(`**Answer:**\n${finalFormattedAnswer}`);
+      } else if (answer) {
+        response.push(`**Answer:** ${answer}`);
+      }
 
       if (!formattedAnswer && thinkingMessages) {
         const lastThoughts = [];
@@ -89,12 +100,17 @@ export default class MessageCreate extends Event {
 
       if (memoryId) response.push(`Memory ID: ||${memoryId}|| (reply to this message to continue)`);
 
-      if (error) response.push(`Error: ${error}`);
+      if (error) {
+        logger.error(error);
+        response.push(
+          `🤖 Uhh… I spaced out for a second there. Could you rephrase that or try again?\n\`\`\`\n${error}\n\`\`\``
+        );
+      }
 
       // If we have a final Answer also add a disclaimer
       if (answer || formattedAnswer) response.push(`_AI can make mistakes._`);
 
-      nextUpdate = response.join('\n');
+      nextUpdate = response.join('\n').slice(0, 2000);
 
       if (!updateTimer) {
         const delay = Math.max(0, 1000 - (Date.now() - lastUpdateTime));
