@@ -39,16 +39,6 @@ export default class RegisterNewSubscription extends Command {
           description: 'Daily limit',
           required: true,
           type: ApplicationCommandOptionType.Integer,
-          choices: [
-            {
-              name: '1000 req/day',
-              value: 1000,
-            },
-            {
-              name: '3000 req/day',
-              value: 3000,
-            },
-          ],
         },
       ],
       dev: false,

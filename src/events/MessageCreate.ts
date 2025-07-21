@@ -24,15 +24,22 @@ export default class MessageCreate extends Event {
     if (message.author.bot) return;
     if (!message.mentions.has(this.client.user!)) return;
 
-    const isAbleToUse = await isAbleToUseChatbot(message.guildId!);
-    if (!isAbleToUse) {
-      const now = dayjs();
-      const nextReset = now.endOf('day').add(1, 'second');
-      const discordRelative = `<t:${nextReset.unix()}:R>`;
+    const [isAbleToUse, error] = await isAbleToUseChatbot(message.guildId!);
 
-      await message.reply({
-        content: `❌ This server has reached its daily limit. You can chat with me again ${discordRelative}.`,
-      });
+    if (!isAbleToUse && error) {
+      if (error === 'NoSubscription') {
+        await message.reply({
+          content: `❌ Chatbot integration is not active in this server.`,
+        });
+      } else if (error === 'LimitReached') {
+        const now = dayjs();
+        const nextReset = now.endOf('day').add(1, 'second');
+        const discordRelative = `<t:${nextReset.unix()}:R>`;
+
+        await message.reply({
+          content: `❌ This server has reached its daily limit. You can chat with me again ${discordRelative}.`,
+        });
+      }
       return;
     }
 
