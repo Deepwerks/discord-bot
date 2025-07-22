@@ -4,7 +4,7 @@
 ### Bug Fixes
 
 * error formatting ([#293](https://github.com/Deepwerks/discord-bot/issues/293)) ([3517c1d](https://github.com/Deepwerks/discord-bot/commit/3517c1db347cba4b9ed697e22ebd1c4d07bf9569))
-* fixed an issue where the bot could tag anyone in its messages. The bot now only pings the repliedUser if the message is the final one ([7460b63](https://github.com/Deepwerks/discord-bot/commit/7460b63e2325a0e8595547ea7a22b596bd980ac3))
+* fixed an issue where the bot could tag anyone in its messages. T… ([#297](https://github.com/Deepwerks/discord-bot/issues/297)) ([8dcea88](https://github.com/Deepwerks/discord-bot/commit/8dcea88e4471b6721702190556e9bab040264cd5))
 * new usage errors ([#291](https://github.com/Deepwerks/discord-bot/issues/291)) ([fc9d755](https://github.com/Deepwerks/discord-bot/commit/fc9d755a23d4c0660a8594fc807e2d619fcf3243))
 * set updated guild config in cache on language cmd ([#278](https://github.com/Deepwerks/discord-bot/issues/278)) ([29ed24c](https://github.com/Deepwerks/discord-bot/commit/29ed24c496bacef236825ea8e5611df422720c04))
 * update embed on player join ([#267](https://github.com/Deepwerks/discord-bot/issues/267)) ([a74eb40](https://github.com/Deepwerks/discord-bot/commit/a74eb404240963eea5f25db6fa35f85a066cca58))
@@ -15,6 +15,7 @@
 * add community rating feature to feedback system ([#268](https://github.com/Deepwerks/discord-bot/issues/268)) ([77f6ae9](https://github.com/Deepwerks/discord-bot/commit/77f6ae98c11c86e80f0991d901afd125fc17a631))
 * created and implemented spamProtection service for messageCreat… ([#295](https://github.com/Deepwerks/discord-bot/issues/295)) ([7fa686b](https://github.com/Deepwerks/discord-bot/commit/7fa686b0587a9d9bdb105bfd535adbbf3d55e7ff))
 * Enhance AI Assistant response structure with formatted answer support ([#289](https://github.com/Deepwerks/discord-bot/issues/289)) ([5f9f448](https://github.com/Deepwerks/discord-bot/commit/5f9f4480b342e59026edacfc3f4c8bfec84a3b0e))
+* removed priviliged intents ([db6d4c8](https://github.com/Deepwerks/discord-bot/commit/db6d4c85c101ac8c8913008961309284299d290f))
 
 
 
