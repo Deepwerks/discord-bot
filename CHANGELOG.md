@@ -1,9 +1,9 @@
-## [1.10.1](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.1) (2025-07-21)
+## [1.10.1](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.1) (2025-07-22)
 
 
 ### Bug Fixes
 
-* error formatting ([9921c2a](https://github.com/Deepwerks/discord-bot/commit/9921c2a3551198a3122e1405eb9b2808f0f48c35))
+* error formatting ([#293](https://github.com/Deepwerks/discord-bot/issues/293)) ([3517c1d](https://github.com/Deepwerks/discord-bot/commit/3517c1db347cba4b9ed697e22ebd1c4d07bf9569))
 * new usage errors ([#291](https://github.com/Deepwerks/discord-bot/issues/291)) ([fc9d755](https://github.com/Deepwerks/discord-bot/commit/fc9d755a23d4c0660a8594fc807e2d619fcf3243))
 * set updated guild config in cache on language cmd ([#278](https://github.com/Deepwerks/discord-bot/issues/278)) ([29ed24c](https://github.com/Deepwerks/discord-bot/commit/29ed24c496bacef236825ea8e5611df422720c04))
 * update embed on player join ([#267](https://github.com/Deepwerks/discord-bot/issues/267)) ([a74eb40](https://github.com/Deepwerks/discord-bot/commit/a74eb404240963eea5f25db6fa35f85a066cca58))
@@ -12,6 +12,7 @@
 ### Features
 
 * add community rating feature to feedback system ([#268](https://github.com/Deepwerks/discord-bot/issues/268)) ([77f6ae9](https://github.com/Deepwerks/discord-bot/commit/77f6ae98c11c86e80f0991d901afd125fc17a631))
+* created and implemented spamProtection service for messageCreate event ([c85fe07](https://github.com/Deepwerks/discord-bot/commit/c85fe07a63559841401f068d94f5d2e741a76eae))
 * Enhance AI Assistant response structure with formatted answer support ([#289](https://github.com/Deepwerks/discord-bot/issues/289)) ([5f9f448](https://github.com/Deepwerks/discord-bot/commit/5f9f4480b342e59026edacfc3f4c8bfec84a3b0e))
 
 

@@ -7,9 +7,19 @@ import { isAbleToUseChatbot } from '../services/database/repository';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import SpamProtector from '../services/redis/stores/SpamProtector';
+import { redisClient } from '../services/redis';
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
+
+const onMessageSpamProtector = new SpamProtector(redisClient, {
+  cooldownMs: 5000,
+  spamLimit: 5,
+  spamWindowMs: 15000,
+  timeoutDurationMs: 3600000,
+  namespace: 'message-created',
+});
 
 export default class MessageCreate extends Event {
   constructor(client: CustomClient) {
@@ -23,6 +33,22 @@ export default class MessageCreate extends Event {
   async Execute(message: Message) {
     if (message.author.bot) return;
     if (!message.mentions.has(this.client.user!)) return;
+
+    const result = await onMessageSpamProtector.registerMessage(message.author.id);
+
+    if (result === 'timeout') {
+      const ms = await onMessageSpamProtector.getTimeoutRemaining(message.author.id);
+      const expiryUnix = Math.floor((Date.now() + ms) / 1000);
+      await message.reply(
+        `🚫 You're restricted from using the chatbot. Try again <t:${expiryUnix}:R>`
+      );
+      return;
+    }
+
+    if (result === 'cooldown') {
+      await message.react('⏱️');
+      return;
+    }
 
     const [isAbleToUse, error] = await isAbleToUseChatbot(message.guildId!);
 
