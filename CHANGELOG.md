@@ -15,7 +15,8 @@
 * add community rating feature to feedback system ([#268](https://github.com/Deepwerks/discord-bot/issues/268)) ([77f6ae9](https://github.com/Deepwerks/discord-bot/commit/77f6ae98c11c86e80f0991d901afd125fc17a631))
 * created and implemented spamProtection service for messageCreat… ([#295](https://github.com/Deepwerks/discord-bot/issues/295)) ([7fa686b](https://github.com/Deepwerks/discord-bot/commit/7fa686b0587a9d9bdb105bfd535adbbf3d55e7ff))
 * Enhance AI Assistant response structure with formatted answer support ([#289](https://github.com/Deepwerks/discord-bot/issues/289)) ([5f9f448](https://github.com/Deepwerks/discord-bot/commit/5f9f4480b342e59026edacfc3f4c8bfec84a3b0e))
-* removed priviliged intents ([db6d4c8](https://github.com/Deepwerks/discord-bot/commit/db6d4c85c101ac8c8913008961309284299d290f))
+* removed memory id from message and moved it to in memory storage ([744f063](https://github.com/Deepwerks/discord-bot/commit/744f06399edc13ca655bebdb351fbcec886dd8b9))
+* removed priviliged intents ([#299](https://github.com/Deepwerks/discord-bot/issues/299)) ([9350f56](https://github.com/Deepwerks/discord-bot/commit/9350f56612908d9ac662264db3690806ff88356e))
 
 
 

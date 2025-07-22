@@ -9,6 +9,7 @@ import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import SpamProtector from '../services/redis/stores/SpamProtector';
 import { redisClient } from '../services/redis';
+import { threadMemoryStore } from '../services/redis/stores/ThreadMemoryStore';
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
@@ -81,7 +82,7 @@ export default class MessageCreate extends Event {
     const question = message.content.replace(`<@${this.client.user?.id}>`, '').trim();
 
     const replyMessage = await message.reply({
-      content: 'Thinking',
+      content: '_Thinking..._',
       allowedMentions: { parse: [] },
     });
 
@@ -89,7 +90,7 @@ export default class MessageCreate extends Event {
     let lastUpdateTime = 0;
     let updateTimer: NodeJS.Timeout | null = null;
 
-    function onUpdate({
+    async function onUpdate({
       answer,
       thinkingMessages,
       memoryId,
@@ -128,7 +129,9 @@ export default class MessageCreate extends Event {
         if (thoughts) response.push(`Thinking:\n\`\`\`\n${thoughts}\n\`\`\``);
       }
 
-      if (memoryId) response.push(`Memory ID: ||${memoryId}|| (reply to this message to continue)`);
+      if (memoryId) {
+        threadMemoryStore.setMemory(replyMessage.id, memoryId);
+      }
 
       if (error) {
         logger.error(error);
@@ -158,8 +161,11 @@ export default class MessageCreate extends Event {
     let previousMemoryId;
     if (message.reference) {
       const referencedMessage = await message.fetchReference();
-      const memoryIdMatch = referencedMessage.content.match(/Memory ID: \|\|(.*)\|\|/);
-      if (memoryIdMatch) previousMemoryId = memoryIdMatch[1];
+      previousMemoryId = threadMemoryStore.getMemory(referencedMessage.id) ?? undefined;
+
+      if (previousMemoryId) {
+        threadMemoryStore.refreshTTL(message.reference.messageId!);
+      }
     }
     try {
       await useAIAssistantClient.AiAssistantService.queryAiAssistant(
