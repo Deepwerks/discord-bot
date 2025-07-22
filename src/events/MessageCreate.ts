@@ -33,6 +33,7 @@ export default class MessageCreate extends Event {
   async Execute(message: Message) {
     if (message.author.bot) return;
     if (!message.mentions.has(this.client.user!)) return;
+    if (message.mentions.everyone) return;
 
     const result = await onMessageSpamProtector.registerMessage(message.author.id);
 
@@ -79,7 +80,10 @@ export default class MessageCreate extends Event {
 
     const question = message.content.replace(`<@${this.client.user?.id}>`, '').trim();
 
-    const replyMessage = await message.reply('Thinking');
+    const replyMessage = await message.reply({
+      content: 'Thinking',
+      allowedMentions: { parse: [] },
+    });
 
     let nextUpdate = '';
     let lastUpdateTime = 0;
@@ -141,7 +145,10 @@ export default class MessageCreate extends Event {
       if (!updateTimer) {
         const delay = Math.max(0, 1000 - (Date.now() - lastUpdateTime));
         updateTimer = setTimeout(() => {
-          replyMessage.edit(nextUpdate);
+          replyMessage.edit({
+            content: nextUpdate,
+            allowedMentions: { repliedUser: answer || formattedAnswer ? true : false, parse: [] },
+          });
           updateTimer = null;
           lastUpdateTime = Date.now();
         }, delay);
