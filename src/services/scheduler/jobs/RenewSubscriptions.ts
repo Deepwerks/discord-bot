@@ -6,6 +6,7 @@ import CustomClient from '../../../base/classes/CustomClient';
 const SUPPORT_SERVER_ID = '1363157938558210079';
 const CHATBOT_PREMIUM_T1_ROLE_ID = '1396131129068752948';
 const CHATBOT_PREMIUM_T2_ROLE_ID = '1396131850950410250';
+const CHATBOT_PREMIUM_T3_ROLE_ID = '1398352188685942855';
 const CHATBOT_PREMIUM_PLUS_ID = '1396229921382076496';
 
 export default async (client: CustomClient) => {
@@ -36,6 +37,13 @@ export default async (client: CustomClient) => {
         if (hasPlusRole) {
           logger.info(`Manager has partner role...`);
           await renewSubscription(subscription, '+');
+          continue;
+        }
+
+        const hasT3Role = member.roles.cache.has(CHATBOT_PREMIUM_T3_ROLE_ID);
+        if (hasT3Role) {
+          logger.info(`Manager has T3 role...`);
+          await renewSubscription(subscription, 'T3');
           continue;
         }
 
@@ -80,7 +88,7 @@ const renewSubscription = async (subscription: GuildSubscriptions, tier: string)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const replacements: any = { id: subscription.id };
   if (tier !== '+') {
-    replacements.dailyLimit = tier === 'T1' ? 1000 : 3000;
+    replacements.dailyLimit = tier === 'T1' ? 300 : tier === 'T2' ? 750 : 2000;
   }
 
   await sequelize.query(fullQuery, { replacements });
