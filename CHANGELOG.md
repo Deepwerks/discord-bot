@@ -1,4 +1,4 @@
-## [1.10.1](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.1) (2025-07-22)
+## [1.10.1](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.1) (2025-07-25)
 
 
 ### Bug Fixes
@@ -8,14 +8,16 @@
 * new usage errors ([#291](https://github.com/Deepwerks/discord-bot/issues/291)) ([fc9d755](https://github.com/Deepwerks/discord-bot/commit/fc9d755a23d4c0660a8594fc807e2d619fcf3243))
 * set updated guild config in cache on language cmd ([#278](https://github.com/Deepwerks/discord-bot/issues/278)) ([29ed24c](https://github.com/Deepwerks/discord-bot/commit/29ed24c496bacef236825ea8e5611df422720c04))
 * update embed on player join ([#267](https://github.com/Deepwerks/discord-bot/issues/267)) ([a74eb40](https://github.com/Deepwerks/discord-bot/commit/a74eb404240963eea5f25db6fa35f85a066cca58))
+* updated chatbot subscription tiers ([33867ab](https://github.com/Deepwerks/discord-bot/commit/33867ab54df10441db2d569ed35a31a3b8fdb6ea))
 
 
 ### Features
 
 * add community rating feature to feedback system ([#268](https://github.com/Deepwerks/discord-bot/issues/268)) ([77f6ae9](https://github.com/Deepwerks/discord-bot/commit/77f6ae98c11c86e80f0991d901afd125fc17a631))
+* added mass dm dev command ([d2fbcbd](https://github.com/Deepwerks/discord-bot/commit/d2fbcbd04519beecc02a9fb79fae999e432a7f47))
 * created and implemented spamProtection service for messageCreat… ([#295](https://github.com/Deepwerks/discord-bot/issues/295)) ([7fa686b](https://github.com/Deepwerks/discord-bot/commit/7fa686b0587a9d9bdb105bfd535adbbf3d55e7ff))
 * Enhance AI Assistant response structure with formatted answer support ([#289](https://github.com/Deepwerks/discord-bot/issues/289)) ([5f9f448](https://github.com/Deepwerks/discord-bot/commit/5f9f4480b342e59026edacfc3f4c8bfec84a3b0e))
-* removed memory id from message and moved it to in memory storage ([744f063](https://github.com/Deepwerks/discord-bot/commit/744f06399edc13ca655bebdb351fbcec886dd8b9))
+* removed memory id from message and moved it to in memory storage ([#301](https://github.com/Deepwerks/discord-bot/issues/301)) ([0a49b4a](https://github.com/Deepwerks/discord-bot/commit/0a49b4a2d7fb73245cd589dfe4371ae5bda2ef72))
 * removed priviliged intents ([#299](https://github.com/Deepwerks/discord-bot/issues/299)) ([9350f56](https://github.com/Deepwerks/discord-bot/commit/9350f56612908d9ac662264db3690806ff88356e))
 
 
