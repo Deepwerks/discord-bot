@@ -4,6 +4,7 @@ export class Guilds extends Model {
   declare guildId: string;
   declare ownerDiscordId: string;
   declare preferedLanguage: string;
+  declare sendDMs: boolean;
 
   declare createdAt: Date;
   declare updatedAt: Date | null;
@@ -24,6 +25,11 @@ export class Guilds extends Model {
         preferedLanguage: {
           type: DataTypes.STRING,
           defaultValue: 'en',
+          allowNull: false,
+        },
+        sendDMs: {
+          type: DataTypes.BOOLEAN,
+          defaultValue: true,
           allowNull: false,
         },
       },
