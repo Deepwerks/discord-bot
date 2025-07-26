@@ -1,4 +1,4 @@
-## [1.10.1](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.1) (2025-07-26)
+## [1.10.2](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.2) (2025-07-26)
 
 
 ### Bug Fixes
@@ -15,7 +15,7 @@
 * add community rating feature to feedback system ([#268](https://github.com/Deepwerks/discord-bot/issues/268)) ([77f6ae9](https://github.com/Deepwerks/discord-bot/commit/77f6ae98c11c86e80f0991d901afd125fc17a631))
 * created and implemented spamProtection service for messageCreat… ([#295](https://github.com/Deepwerks/discord-bot/issues/295)) ([7fa686b](https://github.com/Deepwerks/discord-bot/commit/7fa686b0587a9d9bdb105bfd535adbbf3d55e7ff))
 * Enhance AI Assistant response structure with formatted answer support ([#289](https://github.com/Deepwerks/discord-bot/issues/289)) ([5f9f448](https://github.com/Deepwerks/discord-bot/commit/5f9f4480b342e59026edacfc3f4c8bfec84a3b0e))
-* passing steam ID to ai assistant to better understand context ([88c472c](https://github.com/Deepwerks/discord-bot/commit/88c472c59e5887594f97833995fb2ab9e0d3ea9f))
+* passing steam ID to ai assistant to better understand context ([#305](https://github.com/Deepwerks/discord-bot/issues/305)) ([d08007e](https://github.com/Deepwerks/discord-bot/commit/d08007e1e5f906f104c3a40e4d6fb66d8af102ea))
 * removed memory id from message and moved it to in memory storage ([#301](https://github.com/Deepwerks/discord-bot/issues/301)) ([0a49b4a](https://github.com/Deepwerks/discord-bot/commit/0a49b4a2d7fb73245cd589dfe4371ae5bda2ef72))
 * removed priviliged intents ([#299](https://github.com/Deepwerks/discord-bot/issues/299)) ([9350f56](https://github.com/Deepwerks/discord-bot/commit/9350f56612908d9ac662264db3690806ff88356e))
 
