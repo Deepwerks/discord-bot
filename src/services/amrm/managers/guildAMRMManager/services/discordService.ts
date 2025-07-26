@@ -22,6 +22,9 @@ import { MatchReviewRequests, StoredPlayers } from '../../../../database/orm/ini
 import DeadlockMatch from '../../../../clients/DeadlockClient/services/DeadlockMatchService/entities/DeadlockMatch';
 import { useAssetsClient, useDeadlockClient, useStatlockerClient } from '../../../../..';
 import { generateMatchImage } from '../../../../utils/generateMatchImage';
+import getHistoryTable from '../../../../utils/getHistoryTable';
+import { getGuildConfig } from '../../../../database/repository';
+import i18next from '../../../../i18n';
 
 export type AMRMChannelType = 'CategoryChannel' | 'ForumChannel' | 'DashboardChannel';
 
@@ -95,7 +98,7 @@ export default class DiscordService {
         },
       ],
       defaultSortOrder: SortOrderType.CreationDate,
-      defaultForumLayout: ForumLayoutType.GalleryView,
+      defaultForumLayout: ForumLayoutType.ListView,
     });
 
     this.forumChannel = forumChannel;
@@ -150,8 +153,7 @@ export default class DiscordService {
       .setTitle('🎯 Request a Match Review')
       .setDescription(
         `Want feedback on your gameplay? Start a match review request in just a few clicks.\n\n` +
-          `You'll answer a few quick questions about your match, and others can leave helpful feedback.\n\n` +
-          `No typing needed — everything is guided.`
+          `You'll answer a few quick questions about your match, and others can leave helpful feedback.\n\n`
       )
       .setColor(0x5865f2)
       .addFields(
@@ -284,6 +286,9 @@ export default class DiscordService {
   }
 
   async postMatchReviewRequest(matchReviewRequest: MatchReviewRequests) {
+    const guildConfig = await getGuildConfig(matchReviewRequest.guildId);
+    const t = i18next.getFixedT(guildConfig?.preferedLanguage ?? 'en');
+
     const match = await useDeadlockClient.MatchService.GetMatch(Number(matchReviewRequest.matchId));
     if (!match) throw new Error('Match not found');
 
@@ -298,7 +303,7 @@ export default class DiscordService {
     const statlockerProfile = await useStatlockerClient.ProfileService.GetProfile(
       matchPlayer.account_id
     );
-    const estimatedRank = statlockerProfile ? await statlockerProfile.getEstimatedRank() : null;
+    const estimatedRank = statlockerProfile ? await statlockerProfile.getEstimatedRankName() : null;
 
     const heroPlayed = (await useAssetsClient.HeroService.GetHero(matchPlayer.hero_id))!;
 
@@ -314,12 +319,12 @@ export default class DiscordService {
       name: 'match.png',
     });
 
-    const title = `${statlockerProfile?.name} - ${estimatedRank ?? ''} ${heroPlayed.name} (${match.matchId})`;
+    const title = `${statlockerProfile?.name} (${estimatedRank ?? 'Unrated'}) - ${heroPlayed.name} [${match.matchId}]`;
 
     const embed = new EmbedBuilder()
       .setTitle(`Match Review Request`)
       .setDescription(
-        `**Player:** <@${storedPlayer.discordId}>\n` +
+        `**Player:** ${statlockerProfile ? statlockerProfile.name : `<@${storedPlayer.discordId}>`}\n` +
           `**Match ID:** \`${match.matchId}\`\n` +
           `**Hero:** ${heroPlayed.name}\n` +
           `**Estimated Rank:** ${estimatedRank ?? 'N/A'}`
@@ -338,6 +343,13 @@ export default class DiscordService {
           new StringSelectMenuOptionBuilder().setLabel('Macro').setValue('macro'),
           new StringSelectMenuOptionBuilder().setLabel('Mechanics').setValue('mechanics')
         )
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { response, _buttonRow, _interactiveRow, _steamAuthNeeded } = await getHistoryTable(
+      storedPlayer.steamId,
+      storedPlayer.discordId,
+      t
     );
 
     const thread = await (this.forumChannel as ForumChannel).threads.create({

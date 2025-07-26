@@ -21,6 +21,9 @@ import ConfigService from './services/configService';
 import DiscordService from './services/discordService';
 import { useMatchReviewRequestStore } from '../../stores/MatchReviewRequestStore';
 import { MatchReviewType } from '../../../database/orm/models/MatchReviews.model';
+import CommandError from '../../../../base/errors/CommandError';
+import logFailedInteraction from '../../../logger/logFailedInteractions';
+import { InteractionType } from '../../../database/orm/models/FailedUserInteractions.model';
 
 export default class GuildAMRMManager {
   private discordService: DiscordService;
@@ -108,9 +111,7 @@ export default class GuildAMRMManager {
         const descriptionInput = new TextInputBuilder()
           .setCustomId('description')
           .setLabel('Description')
-          .setPlaceholder(
-            'What feedback do you want? Mention goals, key actions, decisions, or issues to focus on.'
-          )
+          .setPlaceholder('What kind of feedback do you want? Mention key goals or actions.')
           .setStyle(TextInputStyle.Paragraph)
           .setRequired(true);
 
@@ -123,8 +124,6 @@ export default class GuildAMRMManager {
         break;
       }
       case 'amrm_delete_request': {
-        await interaction.deferUpdate();
-
         const transaction = await sequelize.transaction();
         const discordTx = new DiscordTransaction(this.discordService);
         try {
@@ -134,19 +133,42 @@ export default class GuildAMRMManager {
             transaction,
           });
 
-          if (!matchReviewRequest) throw new Error('Match review request not found');
+          if (!matchReviewRequest) throw new CommandError('Match review request not found');
 
           if (matchReviewRequest.userId !== interaction.user.id)
-            throw new Error('You cant delete this request');
+            throw new CommandError('You cant delete this request');
 
           await this.discordService.deleteThread(matchReviewRequest.postMessageId);
           await this.discordService.deleteChannel(matchReviewRequest.channelId);
 
           await matchReviewRequest.destroy({ transaction });
+          await interaction.deferUpdate();
 
           await transaction.commit();
         } catch (error) {
-          logger.error(`Create AMRM draft failed: ${error}`);
+          logFailedInteraction({
+            id: interaction.id,
+            guildId: interaction.inGuild() ? interaction.guildId : null,
+            name: action,
+            type: InteractionType.Button,
+            userId: interaction.user.id,
+            options: null,
+            error: {
+              name: error instanceof CommandError ? error.name : 'Unknown',
+              message: error instanceof CommandError ? error.message : error,
+              stack: error instanceof CommandError ? error.stack : undefined,
+            },
+          });
+
+          const errorEmbed = new EmbedBuilder()
+            .setColor('Red')
+            .setDescription(error instanceof CommandError ? error.message : 'Button action failed');
+
+          if (interaction.deferred || interaction.replied) {
+            await interaction.editReply({ embeds: [errorEmbed] });
+          } else {
+            await interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
+          }
 
           await transaction.rollback();
           await discordTx.rollback();
@@ -165,33 +187,55 @@ export default class GuildAMRMManager {
             transaction,
           });
 
-          if (!matchReviewRequest) throw new Error('Match review request not found');
+          if (!matchReviewRequest) throw new CommandError('Match review request not found');
 
           if (matchReviewRequest.userId !== interaction.user.id)
-            throw new Error('You cant publish this request');
+            throw new CommandError('You cant publish this request');
 
           const config = await this.configService.getConfig();
-          if (!config) throw new Error('Server config not found');
+          if (!config) throw new CommandError('Server config not found');
 
           const isFormChannelExists = this.discordService.isChannelExists(
             config.forumId,
             'ForumChannel'
           );
-          if (!isFormChannelExists) throw new Error('Forum channel not found');
+          if (!isFormChannelExists) throw new CommandError('Forum channel not found');
 
           const thread = await this.discordService.postMatchReviewRequest(matchReviewRequest);
 
           await matchReviewRequest.update(
             {
-              postMessageId: thread.id,
+              postMessageId: thread!.id,
             },
             { transaction }
           );
 
           await transaction.commit();
-          await interaction.editReply({ content: `Match Review Request created: ${thread.url}` });
+          await interaction.editReply({ content: `Match Review Request created: ${thread!.url}` });
         } catch (error) {
-          logger.error(`Create AMRM draft failed: ${error}`);
+          logFailedInteraction({
+            id: interaction.id,
+            guildId: interaction.inGuild() ? interaction.guildId : null,
+            name: action,
+            type: InteractionType.Button,
+            userId: interaction.user.id,
+            options: null,
+            error: {
+              name: error instanceof CommandError ? error.name : 'Unknown',
+              message: error instanceof CommandError ? error.message : error,
+              stack: error instanceof CommandError ? error.stack : undefined,
+            },
+          });
+
+          const errorEmbed = new EmbedBuilder()
+            .setColor('Red')
+            .setDescription(error instanceof CommandError ? error.message : 'Button action failed');
+
+          if (interaction.deferred || interaction.replied) {
+            await interaction.editReply({ embeds: [errorEmbed] });
+          } else {
+            await interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
+          }
 
           await transaction.rollback();
           await discordTx.rollback();
@@ -218,13 +262,13 @@ export default class GuildAMRMManager {
           const description = interaction.fields.getTextInputValue('description');
 
           const config = await this.configService.getConfig(transaction);
-          if (!config) throw new Error('Server config not found');
+          if (!config) throw new CommandError('Server config not found');
 
           const isCategoryChannelExists = this.discordService.isChannelExists(
             config.categoryId,
             'CategoryChannel'
           );
-          if (!isCategoryChannelExists) throw new Error('Category channel not found');
+          if (!isCategoryChannelExists) throw new CommandError('Category channel not found');
 
           const player = await StoredPlayers.findOne({
             where: { discordId: interaction.user.id },
@@ -240,7 +284,7 @@ export default class GuildAMRMManager {
           }
 
           const match = await useDeadlockClient.MatchService.GetMatch(Number(matchId));
-          if (!match) throw new Error('Match not found');
+          if (!match) throw new CommandError('Match not found');
 
           const matchPlayerIndex = match.players.findIndex(
             (p) => p.account_id === Number(player.steamId)
@@ -280,11 +324,33 @@ export default class GuildAMRMManager {
           );
 
           await interaction.editReply({
-            content: `We have created your draft room in ${channel.url}`,
+            content: `Your draft channel is ready: ${channel.url}`,
           });
           await transaction.commit();
         } catch (error) {
-          logger.error(`Create AMRM draft failed: ${error}`);
+          logFailedInteraction({
+            id: interaction.id,
+            guildId: interaction.inGuild() ? interaction.guildId : null,
+            name: action,
+            type: InteractionType.Modal,
+            userId: interaction.user.id,
+            options: null,
+            error: {
+              name: error instanceof CommandError ? error.name : 'Unknown',
+              message: error instanceof CommandError ? error.message : error,
+              stack: error instanceof CommandError ? error.stack : undefined,
+            },
+          });
+
+          const errorEmbed = new EmbedBuilder()
+            .setColor('Red')
+            .setDescription(error instanceof CommandError ? error.message : 'Modal action failed');
+
+          if (interaction.deferred || interaction.replied) {
+            await interaction.editReply({ embeds: [errorEmbed] });
+          } else {
+            await interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
+          }
 
           await transaction.rollback();
           await discordTx.rollback();
@@ -302,12 +368,13 @@ export default class GuildAMRMManager {
           const rating = Number(ratingRaw);
           const description = interaction.fields.getTextInputValue('description');
 
-          if (isNaN(rating) || rating <= 0 || rating > 5) throw new Error('Invalid rating');
+          if (isNaN(rating) || rating <= 0 || rating > 5)
+            throw new CommandError('Please enter a valid rating between 1 and 5.');
 
           const reviewRequest = await MatchReviewRequests.findByPk(reviewRequestId, {
             transaction,
           });
-          if (!reviewRequest) throw new Error('Match review request not found');
+          if (!reviewRequest) throw new CommandError('Match review request not found');
 
           await MatchReviews.create(
             {
@@ -321,33 +388,64 @@ export default class GuildAMRMManager {
           );
 
           const userChannel = interaction.guild?.channels.cache.get(reviewRequest.channelId);
-          if (!userChannel) throw new Error('User channel not found');
+          if (!userChannel) throw new CommandError('User channel not found');
 
-          const embed = new EmbedBuilder()
+          const infoEmbed = new EmbedBuilder()
             .setTitle('📝 New Match Review Submitted')
             .setDescription(
               `Your request received a new review!\n\n` +
                 `**Topic:** ${chosenTopic}\n` +
-                `**Rating:** ${rating}/5\n` +
-                `**Feedback:**\n${description}`
+                `**Rating:** ${rating}/5\n`
             )
             .setColor(0x00b0f4)
-            .setTimestamp()
+            .setTimestamp();
+
+          const descriptionEmbed = new EmbedBuilder()
+            .setDescription(description)
+            .setColor(0x00b0f4)
             .setFooter({
               text: `Reviewed by ${interaction.user.tag}`,
               iconURL: interaction.user.displayAvatarURL(),
             });
 
+          const reviewSendEmbed = new EmbedBuilder()
+            .setTitle(`Review sent on topic: "${chosenTopic}" with ${rating}⭐ rating!`)
+            .setColor('Green')
+            .setTimestamp();
+
           await (userChannel as TextChannel).send({
             content: `<@${reviewRequest.userId}>`,
-            embeds: [embed],
+            embeds: [infoEmbed, descriptionEmbed],
           });
           await interaction.editReply({
-            content: 'Review sent!',
+            embeds: [reviewSendEmbed],
           });
           await transaction.commit();
         } catch (error) {
-          logger.error(`Match review failed: ${error}`);
+          logFailedInteraction({
+            id: interaction.id,
+            guildId: interaction.inGuild() ? interaction.guildId : null,
+            name: action,
+            type: InteractionType.Modal,
+            userId: interaction.user.id,
+            options: null,
+            error: {
+              name: error instanceof CommandError ? error.name : 'Unknown',
+              message: error instanceof CommandError ? error.message : error,
+              stack: error instanceof CommandError ? error.stack : undefined,
+            },
+          });
+
+          const errorEmbed = new EmbedBuilder()
+            .setColor('Red')
+            .setDescription(error instanceof CommandError ? error.message : 'Modal action failed');
+
+          if (interaction.deferred || interaction.replied) {
+            await interaction.editReply({ embeds: [errorEmbed] });
+          } else {
+            await interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
+          }
+
           await transaction.rollback();
         }
         break;
@@ -364,50 +462,79 @@ export default class GuildAMRMManager {
     switch (action) {
       case 'amrm_review_selector': {
         const chosenTopic = interaction.values[0] as MatchReviewType;
-        const reviewRequest = await MatchReviewRequests.findOne({
-          where: {
-            guildId: interaction.guildId!,
-            postMessageId: interaction.message.channelId,
-          },
-        });
+        try {
+          const reviewRequest = await MatchReviewRequests.findOne({
+            where: {
+              guildId: interaction.guildId!,
+              postMessageId: interaction.message.channelId,
+            },
+          });
 
-        if (!reviewRequest) throw new Error('Review request not found');
+          if (!reviewRequest) throw new CommandError('Review request not found');
 
-        const review = await MatchReviews.findOne({
-          where: {
-            requestId: reviewRequest.id,
-            type: chosenTopic,
+          const review = await MatchReviews.findOne({
+            where: {
+              requestId: reviewRequest.id,
+              type: chosenTopic,
+              userId: interaction.user.id,
+            },
+          });
+
+          if (review)
+            throw new CommandError("You've already submitted feedback for this category.");
+
+          const modal = new ModalBuilder()
+            .setCustomId(`amrm_review_match:${reviewRequest.id}:${chosenTopic}`)
+            .setTitle(`Match Review: ${chosenTopic}`);
+
+          const ratingInput = new TextInputBuilder()
+            .setCustomId('rating')
+            .setLabel('Rating (1-5)')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+
+          const descriptionInput = new TextInputBuilder()
+            .setCustomId('description')
+            .setLabel('What’s the reason behind your rating?')
+            .setPlaceholder(
+              'Briefly explain your score. Mention any strengths, weaknesses, or advice for improvement.'
+            )
+            .setStyle(TextInputStyle.Paragraph)
+            .setRequired(true);
+
+          modal.addComponents(
+            new ActionRowBuilder<TextInputBuilder>().addComponents(ratingInput),
+            new ActionRowBuilder<TextInputBuilder>().addComponents(descriptionInput)
+          );
+
+          await interaction.showModal(modal);
+        } catch (error) {
+          logFailedInteraction({
+            id: interaction.id,
+            guildId: interaction.inGuild() ? interaction.guildId : null,
+            name: action,
+            type: InteractionType.SelectMenu,
             userId: interaction.user.id,
-          },
-        });
+            options: null,
+            error: {
+              name: error instanceof CommandError ? error.name : 'Unknown',
+              message: error instanceof CommandError ? error.message : error,
+              stack: error instanceof CommandError ? error.stack : undefined,
+            },
+          });
 
-        if (review) throw new Error('You have already reviewed this category!');
+          const errorEmbed = new EmbedBuilder()
+            .setColor('Red')
+            .setDescription(
+              error instanceof CommandError ? error.message : 'SelectMenu action failed'
+            );
 
-        const modal = new ModalBuilder()
-          .setCustomId(`amrm_review_match:${reviewRequest.id}:${chosenTopic}`)
-          .setTitle(`Match Review: ${chosenTopic}`);
-
-        const ratingInput = new TextInputBuilder()
-          .setCustomId('rating')
-          .setLabel('Rating (1-5)')
-          .setStyle(TextInputStyle.Short)
-          .setRequired(true);
-
-        const descriptionInput = new TextInputBuilder()
-          .setCustomId('description')
-          .setLabel('Why did you give this rating?')
-          .setPlaceholder(
-            'Write a short explanation for your rating (e.g. strengths, weaknesses, or improvement tips)'
-          )
-          .setStyle(TextInputStyle.Paragraph)
-          .setRequired(true);
-
-        modal.addComponents(
-          new ActionRowBuilder<TextInputBuilder>().addComponents(ratingInput),
-          new ActionRowBuilder<TextInputBuilder>().addComponents(descriptionInput)
-        );
-
-        await interaction.showModal(modal);
+          if (interaction.deferred || interaction.replied) {
+            await interaction.editReply({ embeds: [errorEmbed] });
+          } else {
+            await interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] });
+          }
+        }
 
         break;
       }

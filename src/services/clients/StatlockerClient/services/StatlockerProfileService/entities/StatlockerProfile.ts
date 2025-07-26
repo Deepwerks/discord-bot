@@ -32,12 +32,22 @@ export default class StatlockerProfile {
     return this.data.estimatedRankNumber;
   }
 
-  async getEstimatedRank() {
+  async getEstimatedRankName() {
     if (this.estimatedRankNumber) {
       const rank = Math.floor(this.estimatedRankNumber / 10);
       const subrank = this.estimatedRankNumber % 10;
 
       return await useAssetsClient.DefaultService.GetRankName(rank, subrank);
+    }
+    return null;
+  }
+
+  async getEstimatedRankImage() {
+    if (this.estimatedRankNumber) {
+      const rank = Math.floor(this.estimatedRankNumber / 10);
+      const subrank = this.estimatedRankNumber % 10;
+
+      return await useAssetsClient.DefaultService.GetRankImage(rank, subrank);
     }
     return null;
   }
