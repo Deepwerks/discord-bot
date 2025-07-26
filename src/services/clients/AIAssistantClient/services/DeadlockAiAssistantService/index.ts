@@ -41,6 +41,7 @@ export default class DeadlockAIAssistantService extends BaseClientService {
   async queryAiAssistant(
     prompt: string,
     onUpdate: (response: AIAssistantResponse) => void,
+    steamId: string | null,
     previousMemoryId?: string
   ): Promise<void> {
     try {
@@ -54,6 +55,7 @@ export default class DeadlockAIAssistantService extends BaseClientService {
       const url = new URL('https://ai-assistant.deadlock-api.com/invoke');
       url.searchParams.set('prompt', prompt);
       url.searchParams.set('api_key', this.client.config.ai_assistant_api_key);
+      if (steamId) url.searchParams.set('steam_id', steamId);
       if (previousMemoryId) url.searchParams.set('memory_id', previousMemoryId);
 
       const es = new EventSource(url);
