@@ -5,7 +5,6 @@ export class GuildAMRMConfig extends Model {
   declare categoryId: string | null;
   declare forumId: string | null;
   declare dashboardId: string | null;
-  declare updatedBy: string | null;
 
   declare createdAt: Date;
   declare updatedAt: Date | null;
@@ -25,9 +24,6 @@ export class GuildAMRMConfig extends Model {
           type: DataTypes.TEXT,
         },
         dashboardId: {
-          type: DataTypes.TEXT,
-        },
-        updatedBy: {
           type: DataTypes.TEXT,
         },
       },
