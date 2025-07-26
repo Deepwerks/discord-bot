@@ -3,7 +3,7 @@ import CustomClient from '../base/classes/CustomClient';
 import Event from '../base/classes/Event';
 import { logger, useAIAssistantClient } from '..';
 import { AIAssistantResponse } from '../services/clients/AIAssistantClient/services/DeadlockAiAssistantService';
-import { isAbleToUseChatbot } from '../services/database/repository';
+import { getStoredPlayerCache, isAbleToUseChatbot } from '../services/database/repository';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -35,6 +35,8 @@ export default class MessageCreate extends Event {
     if (message.author.bot) return;
     if (!message.mentions.has(this.client.user!)) return;
     if (message.mentions.everyone) return;
+
+    const storedPlayer = await getStoredPlayerCache(message.author.id);
 
     const result = await onMessageSpamProtector.registerMessage(message.author.id);
 
@@ -171,6 +173,7 @@ export default class MessageCreate extends Event {
       await useAIAssistantClient.AiAssistantService.queryAiAssistant(
         question,
         onUpdate,
+        storedPlayer ? storedPlayer.steamId : null,
         previousMemoryId
       );
     } catch (error) {

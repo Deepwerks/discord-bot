@@ -8,6 +8,7 @@ import SteamID from 'steamid';
 import { useDeadlockClient } from '../..';
 import { generateMatchImage, IGenerateMatchImageOptions } from '../utils/generateMatchImage';
 import dayjs from 'dayjs';
+import { storedPlayerCache } from '../cache/StoredPlayerCache';
 
 export const getStoredPlayersByDiscordIds = async (ids: string[]) => {
   const players = await StoredPlayers.findAll({
@@ -201,4 +202,13 @@ export const isAbleToUseChatbot = async (
     logger.error(`Error checking chatbot usage for guild ${guildId}: ${error}`);
     return [false, 'FunctionError'];
   }
+};
+
+export const getStoredPlayerCache = async (discordId: string) => {
+  const cached = storedPlayerCache.get(discordId);
+  if (cached) return cached;
+
+  const storedPlayer = await StoredPlayers.findOne({ where: { discordId: discordId } });
+  if (storedPlayer) storedPlayerCache.set(discordId, storedPlayer);
+  return storedPlayer;
 };
