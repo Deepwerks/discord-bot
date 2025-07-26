@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import CustomCache from '../../cache';
 import { MatchReviewRequests } from '../../database/orm/init';
 
@@ -5,6 +6,7 @@ export interface MatchReviewRequestOptions {
   userId: string;
   guildId: string;
   matchId: string;
+  channelId: string;
   description: string | null;
 }
 
@@ -29,8 +31,8 @@ export class MatchReviewRequestStore {
     this.cache.set(matchReviewRequest.id.toString(), matchReviewRequest);
   }
 
-  async create(options: MatchReviewRequestOptions) {
-    const newRequest = await MatchReviewRequests.create({ ...options });
+  async create(options: MatchReviewRequestOptions, transaction?: Transaction) {
+    const newRequest = await MatchReviewRequests.create({ ...options }, { transaction });
 
     this.set(newRequest);
 

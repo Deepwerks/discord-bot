@@ -9,6 +9,7 @@ import { GuildAiUsage } from './models/GuildAiUsage.model';
 import { GuildSubscriptions } from './models/GuildSubscriptions.model';
 import { GuildAMRMConfig } from './models/GuildAMRMConfig.model';
 import { MatchReviewRequests } from './models/MatchReviewRequests.model';
+import { MatchReviews } from './models/MatchReviews.model';
 
 const sequelize = new Sequelize(config.db_name, config.db_user, config.db_password, {
   port: config.db_port,
@@ -38,6 +39,7 @@ const models = [
   GuildSubscriptions,
   GuildAMRMConfig,
   MatchReviewRequests,
+  MatchReviews,
 ];
 
 models.forEach((model) => model.initialize(sequelize));
@@ -52,6 +54,7 @@ export {
   GuildSubscriptions,
   GuildAMRMConfig,
   MatchReviewRequests,
+  MatchReviews,
 };
 
 function setupAssociations() {
@@ -65,5 +68,17 @@ function setupAssociations() {
     foreignKey: 'guildId',
     sourceKey: 'guildId',
     as: 'matchReviewRequests',
+  });
+
+  MatchReviews.belongsTo(MatchReviewRequests, {
+    foreignKey: 'requestId',
+    targetKey: 'id',
+    as: 'request',
+  });
+
+  MatchReviewRequests.hasMany(MatchReviews, {
+    foreignKey: 'requestId',
+    sourceKey: 'id',
+    as: 'reviews',
   });
 }

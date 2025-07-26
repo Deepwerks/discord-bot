@@ -7,6 +7,9 @@ import CommandError from '../../base/errors/CommandError';
 import { InteractionType } from '../../services/database/orm/models/FailedUserInteractions.model';
 import { getGuildConfig } from '../../services/database/repository';
 import logFailedInteraction from '../../services/logger/logFailedInteractions';
+import ConfigService from '../../services/amrm/managers/guildAMRMManager/services/configService';
+import DiscordService from '../../services/amrm/managers/guildAMRMManager/services/discordService';
+import GuildAMRMManager from '../../services/amrm/managers/guildAMRMManager';
 
 export default class SelectMenuHandler extends Event {
   constructor(client: CustomClient) {
@@ -21,6 +24,15 @@ export default class SelectMenuHandler extends Event {
     if (!interaction.isStringSelectMenu()) return;
 
     const [action] = interaction.customId.split(':');
+
+    if (action.startsWith('amrm_')) {
+      const configService = new ConfigService(interaction.guildId!);
+      const discordService = new DiscordService(this.client);
+
+      const manager = new GuildAMRMManager(discordService, configService);
+      await manager.handleSelectMenuEvent(interaction);
+      return;
+    }
 
     const guildConfig = await getGuildConfig(interaction.guildId);
     const t = i18next.getFixedT(guildConfig?.preferedLanguage ?? 'en');

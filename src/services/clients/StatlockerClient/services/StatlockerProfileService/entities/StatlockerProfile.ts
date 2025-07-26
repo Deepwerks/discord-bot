@@ -1,3 +1,4 @@
+import { useAssetsClient } from '../../../../../..';
 import { StatlockerProfileDTO } from '../validator/StatlockerProfile.validator';
 
 export default class StatlockerProfile {
@@ -24,6 +25,20 @@ export default class StatlockerProfile {
   }
 
   get ppScore(): number | null {
-    return this.ppScore;
+    return this.data.ppScore;
+  }
+
+  get estimatedRankNumber(): number | null {
+    return this.data.estimatedRankNumber;
+  }
+
+  async getEstimatedRank() {
+    if (this.estimatedRankNumber) {
+      const rank = Math.floor(this.estimatedRankNumber / 10);
+      const subrank = this.estimatedRankNumber % 10;
+
+      return await useAssetsClient.DefaultService.GetRankName(rank, subrank);
+    }
+    return null;
   }
 }

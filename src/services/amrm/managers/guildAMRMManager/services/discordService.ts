@@ -1,5 +1,6 @@
 import {
   ActionRowBuilder,
+  AttachmentBuilder,
   ButtonBuilder,
   ButtonStyle,
   CategoryChannel,
@@ -11,9 +12,16 @@ import {
   OverwriteType,
   PermissionFlagsBits,
   SortOrderType,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
   TextChannel,
+  User,
 } from 'discord.js';
 import DiscordTransaction from '../../../../../base/classes/DiscordTransaction';
+import { MatchReviewRequests, StoredPlayers } from '../../../../database/orm/init';
+import DeadlockMatch from '../../../../clients/DeadlockClient/services/DeadlockMatchService/entities/DeadlockMatch';
+import { useAssetsClient, useDeadlockClient, useStatlockerClient } from '../../../../..';
+import { generateMatchImage } from '../../../../utils/generateMatchImage';
 
 export type AMRMChannelType = 'CategoryChannel' | 'ForumChannel' | 'DashboardChannel';
 
@@ -71,6 +79,7 @@ export default class DiscordService {
             PermissionFlagsBits.SendMessages,
             PermissionFlagsBits.CreatePrivateThreads,
             PermissionFlagsBits.CreatePublicThreads,
+            PermissionFlagsBits.SendMessagesInThreads,
           ],
           allow: [PermissionFlagsBits.ViewChannel],
         },
@@ -81,6 +90,7 @@ export default class DiscordService {
             PermissionFlagsBits.SendMessages,
             PermissionFlagsBits.CreatePrivateThreads,
             PermissionFlagsBits.CreatePublicThreads,
+            PermissionFlagsBits.SendMessagesInThreads,
           ],
         },
       ],
@@ -156,7 +166,7 @@ export default class DiscordService {
       );
 
     const draftButton = new ButtonBuilder()
-      .setCustomId('amrm_open_draft')
+      .setCustomId('amrm_open_draft_modal')
       .setLabel('Open Draft')
       .setStyle(ButtonStyle.Primary)
       .setEmoji('📝');
@@ -167,5 +177,179 @@ export default class DiscordService {
       embeds: [dashboardEmbed],
       components: [actionRow],
     });
+  }
+
+  async createDraftChannel(user: User, channelName: string, transaction?: DiscordTransaction) {
+    if (!this.categoryChannel) throw new Error('Category channel not found');
+    const guild = this.categoryChannel.guild;
+    const botUserId = guild.client.user!.id;
+
+    const channel = await this.categoryChannel.children.create({
+      name: channelName,
+      type: ChannelType.GuildText,
+      permissionOverwrites: [
+        {
+          id: guild.roles.everyone.id,
+          type: OverwriteType.Role,
+          deny: [PermissionFlagsBits.ViewChannel],
+        },
+        {
+          id: botUserId,
+          type: OverwriteType.Member,
+          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+        },
+        {
+          id: user,
+          type: OverwriteType.Member,
+          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory],
+        },
+      ],
+    });
+    if (transaction) transaction.addCreatedChannel(channel.id);
+
+    return channel;
+  }
+
+  async sendDraftEmbed(
+    channel: TextChannel,
+    matchReviewRequest: MatchReviewRequests,
+    match: DeadlockMatch,
+    matchPlayerIndex: number
+  ) {
+    const matchPlayer = match.players[matchPlayerIndex];
+
+    const heroPlayed = await useAssetsClient.HeroService.GetHero(matchPlayer.hero_id);
+
+    const draftEmbed = new EmbedBuilder()
+      .setTitle('📝 Draft Match Review')
+      .setDescription(
+        `You're almost ready to publish your match review request.\n\n` +
+          `Please double-check the details below and click **Publish** when you're done.`
+      )
+      .setColor(0xf1c40f)
+      .addFields(
+        { name: 'Match ID', value: String(match.matchId), inline: true },
+        { name: 'Played hero', value: heroPlayed ? heroPlayed.name : 'Unknown', inline: true },
+        {
+          name: 'Your Notes',
+          value:
+            matchReviewRequest.description && matchReviewRequest.description.trim().length > 0
+              ? matchReviewRequest.description
+              : '*No description provided.*',
+        }
+      )
+      .setFooter({ text: 'Click Publish to make this request public in the review forum.' });
+
+    const publishButton = new ButtonBuilder()
+      .setCustomId('amrm_publish_request')
+      .setLabel('📢 Publish Request')
+      .setStyle(ButtonStyle.Success);
+
+    const deleteButton = new ButtonBuilder()
+      .setCustomId('amrm_delete_request')
+      .setLabel('🗑️ Delete Request')
+      .setStyle(ButtonStyle.Danger);
+
+    const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents([
+      publishButton,
+      deleteButton,
+    ]);
+
+    const matchData = {
+      match: match,
+      useGenericNames: false,
+      highlightedPlayerId: matchPlayer.account_id,
+    };
+
+    const imageBuffer = await generateMatchImage(matchData);
+
+    const attachment = new AttachmentBuilder(imageBuffer, {
+      name: 'match.png',
+    });
+
+    await channel.send({
+      embeds: [draftEmbed],
+      components: [actionRow],
+      files: [attachment],
+    });
+  }
+
+  async deleteThread(threadId: string | null) {
+    if (!threadId) return;
+
+    const thread = await this.client.channels.fetch(threadId);
+    if (thread?.isThread() && thread.ownerId === this.client.user!.id) {
+      await thread.delete();
+    }
+  }
+
+  async postMatchReviewRequest(matchReviewRequest: MatchReviewRequests) {
+    const match = await useDeadlockClient.MatchService.GetMatch(Number(matchReviewRequest.matchId));
+    if (!match) throw new Error('Match not found');
+
+    const storedPlayer = await StoredPlayers.findOne({
+      where: { discordId: matchReviewRequest.userId },
+    });
+    if (!storedPlayer) throw new Error('Player not found');
+
+    const matchPlayer = match.players.find((p) => p.account_id === Number(storedPlayer.steamId));
+    if (!matchPlayer) throw new Error('Player not found in the match');
+
+    const statlockerProfile = await useStatlockerClient.ProfileService.GetProfile(
+      matchPlayer.account_id
+    );
+    const estimatedRank = statlockerProfile ? await statlockerProfile.getEstimatedRank() : null;
+
+    const heroPlayed = (await useAssetsClient.HeroService.GetHero(matchPlayer.hero_id))!;
+
+    const matchData = {
+      match: match,
+      useGenericNames: false,
+      highlightedPlayerId: matchPlayer.account_id,
+    };
+
+    const imageBuffer = await generateMatchImage(matchData);
+
+    const attachment = new AttachmentBuilder(imageBuffer, {
+      name: 'match.png',
+    });
+
+    const title = `${statlockerProfile?.name} - ${estimatedRank ?? ''} ${heroPlayed.name} (${match.matchId})`;
+
+    const embed = new EmbedBuilder()
+      .setTitle(`Match Review Request`)
+      .setDescription(
+        `**Player:** <@${storedPlayer.discordId}>\n` +
+          `**Match ID:** \`${match.matchId}\`\n` +
+          `**Hero:** ${heroPlayed.name}\n` +
+          `**Estimated Rank:** ${estimatedRank ?? 'N/A'}`
+      )
+      .setImage('attachment://match.png')
+      .setColor(0x2f3136)
+      .setTimestamp();
+
+    const selector = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId('amrm_review_selector')
+        .setPlaceholder('Select topic to focus the review on')
+        .addOptions(
+          new StringSelectMenuOptionBuilder().setLabel('Overall').setValue('overall'),
+          new StringSelectMenuOptionBuilder().setLabel('Positioning').setValue('positioning'),
+          new StringSelectMenuOptionBuilder().setLabel('Macro').setValue('macro'),
+          new StringSelectMenuOptionBuilder().setLabel('Mechanics').setValue('mechanics')
+        )
+    );
+
+    const thread = await (this.forumChannel as ForumChannel).threads.create({
+      name: title,
+      message: {
+        content: matchReviewRequest.description ?? '',
+        embeds: [embed],
+        components: [selector],
+        files: [attachment],
+      },
+      reason: 'Match review requested',
+    });
+    return thread;
   }
 }

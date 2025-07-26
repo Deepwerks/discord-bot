@@ -5,6 +5,9 @@ import IModalHandler from '../../base/interfaces/IModalHandler';
 import CommandError from '../../base/errors/CommandError';
 import logFailedInteraction from '../../services/logger/logFailedInteractions';
 import { InteractionType } from '../../services/database/orm/models/FailedUserInteractions.model';
+import ConfigService from '../../services/amrm/managers/guildAMRMManager/services/configService';
+import DiscordService from '../../services/amrm/managers/guildAMRMManager/services/discordService';
+import GuildAMRMManager from '../../services/amrm/managers/guildAMRMManager';
 
 export default class ModalHandler extends Event implements IModalHandler {
   constructor(client: CustomClient) {
@@ -20,6 +23,15 @@ export default class ModalHandler extends Event implements IModalHandler {
 
     const modalId = interaction.customId;
     const [action, _id] = modalId.split(':');
+
+    if (action.startsWith('amrm_')) {
+      const configService = new ConfigService(interaction.guildId!);
+      const discordService = new DiscordService(this.client);
+
+      const manager = new GuildAMRMManager(discordService, configService);
+      await manager.handleModalEvent(interaction);
+      return;
+    }
 
     const modalHandler = this.client.modals.get(action);
 

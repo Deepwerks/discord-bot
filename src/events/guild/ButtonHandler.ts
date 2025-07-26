@@ -7,6 +7,9 @@ import CommandError from '../../base/errors/CommandError';
 import { InteractionType } from '../../services/database/orm/models/FailedUserInteractions.model';
 import { getGuildConfig } from '../../services/database/repository';
 import logFailedInteraction from '../../services/logger/logFailedInteractions';
+import ConfigService from '../../services/amrm/managers/guildAMRMManager/services/configService';
+import DiscordService from '../../services/amrm/managers/guildAMRMManager/services/discordService';
+import GuildAMRMManager from '../../services/amrm/managers/guildAMRMManager';
 
 export default class ButtonHandler extends Event {
   constructor(client: CustomClient) {
@@ -21,6 +24,15 @@ export default class ButtonHandler extends Event {
     if (!interaction.isButton()) return;
     const [action, ...params] = interaction.customId.split(':');
     if (['ready_up', 'vote'].includes(action)) return;
+
+    if (action.startsWith('amrm_')) {
+      const configService = new ConfigService(interaction.guildId!);
+      const discordService = new DiscordService(this.client);
+
+      const manager = new GuildAMRMManager(discordService, configService);
+      await manager.handleButtonEvent(interaction);
+      return;
+    }
 
     const guildConfig = await getGuildConfig(interaction.guildId);
     const t = i18next.getFixedT(guildConfig?.preferedLanguage ?? 'en');
