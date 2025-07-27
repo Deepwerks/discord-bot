@@ -75,11 +75,13 @@ export default class DeadlockAIAssistantService extends BaseClientService {
               .flatMap((step) => step.content)
               .map((c) => c.text);
             thinkingMessages.push(...actions);
-            const plots = (data as ActionEvent & { plots?: string[] }).plots || [];
-            const plotAttachments = plots.map((base64, index) => {
-              const buffer = Buffer.from(base64, 'base64');
-              return new AttachmentBuilder(buffer, { name: `plot${index + 1}.png` });
-            });
+            const plots = (data as ActionEvent & { plots?: (string | null)[] }).plots || [];
+            const plotAttachments = plots
+              .filter((p): p is string => typeof p === 'string' && p.trim().length > 0)
+              .map((base64, index) => {
+                const buffer = Buffer.from(base64, 'base64');
+                return new AttachmentBuilder(buffer, { name: `plot${index + 1}.png` });
+              });
             onUpdate({ memoryId, answer, formattedAnswer, thinkingMessages, plotAttachments });
             break;
           }
