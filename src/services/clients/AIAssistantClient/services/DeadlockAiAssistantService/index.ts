@@ -1,6 +1,7 @@
 import BaseClientService from '../../../base/classes/BaseClientService';
 import { logger } from '../../../../..';
 import { EventSource } from 'eventsource';
+import { AttachmentBuilder } from 'discord.js';
 
 interface Content {
   type: 'text';
@@ -35,6 +36,7 @@ export interface AIAssistantResponse {
   memoryId?: string;
   error?: string;
   thinkingMessages?: string[];
+  plotAttachments?: AttachmentBuilder[];
 }
 
 export default class DeadlockAIAssistantService extends BaseClientService {
@@ -73,7 +75,12 @@ export default class DeadlockAIAssistantService extends BaseClientService {
               .flatMap((step) => step.content)
               .map((c) => c.text);
             thinkingMessages.push(...actions);
-            onUpdate({ memoryId, answer, formattedAnswer, thinkingMessages });
+            const plots = (data as ActionEvent & { plots?: string[] }).plots || [];
+            const plotAttachments = plots.map((base64, index) => {
+              const buffer = Buffer.from(base64, 'base64');
+              return new AttachmentBuilder(buffer, { name: `plot${index + 1}.png` });
+            });
+            onUpdate({ memoryId, answer, formattedAnswer, thinkingMessages, plotAttachments });
             break;
           }
           case 'final_answer': {

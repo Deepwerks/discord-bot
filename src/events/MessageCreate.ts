@@ -98,6 +98,7 @@ export default class MessageCreate extends Event {
       memoryId,
       error,
       formattedAnswer,
+      plotAttachments,
     }: AIAssistantResponse) {
       logger.debug('AI Assistant Response', { answer, thinkingMessages });
 
@@ -149,11 +150,20 @@ export default class MessageCreate extends Event {
 
       if (!updateTimer) {
         const delay = Math.max(0, 1000 - (Date.now() - lastUpdateTime));
-        updateTimer = setTimeout(() => {
-          replyMessage.edit({
+        updateTimer = setTimeout(async () => {
+          const editPayload = {
             content: nextUpdate,
-            allowedMentions: { repliedUser: answer || formattedAnswer ? true : false, parse: [] },
-          });
+            allowedMentions: {
+              repliedUser: answer || formattedAnswer ? true : false,
+              parse: [],
+            },
+          };
+
+          if (plotAttachments && plotAttachments.length > 0) {
+            Object.assign(editPayload, { files: plotAttachments });
+          }
+
+          await replyMessage.edit(editPayload);
           updateTimer = null;
           lastUpdateTime = Date.now();
         }, delay);
