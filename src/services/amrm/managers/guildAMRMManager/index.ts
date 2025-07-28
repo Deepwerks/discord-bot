@@ -25,6 +25,8 @@ import CommandError from '../../../../base/errors/CommandError';
 import logFailedInteraction from '../../../logger/logFailedInteractions';
 import { InteractionType } from '../../../database/orm/models/FailedUserInteractions.model';
 
+const clickedInteractions = new Set<string>();
+
 export default class GuildAMRMManager {
   private discordService: DiscordService;
   private configService: ConfigService;
@@ -94,6 +96,7 @@ export default class GuildAMRMManager {
 
   async handleButtonEvent(interaction: ButtonInteraction) {
     const [action, ..._params] = interaction.customId.split(':');
+    const key = `${action}_${interaction.user.id}`;
 
     switch (action) {
       case 'amrm_open_draft_modal': {
@@ -127,6 +130,14 @@ export default class GuildAMRMManager {
         const transaction = await sequelize.transaction();
         const discordTx = new DiscordTransaction(this.discordService);
         try {
+          if (
+            clickedInteractions.has(key) ||
+            clickedInteractions.has(`amrm_publish_request_${interaction.user.id}`)
+          ) {
+            throw new CommandError('This button has already been clicked. Please wait.');
+          }
+          clickedInteractions.add(key);
+
           const channel = interaction.channel;
           const matchReviewRequest = await MatchReviewRequests.findOne({
             where: { channelId: channel!.id },
@@ -172,15 +183,21 @@ export default class GuildAMRMManager {
 
           await transaction.rollback();
           await discordTx.rollback();
+        } finally {
+          clickedInteractions.delete(key);
         }
         break;
       }
       case 'amrm_publish_request': {
         const transaction = await sequelize.transaction();
         const discordTx = new DiscordTransaction(this.discordService);
-        await interaction.deferReply({ flags: ['Ephemeral'] });
 
         try {
+          if (clickedInteractions.has(key)) {
+            throw new CommandError('This button has already been clicked. Please wait.');
+          }
+          clickedInteractions.add(key);
+
           const channel = interaction.channel;
           const matchReviewRequest = await MatchReviewRequests.findOne({
             where: { channelId: channel!.id },
@@ -191,6 +208,7 @@ export default class GuildAMRMManager {
 
           if (matchReviewRequest.userId !== interaction.user.id)
             throw new CommandError('You cant publish this request');
+          await interaction.deferUpdate();
 
           const config = await this.configService.getConfig();
           if (!config) throw new CommandError('Server config not found');
@@ -210,8 +228,13 @@ export default class GuildAMRMManager {
             { transaction }
           );
 
+          await this.discordService.editDraftEmbed(matchReviewRequest);
           await transaction.commit();
-          await interaction.editReply({ content: `Match Review Request created: ${thread!.url}` });
+
+          await interaction.followUp({
+            content: `Match Review Request created: ${thread!.url}`,
+            flags: ['Ephemeral'],
+          });
         } catch (error) {
           logFailedInteraction({
             id: interaction.id,
@@ -239,6 +262,8 @@ export default class GuildAMRMManager {
 
           await transaction.rollback();
           await discordTx.rollback();
+        } finally {
+          clickedInteractions.delete(key);
         }
         break;
       }
@@ -320,7 +345,8 @@ export default class GuildAMRMManager {
             channel,
             matchReviewRequest,
             match,
-            matchPlayerIndex
+            matchPlayerIndex,
+            transaction
           );
 
           await interaction.editReply({

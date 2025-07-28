@@ -21,6 +21,7 @@ export class MatchReviewRequests extends Model {
   declare channelId: string;
   declare postMessageId: string | null;
   declare description: string | null;
+  declare draftMessageId: string | null;
 
   declare createdAt: Date;
   declare updatedAt: Date | null;
@@ -63,6 +64,9 @@ export class MatchReviewRequests extends Model {
           allowNull: false,
         },
         postMessageId: {
+          type: DataTypes.TEXT,
+        },
+        draftMessageId: {
           type: DataTypes.TEXT,
         },
       },

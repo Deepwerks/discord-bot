@@ -1,14 +1,18 @@
 import {
+  ActionRow,
   ActionRowBuilder,
   AttachmentBuilder,
   ButtonBuilder,
+  ButtonComponent,
   ButtonStyle,
   CategoryChannel,
   ChannelType,
   Client,
+  ComponentType,
   EmbedBuilder,
   ForumChannel,
   ForumLayoutType,
+  MessageActionRowComponent,
   OverwriteType,
   PermissionFlagsBits,
   SortOrderType,
@@ -25,6 +29,7 @@ import { generateMatchImage } from '../../../../utils/generateMatchImage';
 import getHistoryTable from '../../../../utils/getHistoryTable';
 import { getGuildConfig } from '../../../../database/repository';
 import i18next from '../../../../i18n';
+import { Transaction } from 'sequelize';
 
 export type AMRMChannelType = 'CategoryChannel' | 'ForumChannel' | 'DashboardChannel';
 
@@ -216,7 +221,8 @@ export default class DiscordService {
     channel: TextChannel,
     matchReviewRequest: MatchReviewRequests,
     match: DeadlockMatch,
-    matchPlayerIndex: number
+    matchPlayerIndex: number,
+    transaction: Transaction
   ) {
     const matchPlayer = match.players[matchPlayerIndex];
 
@@ -269,11 +275,45 @@ export default class DiscordService {
       name: 'match.png',
     });
 
-    await channel.send({
+    const message = await channel.send({
       embeds: [draftEmbed],
       components: [actionRow],
       files: [attachment],
     });
+
+    await matchReviewRequest.update(
+      {
+        draftMessageId: message.id,
+      },
+      { transaction }
+    );
+  }
+
+  async editDraftEmbed(matchReviewRequest: MatchReviewRequests) {
+    const channel = this.client.channels.cache.get(matchReviewRequest.channelId);
+    if (channel && channel.isTextBased() && matchReviewRequest.draftMessageId) {
+      const message = await channel.messages.fetch(matchReviewRequest.draftMessageId);
+
+      const rows = message.components as ActionRow<MessageActionRowComponent>[];
+
+      const updatedComponents = rows.map((row) =>
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          row.components.map((component) => {
+            if (
+              component.type === ComponentType.Button &&
+              component.customId === 'amrm_publish_request'
+            ) {
+              return ButtonBuilder.from(component as ButtonComponent).setDisabled(true);
+            }
+            return ButtonBuilder.from(component as ButtonComponent);
+          })
+        )
+      );
+
+      await message.edit({
+        components: updatedComponents,
+      });
+    }
   }
 
   async deleteThread(threadId: string | null) {
@@ -346,11 +386,7 @@ export default class DiscordService {
     );
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { response, _buttonRow, _interactiveRow, _steamAuthNeeded } = await getHistoryTable(
-      storedPlayer.steamId,
-      storedPlayer.discordId,
-      t
-    );
+    const { response } = await getHistoryTable(storedPlayer.steamId, storedPlayer.discordId, t);
 
     const thread = await (this.forumChannel as ForumChannel).threads.create({
       name: title,
