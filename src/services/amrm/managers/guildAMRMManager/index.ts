@@ -191,6 +191,7 @@ export default class GuildAMRMManager {
       case 'amrm_publish_request': {
         const transaction = await sequelize.transaction();
         const discordTx = new DiscordTransaction(this.discordService);
+        await interaction.deferReply({ flags: ['Ephemeral'] });
 
         try {
           if (clickedInteractions.has(key)) {
@@ -208,7 +209,6 @@ export default class GuildAMRMManager {
 
           if (matchReviewRequest.userId !== interaction.user.id)
             throw new CommandError('You cant publish this request');
-          await interaction.deferUpdate();
 
           const config = await this.configService.getConfig();
           if (!config) throw new CommandError('Server config not found');
@@ -228,12 +228,11 @@ export default class GuildAMRMManager {
             { transaction }
           );
 
-          await this.discordService.editDraftEmbed(matchReviewRequest);
+          // await this.discordService.editDraftEmbed(matchReviewRequest);
           await transaction.commit();
 
-          await interaction.followUp({
+          await interaction.editReply({
             content: `Match Review Request created: ${thread!.url}`,
-            flags: ['Ephemeral'],
           });
         } catch (error) {
           logFailedInteraction({

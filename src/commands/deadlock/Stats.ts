@@ -3,17 +3,14 @@ import {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
   EmbedBuilder,
-  escapeMarkdown,
   PermissionsBitField,
 } from 'discord.js';
 import Command from '../../base/classes/Command';
 import CustomClient from '../../base/classes/CustomClient';
 import Category from '../../base/enums/Category';
 import { TFunction } from 'i18next';
-import CommandError from '../../base/errors/CommandError';
-import { useAssetsClient, useDeadlockClient } from '../..';
-import { findHeroByName } from '../../services/utils/findHeroByName';
-import getProfile from '../../services/database/repository';
+import { useAssetsClient } from '../..';
+import getPlayerStatsEmbed from '../../services/utils/getPlayerStatsEmbed';
 
 export default class Stats extends Command {
   constructor(client: CustomClient) {
@@ -52,77 +49,16 @@ export default class Stats extends Command {
   async Execute(interaction: ChatInputCommandInteraction, t: TFunction<'translation', undefined>) {
     const player = interaction.options.getString('player', true);
     const ephemeral = interaction.options.getBoolean('private', false);
-
-    const HeroSpecificStats: Record<string, string[]> = {
-      'Grey Talon': ['max_guided_owl_stacks', 'max_spirit_snare_stacks'],
-      Bebop: ['max_bomb_stacks'],
-      'Mo & Krill': ['max_bonus_health_per_kill'],
-    };
-
-    await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
-    const { steamProfile, steamAuthNeeded } = await getProfile(player, interaction.user.id, t);
-
-    if (!steamProfile) {
-      throw new CommandError(t('errors.steam_profile_not_found'));
-    }
-
-    const accountId = steamProfile.accountId;
     const heroName = interaction.options.getString('hero_name', false);
 
-    const hero = findHeroByName(heroName ?? '');
+    await interaction.deferReply({ flags: ephemeral ? ['Ephemeral'] : [] });
 
-    if (heroName && !hero) {
-      throw new CommandError(`Hero not found: ${heroName}`);
-    }
-
-    const globalStats = ['total_kd', 'total_matches', 'total_wins', 'total_losses'];
-
-    const additionalStats = ['total_winrate', 'hours_played', 'most_played_hero'];
-
-    const heroStats = heroName
-      ? ['hero_kd', 'hero_matches', 'hero_wins', 'hero_losses', 'hero_winrate', 'hero_hours_played']
-      : [];
-
-    const heroSpecificStats = heroName ? HeroSpecificStats[hero!.name] || [] : [];
-
-    const stats = await useDeadlockClient.PlayerService.FetchStats(
-      accountId,
-      [...globalStats, ...additionalStats, ...heroStats, ...heroSpecificStats],
-      hero?.name
+    const { embed, steamAuthNeeded } = await getPlayerStatsEmbed(
+      player,
+      interaction.user.id,
+      heroName,
+      this.client
     );
-
-    if (!stats) {
-      throw new CommandError('Failed to get player stats');
-    }
-
-    const globalStatBlock = formatStatsBlock(stats, globalStats);
-    const additionalStatBlock = formatStatsBlock(stats, additionalStats);
-    const heroStatBlock = heroStats.length > 0 ? formatStatsBlock(stats, heroStats) : '';
-    const heroSpecificStatBlock = formatStatsBlock(stats, heroSpecificStats);
-
-    const description = `
-        ${
-          !heroName
-            ? `\`\`\`Predicted Rank: ${steamProfile.performanceRankMessage}\`\`\` \nGlobal Stats ${globalStatBlock}  \nAdditional Stats ${additionalStatBlock}`
-            : `Stats on ${hero?.name} ${heroStatBlock} ${
-                heroSpecificStats.length ? `\nHero Specific Stats ${heroSpecificStatBlock}` : ``
-              } \nGlobal Stats ${globalStatBlock}`
-        }
-      `;
-
-    const embed = new EmbedBuilder()
-      .setColor(heroName ? 0x00ae86 : 0x7289da)
-      .setThumbnail(
-        heroName ? (hero!.images.minimap_image ?? steamProfile.avatarUrl) : steamProfile.avatarUrl
-      )
-      .setTitle(`${escapeMarkdown(steamProfile.name)}'s stats`)
-      .setURL(`https://statlocker.gg/profile/${steamProfile.accountId}`)
-      .setDescription(description)
-      .setTimestamp()
-      .setFooter({
-        text: `PlayerID: ${steamProfile.accountId}`,
-        iconURL: this.client.user!.displayAvatarURL(),
-      });
 
     await interaction.editReply({ embeds: [embed] });
 
@@ -161,19 +97,4 @@ export default class Stats extends Command {
 
     await interaction.respond(suggestions);
   }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatStatsBlock(stats: Record<string, any>, fields: string[]): string {
-  return (
-    '```\n' +
-    fields.map((field) => `${formatFieldName(field)}: ${stats[field] ?? 'N/A'}`).join('\n') +
-    '\n```'
-  );
-}
-
-function formatFieldName(field: string): string {
-  return field
-    .replace(/_/g, ' ') // replace underscores with spaces
-    .replace(/\b\w/g, (c) => c.toUpperCase()); // capitalize each word
 }

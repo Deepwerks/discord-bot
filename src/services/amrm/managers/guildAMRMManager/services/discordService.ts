@@ -7,7 +7,6 @@ import {
   ButtonStyle,
   CategoryChannel,
   ChannelType,
-  Client,
   ComponentType,
   EmbedBuilder,
   ForumChannel,
@@ -30,17 +29,19 @@ import getHistoryTable from '../../../../utils/getHistoryTable';
 import { getGuildConfig } from '../../../../database/repository';
 import i18next from '../../../../i18n';
 import { Transaction } from 'sequelize';
+import getPlayerStatsEmbed from '../../../../utils/getPlayerStatsEmbed';
+import CustomClient from '../../../../../base/classes/CustomClient';
 
 export type AMRMChannelType = 'CategoryChannel' | 'ForumChannel' | 'DashboardChannel';
 
 export default class DiscordService {
-  private client: Client;
+  private client: CustomClient;
 
   private categoryChannel: CategoryChannel | null = null;
   private dashboardChannel: TextChannel | null = null;
   private forumChannel: ForumChannel | null = null;
 
-  constructor(discordClient: Client) {
+  constructor(discordClient: CustomClient) {
     this.client = discordClient;
   }
 
@@ -376,7 +377,7 @@ export default class DiscordService {
     const selector = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId('amrm_review_selector')
-        .setPlaceholder('Select topic to focus the review on')
+        .setPlaceholder('Select a category to review')
         .addOptions(
           new StringSelectMenuOptionBuilder().setLabel('Overall').setValue('overall'),
           new StringSelectMenuOptionBuilder().setLabel('Positioning').setValue('positioning'),
@@ -385,8 +386,17 @@ export default class DiscordService {
         )
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { response } = await getHistoryTable(storedPlayer.steamId, storedPlayer.discordId, t);
+    const { response: historyTable } = await getHistoryTable(
+      storedPlayer.steamId,
+      storedPlayer.discordId,
+      t
+    );
+    const { embed: playerHeroStats } = await getPlayerStatsEmbed(
+      storedPlayer.steamId,
+      storedPlayer.discordId,
+      heroPlayed.name,
+      this.client
+    );
 
     const thread = await (this.forumChannel as ForumChannel).threads.create({
       name: title,
@@ -398,6 +408,12 @@ export default class DiscordService {
       },
       reason: 'Match review requested',
     });
+
+    await thread.send({
+      content: historyTable,
+      embeds: [playerHeroStats],
+    });
+
     return thread;
   }
 }
