@@ -75,6 +75,7 @@ export default class StatlockerProfileService extends BaseClientService {
             performanceRankMessage: null,
             lastUpdated: null,
             ppScore: null,
+            estimatedRankNumber: null,
           })
       );
     }
