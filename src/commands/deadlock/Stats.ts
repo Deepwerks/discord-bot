@@ -99,11 +99,12 @@ export default class Stats extends Command {
     const additionalStatBlock = formatStatsBlock(stats, additionalStats);
     const heroStatBlock = heroStats.length > 0 ? formatStatsBlock(stats, heroStats) : '';
     const heroSpecificStatBlock = formatStatsBlock(stats, heroSpecificStats);
+    const playerPredictedRank = await steamProfile.getEstimatedRankName();
 
     const description = `
         ${
           !heroName
-            ? `\`\`\`Predicted Rank: ${steamProfile.performanceRankMessage}\`\`\` \nGlobal Stats ${globalStatBlock}  \nAdditional Stats ${additionalStatBlock}`
+            ? `\`\`\`Predicted Rank: ${playerPredictedRank ?? 'Unknown'}\`\`\` \nGlobal Stats ${globalStatBlock}  \nAdditional Stats ${additionalStatBlock}`
             : `Stats on ${hero?.name} ${heroStatBlock} ${
                 heroSpecificStats.length ? `\nHero Specific Stats ${heroSpecificStatBlock}` : ``
               } \nGlobal Stats ${globalStatBlock}`
