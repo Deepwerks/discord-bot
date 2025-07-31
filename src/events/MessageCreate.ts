@@ -95,6 +95,7 @@ export default class MessageCreate extends Event {
     async function onUpdate({
       answer,
       thinkingMessages,
+      wikiReferences,
       memoryId,
       error,
       formattedAnswer,
@@ -106,12 +107,16 @@ export default class MessageCreate extends Event {
 
       response.push(`**Question:** ${question}`);
 
+      if (wikiReferences?.length) {
+        response.push(`**Wiki References:** ${wikiReferences.join(', ')}`);
+      }
+
       // Truncate formattedAnswer if needed
       let finalFormattedAnswer = formattedAnswer;
       if (formattedAnswer) {
         const baseLength =
           response.join('\n').length + `**Answer:**\n`.length + `\n_AI can make mistakes._`.length;
-        const remainingLength = 2000 - baseLength;
+        const remainingLength = 1900 - baseLength; // 2000 is maximum, but we keep some buffer
         if (formattedAnswer.length > remainingLength) {
           finalFormattedAnswer = formattedAnswer.slice(0, remainingLength - 3) + '...';
         }

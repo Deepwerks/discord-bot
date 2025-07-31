@@ -36,6 +36,7 @@ export interface AIAssistantResponse {
   memoryId?: string;
   error?: string;
   thinkingMessages?: string[];
+  wikiReferences?: string[];
   plotAttachments?: AttachmentBuilder[];
 }
 
@@ -53,6 +54,7 @@ export default class DeadlockAIAssistantService extends BaseClientService {
       let answer: string;
       let formattedAnswer: string;
       const thinkingMessages: string[] = [];
+      const wikiReferences: string[] = [];
 
       const url = new URL('https://ai-assistant.deadlock-api.com/invoke');
       url.searchParams.set('prompt', prompt);
@@ -63,8 +65,12 @@ export default class DeadlockAIAssistantService extends BaseClientService {
       const es = new EventSource(url);
       es.addEventListener('memoryId', (event) => {
         memoryId = event.data;
-        onUpdate({ memoryId, answer, formattedAnswer, thinkingMessages });
+        onUpdate({ memoryId, answer, formattedAnswer, wikiReferences, thinkingMessages });
         es.close();
+      });
+      es.addEventListener('wikiReferences', (event) => {
+        wikiReferences.push(...JSON.parse(event.data));
+        onUpdate({ memoryId, answer, formattedAnswer, wikiReferences, thinkingMessages });
       });
       es.addEventListener('agentStep', (event) => {
         const data: AgentStep = JSON.parse(event.data);
@@ -82,17 +88,17 @@ export default class DeadlockAIAssistantService extends BaseClientService {
                 const buffer = Buffer.from(base64, 'base64');
                 return new AttachmentBuilder(buffer, { name: `plot${index + 1}.png` });
               });
-            onUpdate({ memoryId, answer, formattedAnswer, thinkingMessages, plotAttachments });
+            onUpdate({ memoryId, answer, formattedAnswer, wikiReferences, thinkingMessages, plotAttachments });
             break;
           }
           case 'final_answer': {
             answer = data.data;
-            onUpdate({ memoryId, answer, formattedAnswer, thinkingMessages });
+            onUpdate({ memoryId, answer, formattedAnswer, wikiReferences, thinkingMessages });
             break;
           }
           case 'formatted_response': {
             formattedAnswer = data.data;
-            onUpdate({ memoryId, answer, formattedAnswer, thinkingMessages });
+            onUpdate({ memoryId, answer, formattedAnswer, wikiReferences, thinkingMessages });
             break;
           }
         }
