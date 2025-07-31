@@ -30,13 +30,18 @@ interface FormattedResponseEvent {
 
 export type AgentStep = ActionEvent | FinalAnswerEvent | FormattedResponseEvent;
 
+export interface WikiReference {
+  title: string
+  url: string
+}
+
 export interface AIAssistantResponse {
   answer?: string;
   formattedAnswer?: string;
   memoryId?: string;
   error?: string;
   thinkingMessages?: string[];
-  wikiReferences?: string[];
+  wikiReferences?: WikiReference[];
   plotAttachments?: AttachmentBuilder[];
 }
 
@@ -54,7 +59,7 @@ export default class DeadlockAIAssistantService extends BaseClientService {
       let answer: string;
       let formattedAnswer: string;
       const thinkingMessages: string[] = [];
-      const wikiReferences: string[] = [];
+      const wikiReferences: WikiReference[] = [];
 
       const url = new URL('https://ai-assistant.deadlock-api.com/invoke');
       url.searchParams.set('prompt', prompt);

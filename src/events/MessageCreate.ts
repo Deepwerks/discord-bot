@@ -108,7 +108,11 @@ export default class MessageCreate extends Event {
       response.push(`**Question:** ${question}`);
 
       if (wikiReferences?.length) {
-        response.push(`**Wiki References:** ${wikiReferences.join(', ')}`);
+        // TODO: Add buttons to the message for each reference
+        // References looks like this
+        // [
+        //  {"title": "Bebop", "url": "https://deadlock.wiki/Bebop"}
+        // ]
       }
 
       // Truncate formattedAnswer if needed
