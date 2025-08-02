@@ -31,6 +31,7 @@ export default class SetActivity extends Command {
             { name: 'Listening', value: 'Listening' },
             { name: 'Competing', value: 'Competing' },
             { name: 'Streaming', value: 'Streaming' },
+            { name: 'Custom', value: 'Custom' },
           ],
         },
         {
@@ -65,6 +66,7 @@ export default class SetActivity extends Command {
       Streaming: 1,
       Listening: 2,
       Watching: 3,
+      Custom: 4,
       Competing: 5,
     };
 
