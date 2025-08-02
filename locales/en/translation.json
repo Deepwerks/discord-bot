@@ -1,5 +1,11 @@
 {
   "commands": {
+    "ai": {
+      "title": "🧠 AI Chatbot Feature",
+      "description": "Our new AI chatbot feature can be enabled on your server to provide helpful and interactive conversations.\n\n**How to enable it:**\n1. Join our Support server with the button below.\n2. Open a dev ticket in the `#contact-dev` channel.\n3. Include your **Server ID** in the ticket.\n4. Once approved, your server will be given **50 requests/day** (we can increase this if needed).\n\n**How to use it:**\n• Mention **DeadlockAssistant** in a message to start a new conversation.\n• To continue an existing conversation, simply reply to the bot's message.\n\nThis feature is currently in beta, so we welcome your feedback!",
+      "footer": "Need help? Reach out in #contact-dev",
+      "button_support_server": "Join Support Server"
+    },
     "test": {
       "ran": "Test command has been ran!"
     },
