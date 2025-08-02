@@ -1,4 +1,4 @@
-import { Events, Message } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Events, Message } from 'discord.js';
 import CustomClient from '../base/classes/CustomClient';
 import Event from '../base/classes/Event';
 import { logger, useAIAssistantClient } from '..';
@@ -107,12 +107,31 @@ export default class MessageCreate extends Event {
 
       response.push(`**Question:** ${question}`);
 
+      const components: ActionRowBuilder<ButtonBuilder>[] = [];
+
       if (wikiReferences?.length) {
-        // TODO: Add buttons to the message for each reference
-        // References looks like this
-        // [
-        //  {"title": "Bebop", "url": "https://deadlock.wiki/Bebop"}
-        // ]
+        const MAX_BUTTONS_PER_ROW = 5;
+        const MAX_ROWS = 5;
+
+        for (
+          let i = 0;
+          i < wikiReferences.length && i < MAX_BUTTONS_PER_ROW * MAX_ROWS;
+          i += MAX_BUTTONS_PER_ROW
+        ) {
+          const row = new ActionRowBuilder<ButtonBuilder>();
+          const slice = wikiReferences.slice(i, i + MAX_BUTTONS_PER_ROW);
+
+          for (const ref of slice) {
+            row.addComponents(
+              new ButtonBuilder()
+                .setLabel(ref.title.length > 80 ? ref.title.slice(0, 77) + '…' : ref.title)
+                .setStyle(ButtonStyle.Link)
+                .setURL(ref.url)
+            );
+          }
+
+          components.push(row);
+        }
       }
 
       // Truncate formattedAnswer if needed
@@ -162,6 +181,7 @@ export default class MessageCreate extends Event {
         updateTimer = setTimeout(async () => {
           const editPayload = {
             content: nextUpdate,
+            components,
             allowedMentions: {
               repliedUser: answer || formattedAnswer ? true : false,
               parse: [],
