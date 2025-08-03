@@ -1,22 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { logger } from '../../../../..';
 import BaseClientService from '../../../base/classes/BaseClientService';
-import { ITableSchema } from './interfaces/ITableSchema';
-
-type AverageMatchStats = {
-  avg_kills: number;
-  avg_deaths: number;
-  avg_assists: number;
-  avg_net_worth: number;
-  avg_last_hits: number;
-  avg_match_duration_s: number;
-};
+import { AverageMatchStats } from './entities/AverageMatchStats';
+import { ITableSchema } from './entities/ITableSchema';
 
 export default class SQLService extends BaseClientService {
-  async Query(query: string) {
-    const response = await this.client.request<string>('GET', `/v1/sql`, {
+  async Query<T = any>(query: string): Promise<T[]> {
+    logger.info('[API CALL] Running SQL query...');
+
+    const response = await this.client.request<T[]>('GET', `/v1/sql`, {
       params: {
         query,
       },
     });
+
     return response;
   }
 
@@ -65,12 +62,18 @@ export default class SQLService extends BaseClientService {
   `;
 
     const [playerStatsRaw, durationStatsRaw] = await Promise.all([
-      this.Query(playerStatsQuery),
-      this.Query(durationQuery),
+      this.Query<{
+        avg_kills: number;
+        avg_deaths: number;
+        avg_assists: number;
+        avg_net_worth: number;
+        avg_last_hits: number;
+      }>(playerStatsQuery),
+      this.Query<{ avg_match_duration_s: number }>(durationQuery),
     ]);
 
-    const playerStats = JSON.parse(playerStatsRaw)[0];
-    const durationStats = JSON.parse(durationStatsRaw)[0];
+    const playerStats = playerStatsRaw[0];
+    const durationStats = durationStatsRaw[0];
 
     const result: AverageMatchStats = {
       avg_kills: playerStats?.avg_kills,

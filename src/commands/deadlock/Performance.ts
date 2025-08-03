@@ -19,6 +19,7 @@ import PerformanceTagService, {
   IPerformanceTag,
 } from '../../services/calculators/PerformanceTagService';
 import getProfile from '../../services/database/repository';
+import { deadlockAvgStatsStore } from '../../services/redis/stores/DeadlockAvgStatsStore';
 
 const safeAvg = (arr: number[]) =>
   arr.length === 0 ? 0 : arr.reduce((a, b) => a + b, 0) / arr.length;
@@ -73,7 +74,8 @@ export default class Performance extends Command {
       );
     }
 
-    const performanceService = new PerformanceTagService(matches);
+    const averageStats = await deadlockAvgStatsStore.get();
+    const performanceService = new PerformanceTagService(matches, averageStats);
     const tags = performanceService.getMatchingTags();
 
     const winRate =

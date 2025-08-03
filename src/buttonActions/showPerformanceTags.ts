@@ -3,6 +3,7 @@ import ButtonAction from '../base/classes/ButtonAction';
 import CustomClient from '../base/classes/CustomClient';
 import PerformanceTagService from '../services/calculators/PerformanceTagService';
 import { TFunction } from 'i18next';
+import { deadlockAvgStatsStore } from '../services/redis/stores/DeadlockAvgStatsStore';
 
 export default class ShowPerformanceTagsButtonAction extends ButtonAction {
   constructor(client: CustomClient) {
@@ -14,7 +15,8 @@ export default class ShowPerformanceTagsButtonAction extends ButtonAction {
   }
 
   async Execute(interaction: ButtonInteraction, t: TFunction<'translation', undefined>) {
-    const tags = PerformanceTagService.getAllTagDescriptions();
+    const averages = await deadlockAvgStatsStore.get();
+    const tags = PerformanceTagService.getAllTagDescriptions(averages);
 
     const formattedTags = tags
       .map((tag) => `\`${tag.name}\`\n${tag.description}\n${tag.criteria}`)

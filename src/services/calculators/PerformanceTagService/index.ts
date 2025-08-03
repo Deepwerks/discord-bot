@@ -1,4 +1,5 @@
 import DeadlockMatchHistoryRecord from '../../clients/DeadlockClient/services/DeadlockPlayerService/entities/DeadlockMatchHistoryRecord';
+import { AverageMatchStats } from '../../clients/DeadlockClient/services/SQLService/entities/AverageMatchStats';
 
 export interface IPerformanceTag {
   name: string;
@@ -7,22 +8,25 @@ export interface IPerformanceTag {
   calculate: (matches: DeadlockMatchHistoryRecord[]) => boolean;
 }
 
-const averages = {
-  kills: 6.82,
-  deaths: 6.8,
-  assists: 11.13,
-  netWorth: 37255.24,
-  lastHits: 155.35,
-  matchDuration: 2112.84,
+const fallbackAverages = {
+  avg_kills: 6.82,
+  avg_deaths: 6.8,
+  avg_assists: 11.13,
+  avg_net_worth: 37255.24,
+  avg_last_hits: 155.35,
+  avg_match_duration_s: 2112.84,
 };
 
 export default class PerformanceTagService {
   tags: IPerformanceTag[];
   matches: DeadlockMatchHistoryRecord[];
 
-  constructor(matches: DeadlockMatchHistoryRecord[]) {
+  constructor(
+    matches: DeadlockMatchHistoryRecord[],
+    private averages: AverageMatchStats | undefined
+  ) {
     this.matches = matches;
-    this.tags = PerformanceTagService.buildTags();
+    this.tags = PerformanceTagService.buildTags(this.averages || fallbackAverages);
   }
 
   public getMatchingTags(): IPerformanceTag[] {
@@ -36,15 +40,19 @@ export default class PerformanceTagService {
     return matched;
   }
 
-  public static getAllTagDescriptions(): Omit<IPerformanceTag, 'calculate'>[] {
-    return PerformanceTagService.buildTags().map(({ name, description, criteria }) => ({
-      name,
-      description,
-      criteria,
-    }));
+  public static getAllTagDescriptions(
+    averages: AverageMatchStats | undefined
+  ): Omit<IPerformanceTag, 'calculate'>[] {
+    return PerformanceTagService.buildTags(averages || fallbackAverages).map(
+      ({ name, description, criteria }) => ({
+        name,
+        description,
+        criteria,
+      })
+    );
   }
 
-  private static buildTags(): IPerformanceTag[] {
+  private static buildTags(averages: AverageMatchStats): IPerformanceTag[] {
     return [
       {
         name: '🎯 One Trick',
@@ -62,23 +70,23 @@ export default class PerformanceTagService {
       {
         name: '🏋️‍♂️ Carry',
         description: 'High kills and net worth with low deaths.',
-        criteria: `Avg net worth > ${averages.netWorth.toFixed().toLocaleString()}, kills > ${(
-          averages.kills * 1.3
-        ).toFixed(2)}, deaths <= ${averages.deaths.toFixed(2)}.`,
+        criteria: `Avg net worth > ${averages.avg_net_worth.toFixed().toLocaleString()}, kills > ${(
+          averages.avg_kills * 1.3
+        ).toFixed(2)}, deaths <= ${averages.avg_deaths.toFixed(2)}.`,
         calculate: (matches) =>
-          average(matches.map((m) => m.netWorth)) > averages.netWorth &&
-          average(matches.map((m) => m.playerKills)) > averages.kills * 1.3 &&
-          average(matches.map((m) => m.playerDeaths)) <= averages.deaths,
+          average(matches.map((m) => m.netWorth)) > averages.avg_net_worth &&
+          average(matches.map((m) => m.playerKills)) > averages.avg_kills * 1.3 &&
+          average(matches.map((m) => m.playerDeaths)) <= averages.avg_deaths,
       },
       {
         name: '🩺 Support',
         description: 'High assists, low kills.',
-        criteria: `Avg assists > ${averages.assists.toFixed(
+        criteria: `Avg assists > ${averages.avg_assists.toFixed(
           2
-        )}, kills < ${averages.kills.toFixed(2)}.`,
+        )}, kills < ${averages.avg_kills.toFixed(2)}.`,
         calculate: (matches) =>
-          average(matches.map((m) => m.playerAssists)) > averages.assists &&
-          average(matches.map((m) => m.playerKills)) < averages.kills,
+          average(matches.map((m) => m.playerAssists)) > averages.avg_assists &&
+          average(matches.map((m) => m.playerKills)) < averages.avg_kills,
       },
       {
         name: '🧩 Flex',
@@ -89,24 +97,24 @@ export default class PerformanceTagService {
       {
         name: '🎲 Risky',
         description: 'Aggressive play with high kills and deaths.',
-        criteria: `Avg kills > ${averages.kills.toFixed(
+        criteria: `Avg kills > ${averages.avg_kills.toFixed(
           2
-        )} and deaths > ${averages.deaths.toFixed(2)}.`,
+        )} and deaths > ${averages.avg_deaths.toFixed(2)}.`,
         calculate: (matches) =>
-          average(matches.map((m) => m.playerKills)) > averages.kills &&
-          average(matches.map((m) => m.playerDeaths)) > averages.deaths,
+          average(matches.map((m) => m.playerKills)) > averages.avg_kills &&
+          average(matches.map((m) => m.playerDeaths)) > averages.avg_deaths,
       },
       {
         name: '🌾 Farmer',
         description: 'Focuses on farming creeps.',
-        criteria: `Avg last hits > ${averages.lastHits.toFixed()}, Avg networth > ${(
-          averages.netWorth * 1.1
+        criteria: `Avg last hits > ${averages.avg_last_hits.toFixed()}, Avg networth > ${(
+          averages.avg_net_worth * 1.1
         )
           .toFixed()
           .toLocaleString()}`,
         calculate: (matches) =>
-          average(matches.map((m) => m.lastHits)) > averages.lastHits &&
-          average(matches.map((m) => m.netWorth)) > averages.netWorth * 1.1,
+          average(matches.map((m) => m.lastHits)) > averages.avg_last_hits &&
+          average(matches.map((m) => m.netWorth)) > averages.avg_net_worth * 1.1,
       },
       {
         name: '🚪 Leaver',
@@ -131,18 +139,19 @@ export default class PerformanceTagService {
       {
         name: '💀 Feeder',
         description: 'Dies a lot across most matches, without securing kills.',
-        criteria: `Average deaths > ${(averages.deaths * 1.3).toFixed(
+        criteria: `Average deaths > ${(averages.avg_deaths * 1.3).toFixed(
           2
-        )}, Avg kills <= ${averages.kills.toFixed(2)}.`,
+        )}, Avg kills <= ${averages.avg_kills.toFixed(2)}.`,
         calculate: (matches) =>
-          average(matches.map((m) => m.playerDeaths)) > averages.deaths * 1.3 &&
-          average(matches.map((m) => m.playerKills)) <= averages.kills,
+          average(matches.map((m) => m.playerDeaths)) > averages.avg_deaths * 1.3 &&
+          average(matches.map((m) => m.playerKills)) <= averages.avg_kills,
       },
       {
         name: '🛡️ Durable',
         description: 'Rarely dies and survives well.',
-        criteria: `Average deaths < ${(averages.deaths * 0.7).toFixed(2)}.`,
-        calculate: (matches) => average(matches.map((m) => m.playerDeaths)) < averages.deaths * 0.7,
+        criteria: `Average deaths < ${(averages.avg_deaths * 0.7).toFixed(2)}.`,
+        calculate: (matches) =>
+          average(matches.map((m) => m.playerDeaths)) < averages.avg_deaths * 0.7,
       },
       {
         name: '⏳ Long Games',
