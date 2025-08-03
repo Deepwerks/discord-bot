@@ -1,4 +1,12 @@
-import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
+import {
+  Client,
+  Collection,
+  GatewayIntentBits,
+  OAuth2Scopes,
+  Partials,
+  PermissionResolvable,
+  PermissionsBitField,
+} from 'discord.js';
 import ICustomClient from '../interfaces/ICustomClient';
 import IConfig from '../interfaces/IConfig';
 import Handler from './Handler';
@@ -25,6 +33,7 @@ export default class CustomClient extends Client implements ICustomClient {
   selectMenus: Collection<string, SelectMenu>;
   cooldowns: Collection<string, Collection<string, number>>;
   developmentMode: boolean;
+  requiredPermissions: PermissionResolvable[];
 
   constructor() {
     super({
@@ -40,6 +49,23 @@ export default class CustomClient extends Client implements ICustomClient {
     this.selectMenus = new Collection();
     this.cooldowns = new Collection();
     this.developmentMode = this.config.running_env === 'development';
+    this.requiredPermissions = [
+      PermissionsBitField.Flags.SendMessages,
+      PermissionsBitField.Flags.EmbedLinks,
+      PermissionsBitField.Flags.AttachFiles,
+      PermissionsBitField.Flags.ReadMessageHistory,
+      PermissionsBitField.Flags.UseApplicationCommands,
+      PermissionsBitField.Flags.ManageThreads,
+      PermissionsBitField.Flags.CreatePrivateThreads,
+      PermissionsBitField.Flags.SendMessagesInThreads,
+    ];
+  }
+
+  GetInviteLink(): string {
+    return this.generateInvite({
+      scopes: [OAuth2Scopes.Bot, OAuth2Scopes.ApplicationsCommands],
+      permissions: this.requiredPermissions,
+    });
   }
 
   async Init() {

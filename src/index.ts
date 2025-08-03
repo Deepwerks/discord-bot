@@ -11,6 +11,8 @@ import RenewSubscriptions from './services/scheduler/jobs/RenewSubscriptions';
 import AIAssistantClient from './services/clients/AIAssistantClient';
 import RefreshDeadlockAvgStats from './services/scheduler/jobs/RefreshDeadlockAvgStats';
 
+const botClient = new CustomClient();
+
 const logger = logtailLogger;
 
 const useDeadlockClient = new DeadlockClient({
@@ -33,12 +35,12 @@ const useAIAssistantClient = new AIAssistantClient({
 });
 
 (async () => {
-  const client = await new CustomClient().Init();
+  await botClient.Init();
 
   const scheduler = new JobScheduler()
     .addJob('CheckDeadlockPatches', '0 0 3 * * *', CheckDeadlockPatches)
     .addJob('CheckDeadlockPatchesAfternoon', '0 0 15 * * *', CheckDeadlockPatches)
-    .addJob('RenewSubscriptions', '0 0 * * *', () => RenewSubscriptions(client))
+    .addJob('RenewSubscriptions', '0 0 * * *', () => RenewSubscriptions(botClient))
     .addJob('RefreshDeadlockAvgStats', '0 */6 * * *', RefreshDeadlockAvgStats);
   scheduler.startJobs();
 })();
@@ -50,6 +52,7 @@ export {
   useRedditClient,
   useAIAssistantClient,
   logger,
+  botClient,
 };
 
 process.on('uncaughtException', (err) => {

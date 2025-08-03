@@ -19,6 +19,8 @@ export default class About extends Command {
   }
 
   async Execute(interaction: ChatInputCommandInteraction) {
+    const inviteLink = this.client.GetInviteLink();
+
     const aboutme = `\`\`\`
 Hi there! 👋  
 Deadlock Assistant is your handy companion for everything Deadlock-related.  
@@ -28,7 +30,7 @@ It fetches real-time match data, player stats, and full match history directly f
     const links = [
       {
         text: '➕ Invite me to your server!',
-        link: 'https://discord.com/oauth2/authorize?client_id=1361785119374835984&permissions=1688852007816256&integration_type=0&scope=bot',
+        link: inviteLink,
       },
       {
         text: '💬 Join our Support Server',
