@@ -13,6 +13,7 @@ import { logger, useAssetsClient, useRedditClient } from '../..';
 import ButtonAction from './ButtonAction';
 import SelectMenu from './SelectMenu';
 import { initRedis } from '../../services/redis';
+import RefreshDeadlockAvgStats from '../../services/scheduler/jobs/RefreshDeadlockAvgStats';
 
 export default class CustomClient extends Client implements ICustomClient {
   config: IConfig;
@@ -77,6 +78,7 @@ export default class CustomClient extends Client implements ICustomClient {
         useAssetsClient.DefaultService.LoadAllRanksToCache(),
         useAssetsClient.HeroService.LoadAllHeroesToCache(),
         useAssetsClient.ItemService.LoadAllItemsToCache(),
+        RefreshDeadlockAvgStats(),
       ]);
     } catch (error) {
       logger.error('Failed to load static deadlock data to cache...', error);

@@ -9,6 +9,7 @@ import { JobScheduler } from './services/scheduler';
 import CheckDeadlockPatches from './services/scheduler/jobs/CheckDeadlockPatches';
 import RenewSubscriptions from './services/scheduler/jobs/RenewSubscriptions';
 import AIAssistantClient from './services/clients/AIAssistantClient';
+import RefreshDeadlockAvgStats from './services/scheduler/jobs/RefreshDeadlockAvgStats';
 
 const logger = logtailLogger;
 
@@ -37,7 +38,8 @@ const useAIAssistantClient = new AIAssistantClient({
   const scheduler = new JobScheduler()
     .addJob('CheckDeadlockPatches', '0 0 3 * * *', CheckDeadlockPatches)
     .addJob('CheckDeadlockPatchesAfternoon', '0 0 15 * * *', CheckDeadlockPatches)
-    .addJob('RenewSubscriptions', '0 0 * * *', () => RenewSubscriptions(client));
+    .addJob('RenewSubscriptions', '0 0 * * *', () => RenewSubscriptions(client))
+    .addJob('RefreshDeadlockAvgStats', '0 */6 * * *', RefreshDeadlockAvgStats);
   scheduler.startJobs();
 })();
 
