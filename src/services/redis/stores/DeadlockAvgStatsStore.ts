@@ -1,8 +1,8 @@
 import { RedisClientType } from 'redis';
 import { redisClient } from '..';
-import IBotActivity from '../../../base/interfaces/IBotActivity';
+import { AverageMatchStats } from '../../clients/DeadlockClient/services/SQLService/entities/AverageMatchStats';
 
-class BotActivityStore {
+class DeadlockAvgStatsStore {
   private client: RedisClientType;
 
   constructor(client: RedisClientType) {
@@ -10,18 +10,18 @@ class BotActivityStore {
   }
 
   private getKey() {
-    return `botActivity`;
+    return `deadlockAvgStats`;
   }
 
-  async get(): Promise<IBotActivity | undefined> {
+  async get(): Promise<AverageMatchStats | undefined> {
     const data = await this.client.get(this.getKey());
     if (!data) return undefined;
     return JSON.parse(data);
   }
 
-  async set(data: IBotActivity): Promise<void> {
+  async set(data: AverageMatchStats): Promise<void> {
     await this.client.set(this.getKey(), JSON.stringify(data));
   }
 }
 
-export const botActivityStore = new BotActivityStore(redisClient);
+export const deadlockAvgStatsStore = new DeadlockAvgStatsStore(redisClient);
