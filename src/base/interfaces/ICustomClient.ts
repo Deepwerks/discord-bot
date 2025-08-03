@@ -1,4 +1,4 @@
-import { Collection } from 'discord.js';
+import { Collection, PermissionResolvable } from 'discord.js';
 import IConfig from './IConfig';
 import Command from '../classes/Command';
 import SubCommand from '../classes/SubCommand';
@@ -8,6 +8,7 @@ import SelectMenu from '../classes/SelectMenu';
 
 export default interface ICustomClient {
   config: IConfig;
+  requiredPermissions: PermissionResolvable[];
   commands: Collection<string, Command>;
   subCommands: Collection<string, SubCommand>;
   buttons: Collection<string, ButtonAction>;
@@ -19,4 +20,5 @@ export default interface ICustomClient {
   Init(): void;
   LoadHandlers(): void;
   LoadCache(): Promise<void>;
+  GetInviteLink(): string;
 }

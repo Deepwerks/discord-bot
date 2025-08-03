@@ -8,9 +8,8 @@
 * added new command and updated onGuildCreate event to inform users about our new ai feature ([#318](https://github.com/Deepwerks/discord-bot/issues/318)) ([1905fe1](https://github.com/Deepwerks/discord-bot/commit/1905fe1bd6a4a9839679256b3007a2b2d64787aa))
 * added source buttons to chatbot messages ([#317](https://github.com/Deepwerks/discord-bot/issues/317)) ([5e30432](https://github.com/Deepwerks/discord-bot/commit/5e30432a8dfda610805b0783f9d14e747609b8ca))
 * changed predicted rank to use PP calculated rank ([#312](https://github.com/Deepwerks/discord-bot/issues/312)) ([ecb6e79](https://github.com/Deepwerks/discord-bot/commit/ecb6e79d0407b2cf525df70a91d3d7ad4595a562))
-* created SQL service to query avg stats ([d18027e](https://github.com/Deepwerks/discord-bot/commit/d18027edb621b43f8f385b01be827468db670153))
-* performance service now use avgStats store ([b553dfc](https://github.com/Deepwerks/discord-bot/commit/b553dfc352d77de62b3f69d47109d4e81c597db3))
 * plot image attachment ([#309](https://github.com/Deepwerks/discord-bot/issues/309)) ([ac0ef0b](https://github.com/Deepwerks/discord-bot/commit/ac0ef0b809077e44a29f7391e0d644c460a44e70))
+* set required bot permissions in discord client ([fcacfcc](https://github.com/Deepwerks/discord-bot/commit/fcacfcc3680f8fcbb719c990437af9b1206f83da))
 
 
 

@@ -1,6 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import IConfig from '../../base/interfaces/IConfig';
-import { logger } from '../..';
+import { botClient, logger } from '../..';
 import cookieParser from 'cookie-parser';
 import steamAuthRouter from './routes/v2/SteamAuthRouter';
 import metricsRouter from './routes/v2/MetricsRouter';
@@ -31,8 +31,7 @@ export default class WebService implements IWebService {
       res.json({
         service: 'Deadlock Assistant',
         type: 'Discord BOT',
-        invite:
-          'https://discord.com/oauth2/authorize?client_id=1361785119374835984&permissions=8&integration_type=0&scope=bot',
+        invite: botClient.GetInviteLink(),
       });
     });
 
