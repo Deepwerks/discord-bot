@@ -1,4 +1,4 @@
-## [1.10.3](https://github.com/Deepwerks/discord-bot/compare/v1.10.2...v1.10.3) (2025-08-03)
+## [1.10.3](https://github.com/Deepwerks/discord-bot/compare/v1.10.2...v1.10.3) (2025-10-20)
 
 
 ### Features
@@ -9,7 +9,8 @@
 * added source buttons to chatbot messages ([#317](https://github.com/Deepwerks/discord-bot/issues/317)) ([5e30432](https://github.com/Deepwerks/discord-bot/commit/5e30432a8dfda610805b0783f9d14e747609b8ca))
 * changed predicted rank to use PP calculated rank ([#312](https://github.com/Deepwerks/discord-bot/issues/312)) ([ecb6e79](https://github.com/Deepwerks/discord-bot/commit/ecb6e79d0407b2cf525df70a91d3d7ad4595a562))
 * plot image attachment ([#309](https://github.com/Deepwerks/discord-bot/issues/309)) ([ac0ef0b](https://github.com/Deepwerks/discord-bot/commit/ac0ef0b809077e44a29f7391e0d644c460a44e70))
-* set required bot permissions in discord client ([fcacfcc](https://github.com/Deepwerks/discord-bot/commit/fcacfcc3680f8fcbb719c990437af9b1206f83da))
+* removed leaver tag ([f3349c6](https://github.com/Deepwerks/discord-bot/commit/f3349c62e6512f23c9ad5f6ec212e5c3cb87c195))
+* set required bot permissions in discord client ([#324](https://github.com/Deepwerks/discord-bot/issues/324)) ([33337c6](https://github.com/Deepwerks/discord-bot/commit/33337c6b3482145af79110cec8960e82074d30ea))
 
 
 
