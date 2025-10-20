@@ -116,13 +116,13 @@ export default class PerformanceTagService {
           average(matches.map((m) => m.lastHits)) > averages.avg_last_hits &&
           average(matches.map((m) => m.netWorth)) > averages.avg_net_worth * 1.1,
       },
-      {
-        name: '🚪 Leaver',
-        description: 'Leaves or abandons matches frequently.',
-        criteria: `More than 10% of matches are abandoned.`,
-        calculate: (matches) =>
-          matches.filter((m) => m.teamAbandoned !== null).length / matches.length > 0.1,
-      },
+      // {
+      //   name: '🚪 Leaver',
+      //   description: 'Leaves or abandons matches frequently.',
+      //   criteria: `More than 10% of matches are abandoned.`,
+      //   calculate: (matches) =>
+      //     matches.filter((m) => m.teamAbandoned !== null).length / matches.length > 0.1,
+      // },
       {
         name: '🧨 Clutch',
         description: 'Wins more often in long matches.',
