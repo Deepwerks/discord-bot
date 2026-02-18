@@ -1,18 +1,11 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Events, Message } from 'discord.js';
+import { Events, Message } from 'discord.js';
 import CustomClient from '../base/classes/CustomClient';
 import Event from '../base/classes/Event';
 import { logger, useAIAssistantClient } from '..';
-import { AIAssistantResponse } from '../services/clients/AIAssistantClient/services/DeadlockAiAssistantService';
-import { getStoredPlayerCache, isAbleToUseChatbot } from '../services/database/repository';
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-import relativeTime from 'dayjs/plugin/relativeTime';
+import { deactivatePatreonLink, getGuildPatreonAccess } from '../services/database/repository';
 import SpamProtector from '../services/redis/stores/SpamProtector';
 import { redisClient } from '../services/redis';
 import { threadMemoryStore } from '../services/redis/stores/ThreadMemoryStore';
-
-dayjs.extend(duration);
-dayjs.extend(relativeTime);
 
 const onMessageSpamProtector = new SpamProtector(redisClient, {
   cooldownMs: 5000,
@@ -36,8 +29,6 @@ export default class MessageCreate extends Event {
     if (!message.mentions.has(this.client.user!)) return;
     if (message.mentions.everyone) return;
 
-    const storedPlayer = await getStoredPlayerCache(message.author.id);
-
     const result = await onMessageSpamProtector.registerMessage(message.author.id);
 
     if (result === 'timeout') {
@@ -54,22 +45,13 @@ export default class MessageCreate extends Event {
       return;
     }
 
-    const [isAbleToUse, error] = await isAbleToUseChatbot(message.guildId!);
+    const patronAccess = await getGuildPatreonAccess(message.guildId!);
 
-    if (!isAbleToUse && error) {
-      if (error === 'NoSubscription') {
-        await message.reply({
-          content: `❌ Chatbot integration is not active in this server.`,
-        });
-      } else if (error === 'LimitReached') {
-        const now = dayjs();
-        const nextReset = now.endOf('day').add(1, 'second');
-        const discordRelative = `<t:${nextReset.unix()}:R>`;
-
-        await message.reply({
-          content: `❌ This server has reached its daily limit. You can chat with me again ${discordRelative}.`,
-        });
-      }
+    if (!patronAccess) {
+      await message.reply({
+        content:
+          'AI chatbot is not active in this server. A Patreon supporter can enable it with /link-patreon.',
+      });
       return;
     }
 
@@ -88,139 +70,221 @@ export default class MessageCreate extends Event {
       allowedMentions: { parse: [] },
     });
 
-    let nextUpdate = '';
-    let lastUpdateTime = 0;
-    let updateTimer: NodeJS.Timeout | null = null;
-
-    async function onUpdate({
-      answer,
-      thinkingMessages,
-      wikiReferences,
-      memoryId,
-      error,
-      formattedAnswer,
-      plotAttachments,
-    }: AIAssistantResponse) {
-      logger.debug('AI Assistant Response', { answer, thinkingMessages });
-
-      const response = [];
-
-      response.push(`**Question:** ${question}`);
-
-      const components: ActionRowBuilder<ButtonBuilder>[] = [];
-
-      if (wikiReferences?.length) {
-        const MAX_BUTTONS_PER_ROW = 5;
-        const MAX_ROWS = 5;
-
-        for (
-          let i = 0;
-          i < wikiReferences.length && i < MAX_BUTTONS_PER_ROW * MAX_ROWS;
-          i += MAX_BUTTONS_PER_ROW
-        ) {
-          const row = new ActionRowBuilder<ButtonBuilder>();
-          const slice = wikiReferences.slice(i, i + MAX_BUTTONS_PER_ROW);
-
-          for (const ref of slice) {
-            row.addComponents(
-              new ButtonBuilder()
-                .setLabel(ref.title.length > 80 ? ref.title.slice(0, 77) + '…' : ref.title)
-                .setStyle(ButtonStyle.Link)
-                .setURL(ref.url)
-            );
-          }
-
-          components.push(row);
-        }
-      }
-
-      // Truncate formattedAnswer if needed
-      let finalFormattedAnswer = formattedAnswer;
-      if (formattedAnswer) {
-        const baseLength =
-          response.join('\n').length + `**Answer:**\n`.length + `\n_AI can make mistakes._`.length;
-        const remainingLength = 1900 - baseLength; // 2000 is maximum, but we keep some buffer
-        if (formattedAnswer.length > remainingLength) {
-          finalFormattedAnswer = formattedAnswer.slice(0, remainingLength - 3) + '...';
-        }
-        response.push(`**Answer:**\n${finalFormattedAnswer}`);
-      } else if (answer) {
-        response.push(`**Answer:** ${answer}`);
-      }
-
-      if (!formattedAnswer && thinkingMessages) {
-        const lastThoughts = [];
-        let thinkLength = 0;
-        for (let i = thinkingMessages.length - 1; i >= 0; i--) {
-          thinkLength += thinkingMessages[i].length;
-          if (thinkLength > 600) break; // Do not exceed 600 characters
-          lastThoughts.unshift(thinkingMessages[i]);
-        }
-        const thoughts = lastThoughts.join('\n');
-        if (thoughts) response.push(`Thinking:\n\`\`\`\n${thoughts}\n\`\`\``);
-      }
-
-      if (memoryId) {
-        threadMemoryStore.setMemory(replyMessage.id, memoryId);
-      }
-
-      if (error) {
-        logger.error(error);
-        response.push(
-          `🤖 Uhh… I spaced out for a second there. Could you rephrase that or try again?\n\`\`\`\n${error}\n\`\`\``
-        );
-      }
-
-      // If we have a final Answer also add a disclaimer
-      if (answer || formattedAnswer) response.push(`_AI can make mistakes._`);
-
-      nextUpdate = response.join('\n').slice(0, 2000);
-
-      if (!updateTimer) {
-        const delay = Math.max(0, 1000 - (Date.now() - lastUpdateTime));
-        updateTimer = setTimeout(async () => {
-          const editPayload = {
-            content: nextUpdate,
-            components,
-            allowedMentions: {
-              repliedUser: answer || formattedAnswer ? true : false,
-              parse: [],
-            },
-          };
-
-          if (plotAttachments && plotAttachments.length > 0) {
-            Object.assign(editPayload, { files: plotAttachments });
-          }
-
-          await replyMessage.edit(editPayload);
-          updateTimer = null;
-          lastUpdateTime = Date.now();
-        }, delay);
-      }
-    }
-
-    let previousMemoryId;
+    // Retrieve conversation_id from referenced message for continuation
+    let previousConversationId: string | undefined;
     if (message.reference) {
       const referencedMessage = await message.fetchReference();
-      previousMemoryId = threadMemoryStore.getMemory(referencedMessage.id) ?? undefined;
+      previousConversationId = threadMemoryStore.getMemory(referencedMessage.id) ?? undefined;
 
-      if (previousMemoryId) {
+      if (previousConversationId) {
         threadMemoryStore.refreshTTL(message.reference.messageId!);
       }
     }
+
     try {
-      await useAIAssistantClient.AiAssistantService.queryAiAssistant(
-        question,
-        onUpdate,
-        storedPlayer ? storedPlayer.steamId : null,
-        previousMemoryId
-      );
+      let currentToken = patronAccess.patreonSessionToken;
+      let authFailed = false;
+
+      const streamResponse = async (token: string) => {
+        let content = '';
+        let activeTool: string | null = null;
+        let conversationId: string | undefined;
+        let hasError = false;
+        let lastUpdateTime = 0;
+        let updateTimer: NodeJS.Timeout | null = null;
+        let pendingEdit = false;
+        let isAuthError = false;
+
+        const scheduleEdit = () => {
+          if (updateTimer) {
+            pendingEdit = true;
+            return;
+          }
+
+          const delay = Math.max(0, 1000 - (Date.now() - lastUpdateTime));
+          updateTimer = setTimeout(async () => {
+            updateTimer = null;
+            lastUpdateTime = Date.now();
+
+            const parts: string[] = [];
+            if (content) {
+              parts.push(content);
+            }
+            if (activeTool) {
+              parts.push(`\n_Using ${activeTool}..._`);
+            }
+            if (!content && !activeTool && !hasError) {
+              parts.push('_Thinking..._');
+            }
+
+            const displayContent = parts.join('').slice(0, 2000) || '_Thinking..._';
+
+            try {
+              await replyMessage.edit({
+                content: displayContent,
+                allowedMentions: {
+                  repliedUser: content.length > 0,
+                  parse: [],
+                },
+              });
+            } catch (editError) {
+              logger.error('Failed to edit reply message', {
+                error: editError instanceof Error ? editError.message : editError,
+              });
+            }
+
+            if (pendingEdit) {
+              pendingEdit = false;
+              scheduleEdit();
+            }
+          }, delay);
+        };
+
+        const AUTH_ERROR_CODES = ['HTTP_401', 'AUTH_FAILED', 'TOKEN_REFRESH_FAILED'];
+
+        const stream = useAIAssistantClient.ChatService.chat(
+          {
+            message: question,
+            conversation_id: previousConversationId,
+          },
+          token
+        );
+
+        for await (const event of stream) {
+          switch (event.type) {
+            case 'start':
+              conversationId = event.conversation_id;
+              break;
+
+            case 'delta':
+              content += event.content;
+              scheduleEdit();
+              break;
+
+            case 'tool_start':
+              activeTool = event.tool;
+              scheduleEdit();
+              break;
+
+            case 'tool_end':
+              activeTool = null;
+              scheduleEdit();
+              break;
+
+            case 'error':
+              hasError = true;
+              logger.error('AI Assistant SSE error', {
+                code: event.code,
+                message: event.message,
+              });
+
+              if (AUTH_ERROR_CODES.includes(event.code)) {
+                isAuthError = true;
+                break;
+              }
+
+              if (event.code === 'HTTP_429') {
+                content = 'Rate limit reached. Please try again in a moment.';
+              } else {
+                content = `Error [${event.code}]: ${event.message}`;
+              }
+              scheduleEdit();
+              break;
+
+            case 'end':
+              break;
+          }
+        }
+
+        // Clean up timer
+        if (updateTimer) {
+          clearTimeout(updateTimer);
+          updateTimer = null;
+        }
+
+        return { content, conversationId, hasError, isAuthError };
+      };
+
+      let result = await streamResponse(currentToken);
+
+      // Handle auth failure: deactivate token and retry with next best patron
+      if (result.isAuthError) {
+        logger.info('Patreon session auth failed, deactivating token and checking for alternatives', {
+          guildId: message.guildId,
+        });
+
+        await deactivatePatreonLink(currentToken);
+
+        const nextPatronAccess = await getGuildPatreonAccess(message.guildId!);
+
+        if (nextPatronAccess) {
+          logger.info('Found alternative patron link, retrying request', {
+            guildId: message.guildId,
+            tier: nextPatronAccess.tier,
+          });
+
+          // Reset the reply message for retry
+          await replyMessage.edit({
+            content: '_Thinking..._',
+            allowedMentions: { parse: [] },
+          });
+
+          result = await streamResponse(nextPatronAccess.patreonSessionToken);
+          authFailed = result.isAuthError;
+        } else {
+          authFailed = true;
+        }
+      }
+
+      if (authFailed) {
+        await replyMessage.edit({
+          content: 'The Patreon session has expired. Please run /link-patreon to re-link.',
+          allowedMentions: { parse: [] },
+        });
+        return;
+      }
+
+      // Store conversation_id for thread continuation
+      if (result.conversationId) {
+        threadMemoryStore.setMemory(replyMessage.id, result.conversationId);
+      }
+
+      // Final edit with complete content
+      const finalParts: string[] = [];
+      if (result.content) {
+        finalParts.push(result.content);
+      }
+      if (!result.content && !result.hasError) {
+        finalParts.push('No response received from AI assistant.');
+      }
+      if (result.content && !result.hasError) {
+        finalParts.push('\n_AI can make mistakes._');
+      }
+
+      const finalContent = finalParts.join('').slice(0, 2000);
+
+      await replyMessage.edit({
+        content: finalContent,
+        allowedMentions: {
+          repliedUser: result.content.length > 0,
+          parse: [],
+        },
+      });
     } catch (error) {
       logger.error('Failed to query AI Assistant', {
         prompt: question.substring(0, 100) + (question.length > 100 ? '...' : ''),
         error: error instanceof Error ? error.message : error,
         stack: error instanceof Error ? error.stack : undefined,
       });
+
+      try {
+        await replyMessage.edit({
+          content: 'Sorry, something went wrong while processing your request. Please try again.',
+          allowedMentions: { parse: [] },
+        });
+      } catch {
+        // If we can't even edit the error message, just log it
+      }
     }
   }
 }

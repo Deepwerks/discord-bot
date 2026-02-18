@@ -3,7 +3,7 @@ export default interface IConfig {
 
   deadlock_api_key: string;
   deadlock_api_url: string;
-  ai_assistant_api_key: string;
+  ai_assistant_api_url: string;
 
   deadlock_assets_api_url: string;
 
@@ -27,6 +27,7 @@ export default interface IConfig {
   reddit_client_secret: string;
 
   deadlock_assistant_url: string;
+  patreon_oauth_callback_url: string;
   port: number;
 
   secret: string;

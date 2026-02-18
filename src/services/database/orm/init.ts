@@ -5,8 +5,7 @@ import config from '../../../config';
 import { Guilds } from './models/Guilds.model';
 import { FailedUserInteractions } from './models/FailedUserInteractions.model';
 import { StoredPlayers } from './models/StoredPlayers.model';
-import { GuildAiUsage } from './models/GuildAiUsage.model';
-import { GuildSubscriptions } from './models/GuildSubscriptions.model';
+import { PatreonLinks } from './models/PatreonLinks.model';
 
 const sequelize = new Sequelize(config.db_name, config.db_user, config.db_password, {
   port: config.db_port,
@@ -28,7 +27,7 @@ const sequelize = new Sequelize(config.db_name, config.db_user, config.db_passwo
   },
 });
 
-const models = [Guilds, FailedUserInteractions, StoredPlayers, GuildAiUsage, GuildSubscriptions];
+const models = [Guilds, FailedUserInteractions, StoredPlayers, PatreonLinks];
 models.forEach((model) => model.initialize(sequelize));
 
 export {
@@ -36,6 +35,5 @@ export {
   Guilds,
   FailedUserInteractions,
   StoredPlayers,
-  GuildAiUsage,
-  GuildSubscriptions,
+  PatreonLinks,
 };
