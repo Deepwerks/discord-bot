@@ -39,7 +39,7 @@ export default class BaseClient {
     this.client = axios.create({
       baseURL,
       headers: {
-        ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+        ...(apiKey ? { Authorization: `Bearer ${apiKey}`, 'X-API-Key': apiKey } : {}),
       },
     });
 

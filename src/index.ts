@@ -26,6 +26,7 @@ const useAssetsClient = new DeadlockAssetsClient({
 const useStatlockerClient = new StatlockerClient({
   config,
   baseURL: config.statlocker_api_url,
+  apiKey: config.statlocker_api_key,
 });
 const useRedditClient = new RedditClient({
   config,

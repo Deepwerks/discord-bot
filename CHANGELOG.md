@@ -1,4 +1,9 @@
-## [1.10.3](https://github.com/Deepwerks/discord-bot/compare/v1.10.2...v1.10.3) (2025-10-20)
+## [1.10.3](https://github.com/Deepwerks/discord-bot/compare/v1.10.2...v1.10.3) (2026-03-27)
+
+
+### Bug Fixes
+
+* api key auth on statlocker client ([124f8db](https://github.com/Deepwerks/discord-bot/commit/124f8dbe03e297e0e2350fc85d4a510186d26c16))
 
 
 ### Features
@@ -9,10 +14,8 @@
 * added source buttons to chatbot messages ([#317](https://github.com/Deepwerks/discord-bot/issues/317)) ([5e30432](https://github.com/Deepwerks/discord-bot/commit/5e30432a8dfda610805b0783f9d14e747609b8ca))
 * changed predicted rank to use PP calculated rank ([#312](https://github.com/Deepwerks/discord-bot/issues/312)) ([ecb6e79](https://github.com/Deepwerks/discord-bot/commit/ecb6e79d0407b2cf525df70a91d3d7ad4595a562))
 * plot image attachment ([#309](https://github.com/Deepwerks/discord-bot/issues/309)) ([ac0ef0b](https://github.com/Deepwerks/discord-bot/commit/ac0ef0b809077e44a29f7391e0d644c460a44e70))
-* removed leaver tag ([f3349c6](https://github.com/Deepwerks/discord-bot/commit/f3349c62e6512f23c9ad5f6ec212e5c3cb87c195))
+* removed leaver tag ([#327](https://github.com/Deepwerks/discord-bot/issues/327)) ([e2164cd](https://github.com/Deepwerks/discord-bot/commit/e2164cd268bd2abe811c52469c7e139231670910))
 * set required bot permissions in discord client ([#324](https://github.com/Deepwerks/discord-bot/issues/324)) ([33337c6](https://github.com/Deepwerks/discord-bot/commit/33337c6b3482145af79110cec8960e82074d30ea))
-
-
 
 ## [1.10.2](https://github.com/Deepwerks/discord-bot/compare/v1.10.0...v1.10.2) (2025-07-26)
 
@@ -35,8 +38,6 @@
 * removed memory id from message and moved it to in memory storage ([#301](https://github.com/Deepwerks/discord-bot/issues/301)) ([0a49b4a](https://github.com/Deepwerks/discord-bot/commit/0a49b4a2d7fb73245cd589dfe4371ae5bda2ef72))
 * removed priviliged intents ([#299](https://github.com/Deepwerks/discord-bot/issues/299)) ([9350f56](https://github.com/Deepwerks/discord-bot/commit/9350f56612908d9ac662264db3690806ff88356e))
 
-
-
 # [1.10.0](https://github.com/Deepwerks/discord-bot/compare/v1.9.0...v1.10.0) (2025-07-09)
 
 
@@ -45,8 +46,6 @@
 * implemented back to the start and to the end buttons & removed … ([#260](https://github.com/Deepwerks/discord-bot/issues/260)) ([65cf20b](https://github.com/Deepwerks/discord-bot/commit/65cf20bce2df779c47856d56e8f03252af6124ee))
 * implemented setActivity command ([#255](https://github.com/Deepwerks/discord-bot/issues/255)) ([11c479b](https://github.com/Deepwerks/discord-bot/commit/11c479b06038fdf4653fd63b05cf4b91e02bf8ec))
 * option too choose your character ([#261](https://github.com/Deepwerks/discord-bot/issues/261)) ([0bbf6f6](https://github.com/Deepwerks/discord-bot/commit/0bbf6f61f978e869b69a12eed9ebc95a2c4d8469))
-
-
 
 # [1.9.0](https://github.com/Deepwerks/discord-bot/compare/v1.8.10...v1.9.0) (2025-07-08)
 
@@ -60,8 +59,6 @@
 
 * highlight user ([#245](https://github.com/Deepwerks/discord-bot/issues/245)) ([4f9fe5f](https://github.com/Deepwerks/discord-bot/commit/4f9fe5f701a84cd1ce21f5359ddb0467afc5bbba))
 * unlocker create lobby cmd ([#235](https://github.com/Deepwerks/discord-bot/issues/235)) ([d07e014](https://github.com/Deepwerks/discord-bot/commit/d07e014c2d5e025a8c60ce7e58809a5f27551a24))
-
-
 
 ## [1.8.10](https://github.com/Deepwerks/discord-bot/compare/v1.8.5...v1.8.10) (2025-06-27)
 
@@ -78,8 +75,6 @@
 * added balanced shuffle option ([#231](https://github.com/Deepwerks/discord-bot/issues/231)) ([71e3883](https://github.com/Deepwerks/discord-bot/commit/71e38830e7b19be25e45dafac7f74c480a5450ca))
 * reintroduced metrics ([#216](https://github.com/Deepwerks/discord-bot/issues/216)) ([8f9f2fb](https://github.com/Deepwerks/discord-bot/commit/8f9f2fbdb68429a596cb48095159b8e4dc32a694))
 
-
-
 ## [1.8.5](https://github.com/Deepwerks/discord-bot/compare/v1.8.2-release...v1.8.5) (2025-06-04)
 
 
@@ -95,8 +90,6 @@
 * introduced items in DeadlockMatchService ([#199](https://github.com/Deepwerks/discord-bot/issues/199)) ([17812f7](https://github.com/Deepwerks/discord-bot/commit/17812f7bfd7472039d8f11b72a46be500e63af4b))
 * metics setup ([#204](https://github.com/Deepwerks/discord-bot/issues/204)) ([6faf9b8](https://github.com/Deepwerks/discord-bot/commit/6faf9b8d8a9413649f32dfac955c7d4ecd1be02b))
 
-
-
 ## [1.8.2-release](https://github.com/Deepwerks/discord-bot/compare/v1.8.1-release...v1.8.2-release) (2025-05-25)
 
 
@@ -104,11 +97,7 @@
 
 * added optional option in match command to hide player names fro… ([#192](https://github.com/Deepwerks/discord-bot/issues/192)) ([0a05464](https://github.com/Deepwerks/discord-bot/commit/0a05464b30023b6cc12a154bd9398ae61d1abd87))
 
-
-
 ## [1.8.1-release](https://github.com/Deepwerks/discord-bot/compare/v1.8.0-release...v1.8.1-release) (2025-05-24)
-
-
 
 # [1.8.0-release](https://github.com/Deepwerks/discord-bot/compare/v1.7.4-release...v1.8.0-release) (2025-05-24)
 
@@ -118,45 +107,22 @@
 * added logs to steamAuthRouter ([#170](https://github.com/Deepwerks/discord-bot/issues/170)) ([9dac94b](https://github.com/Deepwerks/discord-bot/commit/9dac94bb2e8c6da19b424f4326541a2fc6ea39df))
 * **cache:** on start discord client now loads static data to cache (d… ([#174](https://github.com/Deepwerks/discord-bot/issues/174)) ([74b791f](https://github.com/Deepwerks/discord-bot/commit/74b791fce874f7d8ffee854d7b5d795146533391))
 
-
-
 ## [1.7.4-release](https://github.com/Deepwerks/discord-bot/compare/v1.7.3-release...v1.7.4-release) (2025-05-17)
-
-
 
 ## [1.7.3-release](https://github.com/Deepwerks/discord-bot/compare/v1.7.2-release...v1.7.3-release) (2025-05-11)
 
-
-
 ## [1.7.2-release](https://github.com/Deepwerks/discord-bot/compare/v1.7.1-release...v1.7.2-release) (2025-05-08)
-
-
 
 ## [1.7.1-release](https://github.com/Deepwerks/discord-bot/compare/v1.6.3-release...v1.7.1-release) (2025-05-08)
 
-
-
 ## [1.6.3-release](https://github.com/Deepwerks/discord-bot/compare/v1.6.0-release...v1.6.3-release) (2025-05-04)
-
-
 
 # [1.6.0-release](https://github.com/Deepwerks/discord-bot/compare/v1.4.0-release...v1.6.0-release) (2025-05-03)
 
-
-
 # [1.4.0-release](https://github.com/Deepwerks/discord-bot/compare/v1.3.3-beta...v1.4.0-release) (2025-04-27)
-
-
 
 ## [1.3.3-beta](https://github.com/Deepwerks/discord-bot/compare/v1.3.2-beta...v1.3.3-beta) (2025-04-25)
 
-
-
 ## [1.3.2-beta](https://github.com/Deepwerks/discord-bot/compare/v1.3.1-release...v1.3.2-beta) (2025-04-25)
 
-
-
 ## [1.2.3-beta](https://github.com/Deepwerks/discord-bot/compare/v1.2.2-beta...v1.2.3-beta) (2025-04-19)
-
-
-
