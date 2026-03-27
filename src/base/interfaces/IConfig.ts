@@ -22,6 +22,7 @@ export default interface IConfig {
   steam_api_url: string;
 
   statlocker_api_url: string;
+  statlocker_api_key: string;
 
   reddit_client_id: string;
   reddit_client_secret: string;
