@@ -1,11 +1,13 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
-export class GuildSubscriptions extends Model {
+export class PatreonLinks extends Model {
   declare id: number;
+  declare discordUserId: string;
   declare guildId: string;
-  declare guildName: string | null;
-  declare userId: string;
-  declare dailyLimit: number;
+  declare patreonSessionToken: string;
+  declare tier: number;
+  declare tierName: string | null;
+  declare rateLimit: number | null;
   declare isActive: boolean;
 
   declare createdAt: Date;
@@ -20,20 +22,27 @@ export class GuildSubscriptions extends Model {
           autoIncrement: true,
           primaryKey: true,
         },
+        discordUserId: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+        },
         guildId: {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        guildName: {
-          type: DataTypes.TEXT,
-        },
-        userId: {
+        patreonSessionToken: {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        dailyLimit: {
+        tier: {
           type: DataTypes.INTEGER,
-          defaultValue: 100,
+          defaultValue: 0,
+        },
+        tierName: {
+          type: DataTypes.TEXT,
+        },
+        rateLimit: {
+          type: DataTypes.INTEGER,
         },
         isActive: {
           type: DataTypes.BOOLEAN,
@@ -43,14 +52,20 @@ export class GuildSubscriptions extends Model {
       },
       {
         sequelize,
-        tableName: 'guild_subscriptions',
+        tableName: 'patreon_links',
         schema: 'app',
         name: {
-          singular: 'GuildSubscription',
-          plural: 'GuildSubscriptions',
+          singular: 'PatreonLink',
+          plural: 'PatreonLinks',
         },
         timestamps: true,
         paranoid: true,
+        indexes: [
+          {
+            unique: true,
+            fields: ['discordUserId', 'guildId'],
+          },
+        ],
       }
     );
   }

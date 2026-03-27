@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { GuildAiUsage, Guilds, GuildSubscriptions, StoredPlayers } from './orm/init';
+import { Guilds, PatreonLinks, StoredPlayers } from './orm/init';
 import { guildConfigCache } from '../cache/GuildConfigCache';
 import CommandError from '../../base/errors/CommandError';
 import { TFunction } from 'i18next';
@@ -7,7 +7,6 @@ import { logger, useStatlockerClient } from '../..';
 import SteamID from 'steamid';
 import { useDeadlockClient } from '../..';
 import { generateMatchImage, IGenerateMatchImageOptions } from '../utils/generateMatchImage';
-import dayjs from 'dayjs';
 import { storedPlayerCache } from '../cache/StoredPlayerCache';
 
 export const getStoredPlayersByDiscordIds = async (ids: string[]) => {
@@ -160,48 +159,31 @@ export async function handleMatchRequest({
   return { matchData, imageBuffer, _steamAuthNeeded };
 }
 
-export type chatbotUsageCheckerErrors = 'NoSubscription' | 'LimitReached' | 'FunctionError';
+export const deactivatePatreonLink = async (patreonSessionToken: string) => {
+  await PatreonLinks.update(
+    { isActive: false },
+    { where: { patreonSessionToken } }
+  );
+};
 
-export const isAbleToUseChatbot = async (
-  guildId: string
-): Promise<[boolean, chatbotUsageCheckerErrors | null]> => {
-  try {
-    logger.info(`Checking chatbot usage permission for guild: ${guildId}`);
+export const getGuildPatreonAccess = async (guildId: string) => {
+  const bestLink = await PatreonLinks.findOne({
+    where: {
+      guildId,
+      isActive: true,
+      tier: { [Op.gte]: 1 },
+    },
+    order: [['tier', 'DESC']],
+  });
 
-    const guildSubscription = await GuildSubscriptions.findOne({
-      where: { guildId: guildId },
-    });
-    if (!guildSubscription || !guildSubscription.isActive) {
-      logger.info(`No active subscription found for guild: ${guildId}`);
-      return [false, 'NoSubscription'];
-    }
+  if (!bestLink) return null;
 
-    const today = dayjs().format('YYYY-MM-DD');
-    let usage = await GuildAiUsage.findOne({ where: { guildId, date: today } });
-
-    if (!usage) {
-      logger.info(`No usage found for guild ${guildId} on ${today}, creating new usage record.`);
-      usage = await GuildAiUsage.create({ guildId, date: today, count: 0 });
-    }
-
-    if (usage.count >= guildSubscription.dailyLimit) {
-      logger.info(
-        `Guild ${guildId} has reached its daily limit: ${usage.count}/${guildSubscription.dailyLimit}`
-      );
-      return [false, 'LimitReached'];
-    }
-
-    usage.count++;
-    await usage.save();
-    logger.info(
-      `Incremented usage count for guild ${guildId} on ${today}: ${usage.count}/${guildSubscription.dailyLimit}`
-    );
-
-    return [true, null];
-  } catch (error) {
-    logger.error(`Error checking chatbot usage for guild ${guildId}: ${error}`);
-    return [false, 'FunctionError'];
-  }
+  return {
+    patreonSessionToken: bestLink.patreonSessionToken,
+    tier: bestLink.tier,
+    tierName: bestLink.tierName,
+    rateLimit: bestLink.rateLimit,
+  };
 };
 
 export const getStoredPlayerCache = async (discordId: string) => {

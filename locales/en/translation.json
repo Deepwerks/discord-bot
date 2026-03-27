@@ -2,8 +2,8 @@
   "commands": {
     "ai": {
       "title": "🧠 AI Chatbot Feature",
-      "description": "Our new AI chatbot feature can be enabled on your server to provide helpful and interactive conversations.\n\n**How to enable it:**\n1. Join our Support server with the button below.\n2. Open a dev ticket in the `#contact-dev` channel.\n3. Include your **Server ID** in the ticket.\n4. Once approved, your server will be given **50 requests/day** (we can increase this if needed).\n\n**How to use it:**\n• Mention **DeadlockAssistant** in a message to start a new conversation.\n• To continue an existing conversation, simply reply to the bot's message.\n\nThis feature is currently in beta, so we welcome your feedback!",
-      "footer": "Need help? Reach out in #contact-dev",
+      "description": "Our AI chatbot can be enabled on your server through Patreon.\n\n**How to enable it:**\n1. Any guild member can run `/link-patreon` to start the linking process.\n2. Authenticate with your Patreon account — this links your subscription to the server.\n3. Once linked, **all members** of the server can use the AI chatbot.\n\n**Tiers & Rate Limits:**\n• **Supporter** ($5/mo) — Basic access\n• **Contributor** ($10/mo) — Higher rate limit\n• **Champion** ($20/mo) — Highest rate limit\n\n**How to use it:**\n• Mention **DeadlockAssistant** in a message to start a new conversation.\n• Reply to the bot's message to continue the conversation.\n\n**Other commands:**\n• `/link-patreon` — Link your Patreon account\n• `/patreon-status` — Check current Patreon status for this server",
+      "footer": "Need help? Join our support server",
       "button_support_server": "Join Support Server"
     },
     "test": {
@@ -75,6 +75,24 @@
       "title": "Submit Your Feedback (Anonymous)",
       "label": "Please enter your feedback here",
       "placeholder": "e.g., I love this bot!"
+    },
+    "link_patreon": {
+      "title": "Link Your Patreon Account",
+      "description": "Link your Patreon account to enable the AI chatbot for this server.\n\nClick the button below to authenticate with Patreon. Once linked, all members of this server will be able to use the AI chatbot.\n\nThe link expires in **5 minutes**.",
+      "button_link": "Link Patreon",
+      "button_relink": "Re-link Patreon",
+      "already_linked_title": "Patreon Already Linked",
+      "already_linked_description": "You already have an active Patreon link for this server.\n\n**Tier:** {{tierName}} ({{tier}})\n**Rate Limit:** {{rateLimit}} requests\n\nTo update your link, click the button below."
+    },
+    "patreon_status": {
+      "title": "Patreon Status",
+      "no_link_title": "No Active Patreon Link",
+      "no_link_description": "No active Patreon link found for this server.\n\nUse `/link-patreon` to enable the AI chatbot.",
+      "field_status": "Status",
+      "status_active": "Active",
+      "field_tier": "Highest Tier",
+      "field_rate_limit": "Rate Limit",
+      "field_linked_users": "Linked Users"
     },
     "match_feedback": {
       "description": "Share a match video and collect feedback from the community",

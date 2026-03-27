@@ -1,12 +1,12 @@
 import BaseClient, { IBaseApiOptions } from '../base/classes/BaseClient';
-import DeadlockAIAssistantService from './services/DeadlockAiAssistantService';
+import ChatService from './services/ChatService';
 
 export default class AIAssistantClient extends BaseClient {
-  AiAssistantService: DeadlockAIAssistantService;
+  ChatService: ChatService;
 
   constructor(options: IBaseApiOptions) {
     super(options);
 
-    this.AiAssistantService = new DeadlockAIAssistantService(this);
+    this.ChatService = new ChatService(this);
   }
 }
