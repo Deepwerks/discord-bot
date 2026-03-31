@@ -1,9 +1,9 @@
-## [1.10.3](https://github.com/Deepwerks/discord-bot/compare/v1.10.2...v1.10.3) (2026-03-27)
+## [1.10.3](https://github.com/Deepwerks/discord-bot/compare/v1.10.2...v1.10.3) (2026-03-31)
 
 
 ### Bug Fixes
 
-* api key auth on statlocker client ([124f8db](https://github.com/Deepwerks/discord-bot/commit/124f8dbe03e297e0e2350fc85d4a510186d26c16))
+* api key auth on statlocker client ([#330](https://github.com/Deepwerks/discord-bot/issues/330)) ([d9be90c](https://github.com/Deepwerks/discord-bot/commit/d9be90c4397c0baa81b1a4aa3d04147c66dfe39b))
 
 
 ### Features
@@ -13,6 +13,7 @@
 * added new command and updated onGuildCreate event to inform users about our new ai feature ([#318](https://github.com/Deepwerks/discord-bot/issues/318)) ([1905fe1](https://github.com/Deepwerks/discord-bot/commit/1905fe1bd6a4a9839679256b3007a2b2d64787aa))
 * added source buttons to chatbot messages ([#317](https://github.com/Deepwerks/discord-bot/issues/317)) ([5e30432](https://github.com/Deepwerks/discord-bot/commit/5e30432a8dfda610805b0783f9d14e747609b8ca))
 * changed predicted rank to use PP calculated rank ([#312](https://github.com/Deepwerks/discord-bot/issues/312)) ([ecb6e79](https://github.com/Deepwerks/discord-bot/commit/ecb6e79d0407b2cf525df70a91d3d7ad4595a562))
+* changed search function ([81a9ef3](https://github.com/Deepwerks/discord-bot/commit/81a9ef35849c8b341f49ad19ded1f608dc33ce0c))
 * plot image attachment ([#309](https://github.com/Deepwerks/discord-bot/issues/309)) ([ac0ef0b](https://github.com/Deepwerks/discord-bot/commit/ac0ef0b809077e44a29f7391e0d644c460a44e70))
 * removed leaver tag ([#327](https://github.com/Deepwerks/discord-bot/issues/327)) ([e2164cd](https://github.com/Deepwerks/discord-bot/commit/e2164cd268bd2abe811c52469c7e139231670910))
 * set required bot permissions in discord client ([#324](https://github.com/Deepwerks/discord-bot/issues/324)) ([33337c6](https://github.com/Deepwerks/discord-bot/commit/33337c6b3482145af79110cec8960e82074d30ea))
