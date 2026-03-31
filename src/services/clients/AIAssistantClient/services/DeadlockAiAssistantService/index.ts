@@ -31,8 +31,8 @@ interface FormattedResponseEvent {
 export type AgentStep = ActionEvent | FinalAnswerEvent | FormattedResponseEvent;
 
 export interface WikiReference {
-  title: string
-  url: string
+  title: string;
+  url: string;
 }
 
 export interface AIAssistantResponse {
@@ -93,7 +93,14 @@ export default class DeadlockAIAssistantService extends BaseClientService {
                 const buffer = Buffer.from(base64, 'base64');
                 return new AttachmentBuilder(buffer, { name: `plot${index + 1}.png` });
               });
-            onUpdate({ memoryId, answer, formattedAnswer, wikiReferences, thinkingMessages, plotAttachments });
+            onUpdate({
+              memoryId,
+              answer,
+              formattedAnswer,
+              wikiReferences,
+              thinkingMessages,
+              plotAttachments,
+            });
             break;
           }
           case 'final_answer': {
