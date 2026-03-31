@@ -4,6 +4,7 @@
 ### Bug Fixes
 
 * api key auth on statlocker client ([#330](https://github.com/Deepwerks/discord-bot/issues/330)) ([d9be90c](https://github.com/Deepwerks/discord-bot/commit/d9be90c4397c0baa81b1a4aa3d04147c66dfe39b))
+* profile search func ([6ab1aa1](https://github.com/Deepwerks/discord-bot/commit/6ab1aa12e25fa0193561333617aed1d69fe44245))
 
 
 ### Features
@@ -14,6 +15,7 @@
 * added source buttons to chatbot messages ([#317](https://github.com/Deepwerks/discord-bot/issues/317)) ([5e30432](https://github.com/Deepwerks/discord-bot/commit/5e30432a8dfda610805b0783f9d14e747609b8ca))
 * changed predicted rank to use PP calculated rank ([#312](https://github.com/Deepwerks/discord-bot/issues/312)) ([ecb6e79](https://github.com/Deepwerks/discord-bot/commit/ecb6e79d0407b2cf525df70a91d3d7ad4595a562))
 * changed search function ([81a9ef3](https://github.com/Deepwerks/discord-bot/commit/81a9ef35849c8b341f49ad19ded1f608dc33ce0c))
+* changed search function ([#332](https://github.com/Deepwerks/discord-bot/issues/332)) ([5eff177](https://github.com/Deepwerks/discord-bot/commit/5eff17784e5e9c62c795bd5d2424f96ee2ff6aee))
 * plot image attachment ([#309](https://github.com/Deepwerks/discord-bot/issues/309)) ([ac0ef0b](https://github.com/Deepwerks/discord-bot/commit/ac0ef0b809077e44a29f7391e0d644c460a44e70))
 * removed leaver tag ([#327](https://github.com/Deepwerks/discord-bot/issues/327)) ([e2164cd](https://github.com/Deepwerks/discord-bot/commit/e2164cd268bd2abe811c52469c7e139231670910))
 * set required bot permissions in discord client ([#324](https://github.com/Deepwerks/discord-bot/issues/324)) ([33337c6](https://github.com/Deepwerks/discord-bot/commit/33337c6b3482145af79110cec8960e82074d30ea))
