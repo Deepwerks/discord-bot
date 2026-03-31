@@ -20,6 +20,7 @@ import PerformanceTagService, {
 } from '../../services/calculators/PerformanceTagService';
 import getProfile from '../../services/database/repository';
 import { deadlockAvgStatsStore } from '../../services/redis/stores/DeadlockAvgStatsStore';
+import SteamProfile from '../../services/clients/DeadlockClient/services/DeadlockPlayerService/entities/SteamProfile';
 
 const safeAvg = (arr: number[]) =>
   arr.length === 0 ? 0 : arr.reduce((a, b) => a + b, 0) / arr.length;
@@ -113,17 +114,20 @@ export default class Performance extends Command {
     const durationMin = avgDurationMin.toFixed(0);
     const durationSec = (avg('matchDurationS') % 60).toFixed(0);
 
+    const name = isSteamProfile(steamProfile) ? steamProfile.personaName : steamProfile.name;
+    const avatarUrl = isSteamProfile(steamProfile) ? steamProfile.avatar : steamProfile.avatarUrl;
+
     const embed = new EmbedBuilder()
       .setColor('#2f3136')
       .setTitle(t('commands.performance.title'))
       .setDescription(
         t('commands.performance.description', {
-          name: escapeMarkdown(steamProfile.name || 'Player'),
+          name: escapeMarkdown(name || 'Player'),
           id: steamProfile.accountId,
           count: matches.length,
         })
       )
-      .setThumbnail(steamProfile.avatarUrl)
+      .setThumbnail(avatarUrl)
       .addFields(
         {
           name: t('commands.performance.tags_label'),
@@ -205,4 +209,9 @@ export default class Performance extends Command {
       });
     }
   }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isSteamProfile(obj: any): obj is SteamProfile {
+  return obj && typeof obj.personaName === 'string';
 }
