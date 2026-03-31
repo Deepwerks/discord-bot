@@ -117,35 +117,36 @@ export default class StatlockerProfileService extends BaseClientService {
     });
   }
 
-  async SearchProfile(username: string) {
-    try {
-      logger.info(`[API CALL] Searching for statlocker profiles...`);
+  // DEPRECATED
+  // async SearchProfile(username: string) {
+  //   try {
+  //     logger.info(`[API CALL] Searching for statlocker profiles...`);
 
-      const response = await this.client.request(
-        'GET',
-        `/api/profile/search-profiles/${username}`,
-        {
-          schema: z.array(StatlockerProfileSchema),
-        }
-      );
+  //     const response = await this.client.request(
+  //       'GET',
+  //       `/api/profile/search-profiles/${username}`,
+  //       {
+  //         schema: z.array(StatlockerProfileSchema),
+  //       }
+  //     );
 
-      const profiles = response.map((profile) => {
-        const _profile = new StatlockerProfile(profile);
+  //     const profiles = response.map((profile) => {
+  //       const _profile = new StatlockerProfile(profile);
 
-        this.cache.set(String(_profile.accountId), _profile);
-        return _profile;
-      });
+  //       this.cache.set(String(_profile.accountId), _profile);
+  //       return _profile;
+  //     });
 
-      return profiles;
-    } catch (error) {
-      logger.error('Failed to fetch statlocker profile', {
-        username,
-        error: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined,
-        misc: hasMiscProperty(error) ? error.misc : undefined,
-      });
+  //     return profiles;
+  //   } catch (error) {
+  //     logger.error('Failed to fetch statlocker profile', {
+  //       username,
+  //       error: error instanceof Error ? error.message : error,
+  //       stack: error instanceof Error ? error.stack : undefined,
+  //       misc: hasMiscProperty(error) ? error.misc : undefined,
+  //     });
 
-      return null;
-    }
-  }
+  //     return null;
+  //   }
+  // }
 }
