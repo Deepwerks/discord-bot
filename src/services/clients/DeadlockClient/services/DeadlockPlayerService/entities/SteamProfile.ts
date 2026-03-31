@@ -15,7 +15,7 @@ export default class SteamProfile {
     return this.data.countrycode;
   }
 
-  get lastUpdated(): string {
+  get lastUpdated(): number {
     return this.data.last_updated;
   }
 

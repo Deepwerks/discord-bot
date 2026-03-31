@@ -4,7 +4,7 @@ const SteamProfileSchema = z.object({
   account_id: z.number(),
   avatar: z.string(),
   countrycode: z.string().nullable(),
-  last_updated: z.string().datetime(),
+  last_updated: z.number(),
   personaname: z.string(),
   profileurl: z.string(),
   realname: z.string().nullable(),
