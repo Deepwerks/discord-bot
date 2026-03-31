@@ -4,7 +4,8 @@
 ### Bug Fixes
 
 * api key auth on statlocker client ([#330](https://github.com/Deepwerks/discord-bot/issues/330)) ([d9be90c](https://github.com/Deepwerks/discord-bot/commit/d9be90c4397c0baa81b1a4aa3d04147c66dfe39b))
-* search build ([6de30d5](https://github.com/Deepwerks/discord-bot/commit/6de30d50151c35f07cf59d72a0c7e235a4fed4f4))
+* date to number in schema ([ffe3a50](https://github.com/Deepwerks/discord-bot/commit/ffe3a506d2b8bd6ec0dd50d3a203cd53a3c16679))
+* search build ([#335](https://github.com/Deepwerks/discord-bot/issues/335)) ([8350152](https://github.com/Deepwerks/discord-bot/commit/83501521b4b0bf1533fb895abc9e015e3d6f85c6))
 
 
 ### Features
