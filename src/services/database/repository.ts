@@ -86,11 +86,11 @@ export default async function getProfile(
       throw new CommandError(t('errors.steam_profile_not_found'));
     }
 
-    if (foundProfiles.length === 1) {
-      return { steamProfile: foundProfiles[0], steamAuthNeeded };
-    }
+    steamProfile = await useStatlockerClient.ProfileService.GetProfile(foundProfiles[0].accountId);
 
-    steamProfile = foundProfiles[0];
+    if (!steamProfile) {
+      throw new CommandError(t('errors.steam_profile_not_found'));
+    }
   }
 
   return { steamProfile, steamAuthNeeded };
